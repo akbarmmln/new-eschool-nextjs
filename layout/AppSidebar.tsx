@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,7 @@ const AppSidebar: React.FC = () => {
 
   const {
     isExpanded,
+    isMobile,
     isMobileOpen,
     isHovered,
     setIsHovered,
@@ -29,6 +30,18 @@ const AppSidebar: React.FC = () => {
     data,
     isLoading: loadingCardProfile,
   } = useProfile()
+
+  useEffect(() => {
+    if (isMobile && isMobileOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+
+    return () => {
+       document.body.style.overflow = 'auto'
+    }
+  }, [isMobileOpen, isMobile])
 
   const [showTooltip, setShowTooltip] = useState(false)
 
