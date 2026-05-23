@@ -58,11 +58,7 @@ const AppSidebar: React.FC = () => {
       }} >
 
       {/* LOGO */}
-      <div
-        className={`py-8 flex ${!isExpanded && !isHovered
-            ? "lg:justify-center"
-            : "justify-start"
-          }`} >
+      <div  className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`} >
         <Link href="/">
           {isExpanded ||
             isHovered ||
@@ -353,36 +349,108 @@ const AppSidebar: React.FC = () => {
                   onMouseLeave={() => setShowTooltip(false)}
                 >
 
-                  {/* TOOLTIP */}
-                  <div
-                    className={`absolute top-[-52px] left-1/2 -translate-x-1/2 px-3 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap bg-gray-900 text-white shadow-xl transition-all duration-200
-                      ${showTooltip ? "opacity-100 visible" : "opacity-0 invisible"
-                      }
-                    `} >
+{/* TOOLTIP */}
+<div
+  className={`
+    absolute
+    top-[-52px]
+    left-1/2
+    -translate-x-1/2
 
-                    Logout
+    px-3
+    py-2
+    rounded-xl
+    text-[13px]
+    font-medium
+    whitespace-nowrap
 
-                    <div
-                      className=" absolute bottom-[-5px] left-1/2 -translate-x-1/2 rotate-45 w-[10px] h-[10px] bg-gray-900"
-                    />
-                  </div>
+    shadow-xl
+    border
 
-                  {/* BUTTON */}
-                  <button
-                    onClick={() => {
-                      sessionStorage.removeItem("access-token");
-                      window.location.href = "/akademik/login";
-                    }}
-                    className="w-[42px] h-[42px] rounded-xl flex items-center justify-center transition-all duration-200 bg-gray-100 text-gray-500 hover:bg-red-500 hover:text-white dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-red-500 dark:hover:text-white" >
+    transition-all
+    duration-200
 
-                    <i
-                      className="ri-logout-circle-r-line"
-                      style={{
-                        fontSize: 22,
-                      }}
-                    />
-                  </button>
-                </div>
+    ${
+      showTooltip
+        ? "opacity-100 visible"
+        : "opacity-0 invisible"
+    }
+
+    bg-white
+    text-gray-800
+    border-gray-200
+
+    dark:bg-gray-800
+    dark:text-white
+    dark:border-gray-700
+  `}
+>
+  Logout
+
+  {/* ARROW */}
+  <div
+    className="
+      absolute
+      bottom-[-5px]
+      left-1/2
+      -translate-x-1/2
+      rotate-45
+
+      w-[10px]
+      h-[10px]
+
+      bg-white
+      border-r
+      border-b
+      border-gray-200
+
+      dark:bg-gray-800
+      dark:border-gray-700
+    "
+  />
+</div>
+
+{/* BUTTON */}
+<button
+  onClick={() => {
+    sessionStorage.removeItem("access-token");
+    window.location.href = "/akademik/login";
+  }}
+  className="
+    w-[35px]
+    h-[35px]
+    rounded-2xl
+
+    flex
+    items-center
+    justify-center
+
+    transition-all
+    duration-300
+
+    bg-red-500
+    text-white
+
+    hover:bg-red-600
+    hover:scale-105
+
+    shadow-lg
+    shadow-red-500/20
+
+    dark:bg-red-500
+    dark:hover:bg-red-400
+    dark:shadow-red-500/30
+  "
+>
+
+  <i
+    className="ri-logout-circle-r-line"
+    style={{
+      fontSize: 28,
+    }}
+  />
+
+</button>                </div>
               )}
             </div>
           )}
