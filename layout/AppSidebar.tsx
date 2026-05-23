@@ -47,7 +47,7 @@ const AppSidebar: React.FC = () => {
       }
       lg:translate-x-0`
     }
-      
+
       onMouseEnter={() => {
         if (!isExpanded) {
           setIsHovered(true);
@@ -58,34 +58,48 @@ const AppSidebar: React.FC = () => {
       }} >
 
       {/* LOGO */}
-      <div  className={`py-8 flex ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`} >
-        <Link href="/">
-          {isExpanded ||
-            isHovered ||
-            isMobileOpen ? (
-            <>
-              <Image
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
+      <div className={`h-[80px] flex items-center ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`} >
 
-              <Image
-                className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
+        <Link href="/" className="flex items-center" >
+
+          {isExpanded || isHovered || isMobileOpen ? (
+            <>
+            <Image
+              className="dark:hidden"
+              src="/images/logo/logo_tp_expand.png"
+              alt="logo"
+              width={280}
+              height={80}
+              priority
+              style={{
+                width: "100%",
+                maxWidth: 280,
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
+
+            <Image
+              className="hidden dark:block"
+              src="/images/logo/logo_tp_expand.png"
+              alt="logo"
+              width={280}
+              height={80}
+              priority
+              style={{
+                width: "100%",
+                maxWidth: 280,
+                height: "auto",
+                objectFit: "contain",
+              }}
+            />
             </>
           ) : (
             <Image
-              src="/images/logo/logo-icon.svg"
+              src="/images/logo/logo_tp.png"
               alt="Logo"
-              width={32}
-              height={32}
+              width={40}
+              height={40}
             />
           )}
         </Link>
@@ -97,7 +111,7 @@ const AppSidebar: React.FC = () => {
           overflow: "hidden",
         }} >
 
-        <nav className="flex-1 overflow-y-auto overscroll-contain no-scrollbar pr-1" style={{ minHeight: 0 }} >
+        <nav className="flex-1 overflow-y-auto overscroll-contain no-scrollbar pr-1 py-4" style={{ minHeight: 0 }} >
           <div>
             <h2
               className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${!isExpanded && !isHovered
@@ -108,13 +122,13 @@ const AppSidebar: React.FC = () => {
               {isExpanded ||
                 isHovered ||
                 isMobileOpen ? (
-                "Menu"
+                "MENU"
               ) : (
                 <HorizontaLDots />
               )}
             </h2>
 
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col gap-4">
               {/* LOADING */}
               {isLoading && Array.from({ length: 6 }).map((_, index) => {
                 const collapsed = !isExpanded;
@@ -255,7 +269,7 @@ const AppSidebar: React.FC = () => {
                   <Link
                     key={menu.href}
                     href={menu.href}
-                    className={`h-[45px] rounded-xl mb-1 flex items-center gap-3 transition-all duration-200 flex-shrink-0 ${active ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : `text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800`}`}
+                    className={`h-[45px] rounded-xl mb-1 flex items-center gap-3 transition-all duration-200 flex-shrink-0 ${active ? "menu-item-active" : "menu-item-inactive"}`}
                     style={{
                       padding: isMobile ? "0 16px" : collapsed && !hovered ? "0" : "0 16px",
                       justifyContent: isMobile ? "flex-start" : collapsed && !hovered ? "center" : "flex-start",
@@ -275,7 +289,7 @@ const AppSidebar: React.FC = () => {
 
                     {/* TEXT */}
                     {(isMobile || !collapsed || hovered) && (
-                      <span className={`text-[15px] tracking-[-0.2px] whitespace-nowrap ${active ? "font-semibold" : "font-medium" }`} >
+                      <span className={`text-[15px] tracking-[-0.2px] whitespace-nowrap ${active ? "font-semibold" : "font-medium"}`} >
                         {menu.name}
                       </span>
                     )}
@@ -346,111 +360,35 @@ const AppSidebar: React.FC = () => {
                 <div
                   className="relative flex items-center"
                   onMouseEnter={() => setShowTooltip(true)}
-                  onMouseLeave={() => setShowTooltip(false)}
-                >
+                  onMouseLeave={() => setShowTooltip(false)} >
 
-{/* TOOLTIP */}
-<div
-  className={`
-    absolute
-    top-[-52px]
-    left-1/2
-    -translate-x-1/2
+                  {/* TOOLTIP */}
+                  <div
+                    className={`absolute top-[-52px] left-1/2 -translate-x-1/2 px-3 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap shadow-xl border
+                      transition-all duration-200 ${showTooltip ? "opacity-100 visible" : "opacity-0 invisible"} bg-white text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-white dark:border-gray-700
+                    `} >
+                    Logout
 
-    px-3
-    py-2
-    rounded-xl
-    text-[13px]
-    font-medium
-    whitespace-nowrap
+                    {/* ARROW */}
+                    <div className=" absolute bottom-[-5px] left-1/2 -translate-x-1/2 rotate-45 w-[10px] h-[10px] bg-white border-r border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 " />
+                  </div>
 
-    shadow-xl
-    border
+                  {/* BUTTON */}
+                  <button
+                    onClick={() => {
+                      sessionStorage.removeItem("access-token");
+                      window.location.href = "/akademik/login";
+                    }}
+                    className=" w-[35px] h-[35px] rounded-2xl flex items-center justify-center transition-all duration-300 bg-red-500 text-white hover:bg-red-600 hover:scale-105 shadow-lg shadow-red-500/20 dark:bg-red-500 dark:hover:bg-red-400 dark:shadow-red-500/30" >
 
-    transition-all
-    duration-200
-
-    ${
-      showTooltip
-        ? "opacity-100 visible"
-        : "opacity-0 invisible"
-    }
-
-    bg-white
-    text-gray-800
-    border-gray-200
-
-    dark:bg-gray-800
-    dark:text-white
-    dark:border-gray-700
-  `}
->
-  Logout
-
-  {/* ARROW */}
-  <div
-    className="
-      absolute
-      bottom-[-5px]
-      left-1/2
-      -translate-x-1/2
-      rotate-45
-
-      w-[10px]
-      h-[10px]
-
-      bg-white
-      border-r
-      border-b
-      border-gray-200
-
-      dark:bg-gray-800
-      dark:border-gray-700
-    "
-  />
-</div>
-
-{/* BUTTON */}
-<button
-  onClick={() => {
-    sessionStorage.removeItem("access-token");
-    window.location.href = "/akademik/login";
-  }}
-  className="
-    w-[35px]
-    h-[35px]
-    rounded-2xl
-
-    flex
-    items-center
-    justify-center
-
-    transition-all
-    duration-300
-
-    bg-red-500
-    text-white
-
-    hover:bg-red-600
-    hover:scale-105
-
-    shadow-lg
-    shadow-red-500/20
-
-    dark:bg-red-500
-    dark:hover:bg-red-400
-    dark:shadow-red-500/30
-  "
->
-
-  <i
-    className="ri-logout-circle-r-line"
-    style={{
-      fontSize: 28,
-    }}
-  />
-
-</button>                </div>
+                    <i
+                      className="ri-logout-circle-r-line"
+                      style={{
+                        fontSize: 28,
+                      }}
+                    />
+                  </button>
+                </div>
               )}
             </div>
           )}
