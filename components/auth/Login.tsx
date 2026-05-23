@@ -79,7 +79,7 @@ export default function Login() {
       await showAlert({
         icon: "warning",
         title: "Login tidak valid",
-        text: errCode === 70005 ? message : 'Terjadi kesalahan saat login. Silahkan coba kembali beberapa saat lagi',
+        text: errCode === '70005' ? message : 'Terjadi kesalahan saat login. Silahkan coba kembali beberapa saat lagi',
       });
     } finally {
       setLoading(false);
