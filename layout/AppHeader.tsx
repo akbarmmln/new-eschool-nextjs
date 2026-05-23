@@ -85,19 +85,33 @@ const AppHeader: React.FC = () => {
 
           <Link href="/" className="lg:hidden">
             <Image
-              width={154}
-              height={32}
               className="dark:hidden"
-              src="./images/logo/logo.svg"
-              alt="Logo"
+              src="/images/logo/logo_tp_expand.png"
+              alt="logo"
+              width={250}
+              height={80}
+              priority
+              style={{
+                width: "100%",
+                maxWidth: 250,
+                height: "auto",
+                objectFit: "contain",
+              }}
             />
             <Image
-              width={154}
-              height={32}
               className="hidden dark:block"
-              src="./images/logo/logo-dark.svg"
-              alt="Logo"
-            />
+              src="/images/logo/logo_tp_expand.png"
+              alt="logo"
+              width={250}
+              height={80}
+              priority
+              style={{
+                width: "100%",
+                maxWidth: 250,
+                height: "auto",
+                objectFit: "contain",
+              }}
+            /> 
           </Link>
 
           <button

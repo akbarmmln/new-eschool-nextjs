@@ -62,9 +62,7 @@ export default function Providers({
 }) {
   return (
     <QueryClientProvider client={queryClient} >
-      <RouteProvider>
-        {children}
-      </RouteProvider>
+      {children}
     </QueryClientProvider>
   )
 }

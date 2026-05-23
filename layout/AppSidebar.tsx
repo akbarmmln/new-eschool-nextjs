@@ -64,52 +64,58 @@ const AppSidebar: React.FC = () => {
       }} >
 
       {/* LOGO */}
-      <div className={`h-[80px] flex items-center ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`} >
+      <div
+        className={`h-[30px] lg:h-[80px] flex items-center ${
+  !isExpanded && !isHovered
+    ? "lg:justify-center"
+    : "justify-start"
+}`}
+      >
+        {/* HIDE LOGO SAAT MOBILE SIDEBAR OPEN */}
+        {!isMobileOpen && (
+          <Link href="/" className="flex items-center">
+            {isExpanded || isHovered ? (
+              <>
+                <Image
+                  className="dark:hidden"
+                  src="/images/logo/logo_tp_expand.png"
+                  alt="logo"
+                  width={280}
+                  height={80}
+                  priority
+                  style={{
+                    width: "100%",
+                    maxWidth: 280,
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
 
-        <Link
-          href="/" className="flex items-center" >
-
-          {isExpanded || isHovered || isMobileOpen ? (
-            <>
-            <Image
-              className="dark:hidden"
-              src="/images/logo/logo_tp_expand.png"
-              alt="logo"
-              width={280}
-              height={80}
-              priority
-              style={{
-                width: "100%",
-                maxWidth: 280,
-                height: "auto",
-                objectFit: "contain",
-              }}
-            />
-
-            <Image
-              className="hidden dark:block"
-              src="/images/logo/logo_tp_expand.png"
-              alt="logo"
-              width={280}
-              height={80}
-              priority
-              style={{
-                width: "100%",
-                maxWidth: 280,
-                height: "auto",
-                objectFit: "contain",
-              }}
-            />
-            </>
-          ) : (
-            <Image
-              src="/images/logo/logo_tp.png"
-              alt="Logo"
-              width={40}
-              height={40}
-            />
-          )}
-        </Link>
+                <Image
+                  className="hidden dark:block"
+                  src="/images/logo/logo_tp_expand.png"
+                  alt="logo"
+                  width={280}
+                  height={80}
+                  priority
+                  style={{
+                    width: "100%",
+                    maxWidth: 280,
+                    height: "auto",
+                    objectFit: "contain",
+                  }}
+                />
+              </>
+            ) : (
+              <Image
+                src="/images/logo/logo_tp.png"
+                alt="Logo"
+                width={40}
+                height={40}
+              />
+            )}
+          </Link>
+        )}
       </div>
 
       {/* MENU */}
