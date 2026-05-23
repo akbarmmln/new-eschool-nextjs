@@ -63,7 +63,6 @@ const AppSidebar: React.FC = () => {
             ? "lg:justify-center"
             : "justify-start"
           }`} >
-            
         <Link href="/">
           {isExpanded ||
             isHovered ||
@@ -260,20 +259,10 @@ const AppSidebar: React.FC = () => {
                   <Link
                     key={menu.href}
                     href={menu.href}
+                    className={`h-[45px] rounded-xl mb-1 flex items-center gap-3 transition-all duration-200 flex-shrink-0 ${active ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : `text-gray-900 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800`}`}
                     style={{
-                      height: 45,
-                      borderRadius: 12,
-                      marginBottom: 1,
-                      display: "flex",
-                      alignItems: "center",
                       padding: isMobile ? "0 16px" : collapsed && !hovered ? "0" : "0 16px",
                       justifyContent: isMobile ? "flex-start" : collapsed && !hovered ? "center" : "flex-start",
-                      gap: 12,
-                      textDecoration: "none",
-                      background: active ? "#5b8def" : "transparent",
-                      color: active ? "#ffffff" : "#111827",
-                      transition: "all .2s ease",
-                      flexShrink: 0,
                     }} >
 
                     {/* ICON */}
@@ -289,19 +278,11 @@ const AppSidebar: React.FC = () => {
                     />
 
                     {/* TEXT */}
-                    {(isMobile ||
-                      !collapsed ||
-                      hovered) && (
-                        <span
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 400,
-                            letterSpacing: "-0.2px",
-                            whiteSpace: "nowrap",
-                          }} >
-                          {menu.name}
-                        </span>
-                      )}
+                    {(isMobile || !collapsed || hovered) && (
+                      <span className={`text-[15px] tracking-[-0.2px] whitespace-nowrap ${active ? "font-semibold" : "font-medium" }`} >
+                        {menu.name}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -311,259 +292,98 @@ const AppSidebar: React.FC = () => {
 
         {/* PROFILE CARD */}
         <div
+          className=" sticky bottom-0 z-20 pt-4 pb-5 flex-shrink-0 bg-white dark:bg-gray-900"
           style={{
-            paddingTop: 16,
             paddingBottom: isMobileOpen ? 90 : 20,
-            flexShrink: 0,
-            background: "#fff",
-            position: "sticky",
-            bottom: 0,
-            zIndex: 20,
           }} >
 
           {(isMobileOpen || isExpanded || isHovered) && (
-            <div
-              style={{
-                marginTop: "auto",
-                paddingTop: 16,
-                paddingBottom: 20,
-                flexShrink: 0,
-              }} >
+            <div className=" rounded-2xl border p-4 flex items-center justify-between gap-3 border-gray-200 bg-gradient-to-b from-slate-50 to-indigo-50 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900 shadow-sm" >
 
+              {/* LEFT */}
               <div
-                style={{
-                  background: "linear-gradient(180deg,#f8fafc,#eef2ff)",
-                  border: "1px solid rgba(203,213,225,0.7)",
-                  borderRadius: 15,
-                  padding: 14,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  boxShadow: "0 4px 18px rgba(15,23,42,0.04)",
-                }} >
+                className="flex items-center gap-3 min-w-0 flex-1" >
 
-                {/* LEFT */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    minWidth: 0,
-                    flex: 1,
-                  }} >
+                {/* AVATAR */}
+                {loadingCardProfile ? (
+                  <div className="w-[54px] h-[54px] rounded-full bg-gray-300 dark:bg-gray-700 animate-pulse flex-shrink-0" />
+                ) : (
+                  <img
+                    src="/assets/img/avatars/1.png"
+                    alt="avatar"
+                    className=" w-[52px] h-[52px] rounded-full object-cover flex-shrink-0 border-2 border-white dark:border-gray-700 shadow-md"
+                  />
+                )}
 
-                  {/* AVATAR */}
+                {/* NAME + ROLE */}
+                <div className="min-w-0 flex-1">
+
+                  {/* NAME */}
                   {loadingCardProfile ? (
                     <div
-                      style={{
-                        width: 54,
-                        height: 54,
-                        borderRadius: '999px',
-                        background: '#cbd5e1',
-                        animation: 'pulse 1.5s ease-in-out infinite',
-                        flexShrink: 0,
-                      }}
+                      className=" w-[100px] h-[18px] rounded-lg bg-gray-300 dark:bg-gray-700 animate-pulse"
                     />
                   ) : (
-                    <img
-                      src='/assets/img/avatars/1.png'
-                      alt="avatar"
+                    <div
+                      className=" text-[15px] font-semibold leading-[1.3] truncate text-gray-900 dark:text-white"
                       style={{
-                        width: 52,
-                        height: 52,
-                        borderRadius: "999px",
-                        objectFit: "cover",
-                        flexShrink: 0,
-                        border: "2px solid #fff",
-                        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                      }}
-                    />
+                        fontFamily: "Didot",
+                      }} >
+                      {data?.nama || ""}
+                    </div>
                   )}
 
-                  {/* NAME + ROLE */}
-                  <div
-                    style={{
-                      minWidth: 0,
-                      flex: 1,
-                    }} >
-
-                    {/* NAME */}
-                    {loadingCardProfile ? (
-                      <div
-                        style={{
-                          width: 100,
-                          height: 18,
-                          borderRadius: 8,
-                          background: '#cbd5e1',
-                          animation: 'pulse 1.5s ease-in-out infinite',
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: 600,
-                          color: "#111827",
-                          lineHeight: 1.3,
-                          fontFamily: 'Didot',
-                        }} >
-                        {data?.nama || ''}
-                      </div>
-                    )}
-
-                    {/* ROLE */}
-                    {loadingCardProfile ? (
-                      <div
-                        style={{
-                          marginTop: 8,
-                          width: 100,
-                          height: 14,
-                          borderRadius: 8,
-                          background: '#cbd5e1',
-                          animation: 'pulse 1.5s ease-in-out infinite',
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          marginTop: 4,
-                          fontSize: 13,
-                          fontWeight: 400,
-                          color: "#6b7280",
-                        }} >
-                        Administrator
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* RIGHT */}
-                {!loadingCardProfile && (
-                  <div
-                    style={{
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                    onMouseEnter={() =>
-                      setShowTooltip(true)
-                    }
-                    onMouseLeave={() =>
-                      setShowTooltip(false)
-                    } >
-
-                    {/* TOOLTIP */}
+                  {/* ROLE */}
+                  {loadingCardProfile ? (
+                    <div className=" mt-2 w-[100px] h-[14px] rounded-lg bg-gray-300 dark:bg-gray-700 animate-pulse" />
+                  ) : (
                     <div
-                      style={{
-                        position: "absolute",
-                        top: -52,
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        background: "#111827",
-                        color: "#fff",
-                        padding: "8px 14px",
-                        borderRadius: 10,
-                        fontSize: 13,
-                        fontWeight: 500,
-                        whiteSpace: "nowrap",
-                        opacity: showTooltip ? 1 : 0,
-                        visibility: showTooltip ? "visible" : "hidden",
-                        transition: "all .2s ease",
-                        pointerEvents: "none",
-                        boxShadow: "0 10px 25px rgba(0,0,0,.12)",
-                        zIndex: 100,
-                      }} >
-                      Logout
-                      {/* ARROW */}
-                      <div
-                        style={{
-                          position: "absolute",
-
-                          bottom: -5,
-
-                          left: "50%",
-
-                          transform:
-                            "translateX(-50%) rotate(45deg)",
-
-                          width: 10,
-
-                          height: 10,
-
-                          background:
-                            "#111827",
-                        }}
-                      />
-
+                      className=" mt-1 text-[13px] text-gray-500 dark:text-gray-400" >
+                      Administrator
                     </div>
-
-                    {/* BUTTON */}
-                    <button
-                      onClick={() => {
-
-                        sessionStorage.removeItem(
-                          "access-token"
-                        );
-
-                        window.location.href =
-                          "/akademik/login";
-
-                      }}
-                      style={{
-                        width: 42,
-
-                        height: 42,
-
-                        border: "none",
-
-                        borderRadius: 12,
-
-                        background:
-                          "rgba(148,163,184,0.08)",
-
-                        color: "#64748b",
-
-                        cursor: "pointer",
-
-                        flexShrink: 0,
-
-                        display: "flex",
-
-                        alignItems: "center",
-
-                        justifyContent: "center",
-
-                        transition:
-                          "all .2s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background =
-                          "#ef4444";
-
-                        e.currentTarget.style.color =
-                          "#fff";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background =
-                          "rgba(148,163,184,0.08)";
-
-                        e.currentTarget.style.color =
-                          "#64748b";
-                      }}
-                    >
-
-                      <i
-                        className="ri-logout-circle-r-line"
-                        style={{
-                          fontSize: 22,
-                        }}
-                      />
-
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
+
+              {/* RIGHT */}
+              {!loadingCardProfile && (
+                <div
+                  className="relative flex items-center"
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+
+                  {/* TOOLTIP */}
+                  <div
+                    className={`absolute top-[-52px] left-1/2 -translate-x-1/2 px-3 py-2 rounded-xl text-[13px] font-medium whitespace-nowrap bg-gray-900 text-white shadow-xl transition-all duration-200
+                      ${showTooltip ? "opacity-100 visible" : "opacity-0 invisible"
+                      }
+                    `} >
+
+                    Logout
+
+                    <div
+                      className=" absolute bottom-[-5px] left-1/2 -translate-x-1/2 rotate-45 w-[10px] h-[10px] bg-gray-900"
+                    />
+                  </div>
+
+                  {/* BUTTON */}
+                  <button
+                    onClick={() => {
+                      sessionStorage.removeItem("access-token");
+                      window.location.href = "/akademik/login";
+                    }}
+                    className="w-[42px] h-[42px] rounded-xl flex items-center justify-center transition-all duration-200 bg-gray-100 text-gray-500 hover:bg-red-500 hover:text-white dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-red-500 dark:hover:text-white" >
+
+                    <i
+                      className="ri-logout-circle-r-line"
+                      style={{
+                        fontSize: 22,
+                      }}
+                    />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
