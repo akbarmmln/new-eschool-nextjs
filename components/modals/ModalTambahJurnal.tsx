@@ -287,54 +287,6 @@ export default function ModalTambahJurnal({
           color: #1e293b;
         }
 
-        .input-icon {
-          position: relative;
-        }
-
-        .input-icon input,
-        .input-icon select {
-          width: 100%;
-          height: 56px;
-
-          border: 1px solid #dbe1ea;
-          border-radius: 12px;
-
-          background: #ffffff;
-
-          padding: 0 52px 0 18px;
-
-          font-size: 16px;
-          font-weight: 500;
-
-          color: #1e293b;
-          outline: none;
-
-          transition: all 0.2s ease;
-        }
-
-        .input-icon input::placeholder {
-          color: #94a3b8;
-        }
-
-        .input-icon input:focus,
-        .input-icon select:focus {
-          border-color: #5b7fff;
-          box-shadow: 0 0 0 3px rgba(91, 127, 255, 0.12);
-        }
-
-        .input-icon i {
-          position: absolute;
-          top: 50%;
-          right: 18px;
-
-          transform: translateY(-50%);
-
-          font-size: 20px;
-          color: #64748b;
-
-          pointer-events: none;
-        }
-
         .time-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
