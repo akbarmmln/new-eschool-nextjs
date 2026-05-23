@@ -60,7 +60,8 @@ const AppSidebar: React.FC = () => {
       {/* LOGO */}
       <div className={`h-[80px] flex items-center ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}`} >
 
-        <Link href="/" className="flex items-center" >
+        <Link
+          href="/" className="flex items-center" >
 
           {isExpanded || isHovered || isMobileOpen ? (
             <>
