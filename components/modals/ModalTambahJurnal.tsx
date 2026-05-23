@@ -161,78 +161,109 @@ export default function ModalTambahJurnal({
           </div>
         </div>
       </div>
-
-      <style jsx>{`
+      <style jsx>
+      {`
         .modal-backdrop {
           position: fixed;
           inset: 0;
-          background: rgba(17,24,39,.45);
-          backdrop-filter: blur(6px);
+
+          z-index: 999999;
+
           display: flex;
           align-items: center;
           justify-content: center;
-          z-index: 9999;
-          font-family: 'font-plus-jakarta';
+
+          background: rgba(17, 24, 39, 0.45);
+          backdrop-filter: blur(6px);
         }
 
         .modal-card {
-          scroll-behavior: auto;
-          width: min(920px, 92vw);
-          max-width: 980px;
+          position: relative;
+          z-index: 1000000;
+          width: min(900px, 92vw);
           max-height: 95vh;
-          border-radius: 15px;
-          background: #fff;
-          box-shadow: 0 25px 60px rgba(0,0,0,.18);
+
           display: flex;
           flex-direction: column;
+
           overflow: hidden;
+
+          border-radius: 16px;
+          background: #ffffff;
+
+          box-shadow: 0 25px 60px rgba(0, 0, 0, 0.18);
         }
 
         .modal-header {
-          min-height: 72px;
-          padding: 0 34px;
+          height: 72px;
+          padding: 0 28px;
+
           display: flex;
           align-items: center;
           justify-content: space-between;
-          border-bottom: 1px solid #e5e7eb;
-          background: #fff;
-          position: sticky;
-          top: 0;
-          z-index: 20;
+
           flex-shrink: 0;
+
+          border-bottom: 1px solid rgba(255,255,255,.15);
+
+          background: linear-gradient(
+            90deg,
+            #4f8cff 0%,
+            #5b7fff 50%,
+            #696cff 100%
+          );
+
+          position: relative;
         }
 
         .modal-header h1 {
           margin: 0;
-          font-size: clamp(20px, 4vw, 22px);
+
+          font-size: 22px;
           font-weight: 700;
-          color: #1e293b;
+          line-height: 1.2;
+
+          color: #ffffff;
         }
 
         .close-btn {
-          width: 35px;
-          height: 35px;
-          border-radius: 999px;
+          width: 40px;
+          height: 40px;
+
           border: none;
-          background: #9ca3af;
-          color: #fff;
-          cursor: pointer;
+          border-radius: 999px;
+
           display: flex;
           align-items: center;
           justify-content: center;
+
+          background: rgba(255,255,255,.2);
+          backdrop-filter: blur(6px);
+
+          color: #ffffff;
+
+          cursor: pointer;
+          transition: all .2s ease;
+        }
+
+        .close-btn:hover {
+          background: rgba(255,255,255,.3);
         }
 
         .close-btn i {
-          font-size: 20px;
+          font-size: 22px;
         }
 
         .modal-body {
+          flex: 1;
+
+          overflow-y: auto;
           overscroll-behavior: contain;
-           padding: 24px;
-           overflow-y: auto;
-           flex: 1;
-           scrollbar-width: none;
-           -ms-overflow-style: none;
+
+          padding: 24px;
+
+          scrollbar-width: none;
+          -ms-overflow-style: none;
         }
 
         .modal-body::-webkit-scrollbar {
@@ -242,99 +273,164 @@ export default function ModalTambahJurnal({
         .form-group {
           display: flex;
           flex-direction: column;
-          margin-bottom: 15px;
+
+          margin-bottom: 20px;
         }
 
         .form-group label {
-          margin-bottom: 14px;
-          font-size: 18px;
+          margin-bottom: 10px;
+
+          font-size: 16px;
+          font-weight: 600;
+          line-height: 1.4;
+
           color: #1e293b;
         }
 
-        .input-modern {
+        .input-icon {
+          position: relative;
+        }
+
+        .input-icon input,
+        .input-icon select {
           width: 100%;
-          height: 55px;
-          border-radius: 10px;
+          height: 56px;
+
           border: 1px solid #dbe1ea;
-          background: #fff;
-          padding: 0 58px 0 22px;
-          font-size: 18px;
+          border-radius: 12px;
+
+          background: #ffffff;
+
+          padding: 0 52px 0 18px;
+
+          font-size: 16px;
           font-weight: 500;
+
           color: #1e293b;
           outline: none;
-          transition: all .2s ease;
+
+          transition: all 0.2s ease;
         }
 
-        .input-modern:focus {
+        .input-icon input::placeholder {
+          color: #94a3b8;
+        }
+
+        .input-icon input:focus,
+        .input-icon select:focus {
           border-color: #5b7fff;
-          box-shadow: 0 0 0 3px rgba(91,127,255,.12);
+          box-shadow: 0 0 0 3px rgba(91, 127, 255, 0.12);
+        }
+
+        .input-icon i {
+          position: absolute;
+          top: 50%;
+          right: 18px;
+
+          transform: translateY(-50%);
+
+          font-size: 20px;
+          color: #64748b;
+
+          pointer-events: none;
         }
 
         .time-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 24px;
+          gap: 20px;
         }
 
         .editor-box {
-          border: 1px solid #dbe1ea;
-          border-radius: 10px;
           overflow: hidden;
-          background: #fff;
+
+          border: 1px solid #dbe1ea;
+          border-radius: 12px;
+
+          background: #ffffff;
         }
 
         .editor-toolbar {
-          min-height: 52px;
-          border-bottom: 1px solid #e5e7eb;
+          min-height: 54px;
+
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 20px;
+
+          gap: 16px;
           flex-wrap: wrap;
+
+          border-bottom: 1px solid #e5e7eb;
         }
 
         .toolbar-left,
         .toolbar-right {
           display: flex;
           align-items: center;
-          gap: 14px;
+          gap: 12px;
         }
 
         .editor-toolbar select {
-          height: 48px;
-          border-radius: 14px;
+          height: 42px;
+
           border: 1px solid #e5e7eb;
+          border-radius: 10px;
+
           padding: 0 14px;
-          font-size: 18px;
+
+          font-size: 14px;
+
+          outline: none;
         }
 
         .editor-toolbar button {
-          width: 42px;
-          height: 42px;
-          border-radius: 12px;
+          width: 38px;
+          height: 38px;
+
           border: none;
+          border-radius: 10px;
+
           background: transparent;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
           cursor: pointer;
-          font-size: 22px;
+
+          font-size: 18px;
           color: #1e293b;
+
+          transition: all 0.2s ease;
+        }
+
+        .editor-toolbar button:hover {
+          background: #f1f5f9;
         }
 
         .footer-action {
           display: flex;
           justify-content: flex-end;
-          gap: 14px;
-          margin-top: 15px;
+          gap: 12px;
+
+          margin-top: 28px;
         }
 
         .btn-cancel,
         .btn-save {
-          height: 35px;
-          padding: 0 26px;
-          border-radius: 10px;
+          height: 44px;
+          min-width: 120px;
+
+          padding: 0 24px;
+
           border: none;
-          font-size: 16px;
+          border-radius: 12px;
+
+          font-size: 15px;
           font-weight: 700;
+
           cursor: pointer;
+          transition: all 0.2s ease;
         }
 
         .btn-cancel {
@@ -342,32 +438,39 @@ export default function ModalTambahJurnal({
           color: #4f46e5;
         }
 
-        .btn-save {
-          background: linear-gradient(90deg,#5b7fff 0%,#696cff 100%);
-          color: #fff;
-          box-shadow: 0 12px 28px rgba(91,127,255,.28);
+        .btn-cancel:hover {
+          background: #e0e7ff;
         }
 
-        @media (max-width: 768px) {       
+        .btn-save {
+          background: linear-gradient(90deg,
+              #5b7fff 0%,
+              #696cff 100%);
+
+          color: #ffffff;
+
+          box-shadow: 0 12px 28px rgba(91, 127, 255, 0.28);
+        }
+
+        .btn-save:hover {
+          transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
           .modal-card {
-
             width: 95vw;
-
             max-height: 92vh;
 
             border-radius: 18px;
           }
-          .input-modern,
-          .input-icon input,
-          .input-icon select {
 
-            height: 52px;
-
-            font-size: 16px;
-          }
           .modal-header {
-            height: auto;
-            padding: 24px;
+            height: 68px;
+            padding: 0 20px;
+          }
+
+          .modal-header h1 {
+            font-size: 20px;
           }
 
           .modal-body {
@@ -376,21 +479,23 @@ export default function ModalTambahJurnal({
 
           .time-grid {
             grid-template-columns: 1fr;
+            gap: 18px;
           }
 
-          .form-group label {
-            font-size: 18px;
+          .form-group {
+            margin-bottom: 18px;
           }
 
           .input-icon input,
           .input-icon select {
-            height: 55px;
-            font-size: 18px;
+            height: 54px;
+
+            font-size: 16px;
           }
 
           textarea {
             min-height: 220px;
-            font-size: 18px;
+            font-size: 16px;
           }
 
           .footer-action {
@@ -402,8 +507,8 @@ export default function ModalTambahJurnal({
             width: 100%;
           }
         }
-
-      `}</style>
+      `}
+      </style>
     </>
   )
 }
