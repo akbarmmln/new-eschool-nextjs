@@ -7,15 +7,17 @@ import JournalEditor from '@/components/common/Editor'
 import CustomDatePicker from '@/components/common/DatePicker'
 
 type Props = {
+  kelas: any[]
   onClose: () => void
 }
 
 export default function ModalTambahJurnal({
+  kelas,
   onClose,
 }: Props) {
   const [materiPembelajaran, setMateriPembelajaran] = useState('')
   const [refleksiPembelajaran, setRefleksiPembelajaran] = useState('')
-
+  console.log('asdasdsaasd', kelas)
   const [
     tanggal,
     setTanggal,
@@ -64,6 +66,14 @@ export default function ModalTambahJurnal({
                   <option>
                     Pilih
                   </option>
+
+                  {
+                    kelas.map((item) => (
+                      <option key={item.id} value={item.id} >
+                        {item.nama_kelas}
+                      </option>
+                    ))
+                  }
                 </select>
 
                 <i className="ri-arrow-down-s-line" />

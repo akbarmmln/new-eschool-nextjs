@@ -1,6 +1,8 @@
 "use client";
 
-import { useProfile, useJurnal } from '@/hooks/query'
+import { useProfile } from '@/hooks/query'
+import { useJurnal } from '@/hooks/queryJurnal'
+import { useListAllKelas } from '@/hooks/queryKelas'
 import {
   useState,
 } from "react";
@@ -14,9 +16,18 @@ export default function DashboardClientAdmin() {
   const { data, isLoading, error } = useProfile();
   const {
     data: dataJurnal,
+    error: errorJurnal,
+    refetch: refetchJurnal,
     isLoading: isLoadingJurnal,
   } = useJurnal(currentPage.toString())
-  console.log('sadassaasd', dataJurnal)
+
+  const {
+    data: dataListAllKelas,
+    error: errorListAllKelas,
+    refetch: refetchListAllKelas,
+    isLoading: isLoadingListAllKelas,
+  } = useListAllKelas()
+
   return (
     <>
       <div className="greeting-card">
@@ -106,9 +117,52 @@ export default function DashboardClientAdmin() {
       {
         openModalTambahJurnal && (
           <ModalTambahJurnal
+            kelas={dataListAllKelas || []}
             onClose={() =>
               setOpenModalTambahJurnal(false)
             }
+          />
+        )
+      }
+
+      {
+        isLoadingJurnal ? (
+          <div className="journal-grid">
+            {
+              Array.from({ length: 3 }).map((_, index) => (
+                <div key={index} className="journal-skeleton" />
+              ))
+            }
+          </div>
+        ) : errorJurnal ? (
+            <div className="journal-error">
+              <div className="journal-error-card">
+                <div className="journal-error-icon">
+                  <i className="ri-error-warning-line" />
+                </div>
+
+                <h2>
+                  Gagal Memuat Jurnal
+                </h2>
+
+                <p>
+                  Terjadi kesalahan saat mengambil data jurnal.
+                </p>
+
+                <button onClick={() => refetchJurnal()} >
+                  <i className="ri-refresh-line" />
+                  <span>
+                    Coba Lagi
+                  </span>
+                </button>
+              </div>
+            </div>
+        ) : (
+          <JournalList
+            data={dataJurnal?.rows || []}
+            currentPage={dataJurnal?.currentPage || 1}
+            totalPage={dataJurnal?.totalPage || 1}
+            onPageChange={setCurrentPage}
           />
         )
       }
@@ -117,15 +171,9 @@ export default function DashboardClientAdmin() {
         style={{
           display: 'grid',
           gap: 24,
+          marginTop: 20,
         }}
       >
-        <JournalList
-          data={dataJurnal?.rows || []}
-          currentPage={dataJurnal?.currentPage || 1}
-          totalPage={dataJurnal?.totalPage || 1}
-          onPageChange={setCurrentPage}
-        />
-
         {/* TOP */}
         <div
           style={{
@@ -243,6 +291,127 @@ export default function DashboardClientAdmin() {
           />
         </div>
       </div>
+
+      <style jsx>
+        {`
+        .journal-error {
+          width: 100%;
+          min-height: 420px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .journal-error-card {
+          width: 100%;
+          max-width: 420px;
+          background: white;
+          border-radius: 15px;
+          padding: 40px 32px;
+          text-align: center;
+          box-shadow: 0 10px 30px rgba(0,0,0,.06);
+        }
+
+        .journal-error-icon {
+          width: 60px;
+          height: 60px;
+          border-radius: 999px;
+          background: rgba(239,68,68,.1);
+          color: #ef4444;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 18px;
+        }
+
+        .journal-error-icon i {
+          font-size: 30px;
+        }
+
+        .journal-error-card h2 {
+          margin: 0;
+          font-size: 20px;
+          font-weight: 700;
+          color: #111827;
+        }
+
+        .journal-error-card p {
+          margin-top: 10px;
+          color: #6b7280;
+          line-height: 1.7;
+        }
+
+        .journal-error-card button {
+          margin-top: 24px;
+          width: 100%;
+          height: 50px;
+          border: none;
+          border-radius: 14px;
+          background: linear-gradient(90deg, #5b7fff, #696cff);
+          color: white;
+          font-size: 15px;
+          font-weight: 500;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          transition: .2s;
+        }
+
+        .journal-error-card button:hover {
+          transform: translateY(-2px);
+        }
+
+        :global(.dark) .journal-error-card {
+          background: #162033;
+        }
+
+        :global(.dark) .journal-error-card h2 {
+          color: white;
+        }
+
+        :global(.dark) .journal-error-card p {
+          color: rgba(255,255,255,.7);
+        }
+
+        .journal-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 28px;
+          margin-top: 24px;
+        }
+        @media (max-width: 768px) {
+          .journal-grid {
+            grid-template-columns:
+              1fr;
+          }
+        }
+
+        .journal-skeleton {
+          height: 520px;
+          border-radius: 28px;
+          background:linear-gradient( 90deg, #e5e7eb 25%, #f3f4f6 37%, #e5e7eb 63%);
+          background-size: 400% 100%;
+          animation: skeleton-loading 1.4s ease infinite;
+        }
+
+        @keyframes skeleton-loading {
+          0% {
+            background-position: 100% 50%;
+          }
+
+          100% {
+            background-position: 0 50%;
+          }
+        }
+
+        :global(.dark) .journal-skeleton {
+          background: linear-gradient(90deg, #1e293b 25%, #334155 37%, #1e293b 63%);
+          background-size:400% 100%;
+        }
+      `}
+      </style>
     </>
   );
 }

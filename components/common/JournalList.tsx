@@ -1,29 +1,17 @@
 'use client'
 
-import JournalCard
-  from './JournalCard'
+import JournalCard from './JournalCard'
 
 type Props = {
-
   data: any[]
-
   currentPage: number
-
   totalPage: number
-
   onPageChange: (
     page: number
   ) => void
 }
 
-export default function JournalList({
-  data,
-  currentPage,
-  totalPage,
-  onPageChange,
-
-}: Props) {
-
+export default function JournalList({ data, currentPage, totalPage, onPageChange } : Props) {
   function getPaginationItems(current: number, total: number) {
     const items = []
     items.push(1)
@@ -50,7 +38,6 @@ export default function JournalList({
   return (
     <div>
       <div className="journal-pagination">
-
         {/* PREV */}
         <button
           disabled={currentPage === 1}
@@ -58,48 +45,32 @@ export default function JournalList({
             onPageChange(
               currentPage - 1
             )
-          }
-        >
+          } >
           Prev
         </button>
 
         {/* PAGE ITEMS */}
         {
-          getPaginationItems(
-            currentPage,
-            totalPage
-          ).map((item, index) => {
-
-            // DOTS
+          getPaginationItems(currentPage, totalPage).map((item, index) => {
             if (item === '...') {
-
               return (
-
                 <span
                   key={index}
-                  className="pagination-dots"
-                >
+                  className="pagination-dots" >
                   ...
                 </span>
               )
             }
 
-            // PAGE NUMBER
             return (
-
               <button
                 key={index}
-                className={
-                  currentPage === item
-                    ? 'active'
-                    : ''
-                }
+                className={currentPage === item ? 'active' : ''}
                 onClick={() =>
                   onPageChange(
                     Number(item)
                   )
-                }
-              >
+                } >
                 {item}
               </button>
             )
@@ -115,23 +86,19 @@ export default function JournalList({
             onPageChange(
               currentPage + 1
             )
-          }
-        >
+          } >
           Next
         </button>
-
       </div>
+
       {/* GRID */}
       <div className="journal-grid">
-
         {data.map((item) => (
-
           <JournalCard
             key={item.id}
             item={item}
           />
         ))}
-
       </div>
 
       <style jsx>
@@ -204,12 +171,8 @@ export default function JournalList({
           color: white;
         }
 
-        @media (
-          max-width: 768px
-        ) {
-
+        @media (max-width: 768px) {
           .journal-grid {
-
             grid-template-columns:
               1fr;
           }

@@ -51,3 +51,12 @@ export async function jurnalList(page: string) {
     10000
   );
 }
+
+export async function listAllKelas() {
+  return await request(
+    "get",
+    `/api/v1/class-room/class`,
+    {},
+    10000
+  );
+}
