@@ -5,7 +5,6 @@ import { useAccessContext } from '@/context/AccessContext'
 
 export default function DashboardClient() {
   const dataAccess = useAccessContext()
-  console.log('DashboardClient-sadsadasasd', dataAccess?.access?.role)
 
   if (dataAccess?.access?.role == '0') {
     return <DashboardClientAdmin />

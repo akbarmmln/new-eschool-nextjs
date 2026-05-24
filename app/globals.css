@@ -770,11 +770,11 @@ span.flatpickr-weekday,
 .btn-dashboard {
   height: 45px;
   border: none;
-  border-radius: 10px;
-  padding: 0 26px;
+  border-radius: 5px;
+  padding: 0 15px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 5px;
   background: linear-gradient(135deg, #4f73ff 0%, #5f7cff 100%);
   color: #fff;
   cursor: pointer;

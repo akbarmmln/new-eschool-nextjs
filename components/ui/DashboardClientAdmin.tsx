@@ -1,29 +1,28 @@
 "use client";
 
-import { useProfile } from '@/hooks/query'
+import { useProfile, useJurnal } from '@/hooks/query'
 import {
   useState,
 } from "react";
 import ModalTambahJurnal from '@/components/modals/ModalTambahJurnal'
+import JournalList from '@/components/common/JournalList'
 
 export default function DashboardClientAdmin() {
-   const {
-    data,
-    isLoading,
-    error,
-  } = useProfile();
+  const [currentPage, setCurrentPage] = useState(1)
+  const [openModalTambahJurnal, setOpenModalTambahJurnal] = useState(false)
 
-  const [
-    openModalTambahJurnal,
-    setOpenModalTambahJurnal,
-  ] = useState(false)
-
+  const { data, isLoading, error } = useProfile();
+  const {
+    data: dataJurnal,
+    isLoading: isLoadingJurnal,
+  } = useJurnal(currentPage.toString())
+  console.log('sadassaasd', dataJurnal)
   return (
     <>
       <div className="greeting-card">
         <div className="greeting-left">
           {isLoading ? (
-            <div className="skeletonTitle"/>
+            <div className="skeletonTitle" />
           ) : (
             <h1>
               Selamat Sore, {data?.nama}
@@ -32,7 +31,7 @@ export default function DashboardClientAdmin() {
           )}
 
           {isLoading ? (
-            <div className="skeletonSubtitle"/>
+            <div className="skeletonSubtitle" />
           ) : (
             <p>
               daily & weekly report student of Khalifa IMS Nursery&Kindergarten
@@ -42,7 +41,7 @@ export default function DashboardClientAdmin() {
           <div className="divider"></div>
 
           {isLoading ? (
-            <div className="skeletonRole"/>
+            <div className="skeletonRole" />
           ) : (
             <div className="role-box">
               <i className="ri-team-line" />
@@ -74,7 +73,7 @@ export default function DashboardClientAdmin() {
           </div>
         </div>
       </div>
-      
+
       <div className="dashboard-action">
         <button className="btn-dashboard">
           <i className="ri-file-list-3-line" />
@@ -113,12 +112,20 @@ export default function DashboardClientAdmin() {
           />
         )
       }
+
       <div
         style={{
           display: 'grid',
           gap: 24,
         }}
       >
+        <JournalList
+          data={dataJurnal?.rows || []}
+          currentPage={dataJurnal?.currentPage || 1}
+          totalPage={dataJurnal?.totalPage || 1}
+          onPageChange={setCurrentPage}
+        />
+
         {/* TOP */}
         <div
           style={{

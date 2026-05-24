@@ -42,3 +42,12 @@ export async function getProfile() {
     10000
   );
 }
+
+export async function jurnalList(page: string) {
+  return await request(
+    "get",
+    `/api/v1/jurnal/list/${page}`,
+    {},
+    10000
+  );
+}
