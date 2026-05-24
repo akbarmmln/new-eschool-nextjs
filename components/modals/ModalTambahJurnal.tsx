@@ -17,13 +17,23 @@ export default function ModalTambahJurnal({
 }: Props) {
   const [materiPembelajaran, setMateriPembelajaran] = useState('')
   const [refleksiPembelajaran, setRefleksiPembelajaran] = useState('')
-  console.log('asdasdsaasd', kelas)
-  const [
-    tanggal,
-    setTanggal,
-  ] = useState<Date | null>(
-    null
-  )
+  const [selectedKelas, setSelectedKelas] = useState('')
+  const [jamMulai, setJamMulai] = useState('')
+  const [jamSelesai, setJamSelesai] = useState('')
+  const [tanggal, setTanggal] = useState<Date | null>(null)
+  const isEditorEmpty = (
+    value: string
+  ) => {
+    return value?.replace(/<[^>]*>/g, '')?.trim() === ''
+  }
+  
+  const isFormValid =
+    tanggal &&
+    selectedKelas &&
+    jamMulai &&
+    jamSelesai &&
+    !isEditorEmpty(materiPembelajaran) &&
+    !isEditorEmpty(refleksiPembelajaran)
 
   return (
     <>
@@ -62,8 +72,11 @@ export default function ModalTambahJurnal({
               </label>
 
               <div className="input-icon">
-                <select>
-                  <option>
+                <select value={selectedKelas}
+                  onChange={(e) =>
+                    setSelectedKelas(e.target.value)
+                  } >
+                  <option value="">
                     Pilih
                   </option>
 
@@ -91,7 +104,11 @@ export default function ModalTambahJurnal({
 
                 <div className="input-icon">
                   <input
-                    type="text"
+                    type="time"
+                    value={jamMulai}
+                    onChange={(e) =>
+                      setJamMulai(e.target.value)
+                    }
                     placeholder="--:--"
                   />
 
@@ -107,7 +124,11 @@ export default function ModalTambahJurnal({
 
                 <div className="input-icon">
                   <input
-                    type="text"
+                    type="time"
+                    value={jamSelesai}
+                    onChange={(e) =>
+                      setJamSelesai(e.target.value)
+                    }
                     placeholder="--:--"
                   />
 
@@ -164,7 +185,10 @@ export default function ModalTambahJurnal({
                 Batal
               </button>
 
-              <button className="btn-save">
+              <button className={`
+                btn-save
+                ${!isFormValid ? 'btn-save-disabled' : ''}
+              `}>
                 Simpan
               </button>
             </div>
@@ -173,6 +197,13 @@ export default function ModalTambahJurnal({
       </div>
       <style jsx>
       {`
+        .btn-save-disabled {
+          opacity: .5;
+          cursor: not-allowed;
+          pointer-events: none;
+          box-shadow: none;
+        }
+          
         .modal-backdrop {
           position: fixed;
           inset: 0;
