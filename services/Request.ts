@@ -124,7 +124,7 @@ export async function request<T>(
     const status = e?.response?.status || 500;
     const body = e?.response?.data || {};
 
-    if (status === 401 && body.err_code === '70006') {
+    if (status === 401 && (body.err_code === '70006' || body.err_code === '70024')) {
       autoLogout();
     }
 

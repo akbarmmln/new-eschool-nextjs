@@ -60,7 +60,7 @@ export default function JournalEditor({
       editor
         .chain()
         .focus()
-        .setFontFamily('monospace')
+        .setFontFamily('Monospace')
         .setTextAlign('left')
         .run()
     },
@@ -440,6 +440,7 @@ export default function JournalEditor({
           font-size: 18px;
           line-height: 1.8;
           color: #1e293b;
+          font-family: monospace;
         }
           
         :global(.ProseMirror ul) {

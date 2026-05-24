@@ -14,6 +14,17 @@ export async function login(email: string, password: string) {
   );
 }
 
+export async function getAccess(authorization: string) {
+  return await request(
+    "post",
+    "/api/v1/auth/access",
+    {
+      authorization: authorization
+    },
+    10000
+  );
+}
+
 export async function getMenus() {
   return await request(
     "post",

@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import { HorizontaLDots } from "../icons/index";
-import { useAccess, useProfile } from '@/hooks/query'
+import { useMenus, useProfile } from '@/hooks/query'
 
 const AppSidebar: React.FC = () => {
   const pathname = usePathname();
@@ -24,7 +24,7 @@ const AppSidebar: React.FC = () => {
     isLoading,
     error,
     refetch: refetchMenu
-  } = useAccess()
+  } = useMenus()
 
   const {
     data,

@@ -3,7 +3,6 @@
 import Swal from 'sweetalert2'
 import { useRouter } from "next/navigation";
 import {
-  useEffect,
   useState,
 } from "react";
 import { login } from "@/services/Call";
