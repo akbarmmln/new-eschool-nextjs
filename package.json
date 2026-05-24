@@ -31,6 +31,7 @@
     "bootstrap": "^5.3.8",
     "clsx": "^2.1.1",
     "date-fns": "^4.2.1",
+    "dayjs": "^1.11.20",
     "flatpickr": "^4.6.13",
     "jquery": "^4.0.0",
     "lucide-react": "^1.14.0",

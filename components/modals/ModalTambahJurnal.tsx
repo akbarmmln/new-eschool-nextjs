@@ -5,6 +5,7 @@ import {
 } from 'react'
 import JournalEditor from '@/components/common/Editor'
 import CustomDatePicker from '@/components/common/DatePicker'
+import dayjs from 'dayjs'
 
 type Props = {
   kelas: any[]
@@ -34,7 +35,20 @@ export default function ModalTambahJurnal({
     jamSelesai &&
     !isEditorEmpty(materiPembelajaran) &&
     !isEditorEmpty(refleksiPembelajaran)
+  const handleSubmit = () => {
+    const payload = {
+      tanggal_mengajar: dayjs(tanggal).format('YYYY-MM-DD'),
+      id_kelas: selectedKelas,
+      jam_mulai: jamMulai,
+      jam_selesai: jamSelesai,
+      materi_pembelajaran: materiPembelajaran,
+      refleksi_pembelajaran: refleksiPembelajaran,
+    }
 
+    console.log('PAYLOAD', payload)
+
+    // nanti call api disini
+  }
   return (
     <>
       <div className="modal-backdrop">
@@ -186,9 +200,12 @@ export default function ModalTambahJurnal({
               </button>
 
               <button className={`
-                btn-save
-                ${!isFormValid ? 'btn-save-disabled' : ''}
-              `}>
+                  btn-save
+                  ${!isFormValid ? 'btn-save-disabled' : ''}
+                `}
+                disabled={!isFormValid}
+                onClick={handleSubmit} >
+                
                 Simpan
               </button>
             </div>
