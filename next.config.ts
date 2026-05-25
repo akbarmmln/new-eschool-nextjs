@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['0.0.0.0'],
+  allowedDevOrigins: ['10.149.118.214'],
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,

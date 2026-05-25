@@ -52,7 +52,7 @@ export default function JournalList({ data, currentPage, totalPage, onPageChange
 
   return (
     <div>
-      <div className="flex items-center justify-end gap-4 mt-6 mb-8">
+      <div className="flex items-center justify-start md:justify-end gap-3 mt-6 mb-8 overflow-x-auto pb-2">
         {/* PREVIOUS */}
         <button
           disabled={currentPage === 1}
