@@ -13,79 +13,95 @@ type Props = {
 
 export default function JournalList({ data, currentPage, totalPage, onPageChange } : Props) {
   function getPaginationItems(current: number, total: number) {
-    const items = []
-    items.push(1)
-    if (current > 3) {
-      items.push('...')
-    }
+    const items: (number | string)[] = []
 
-    for (let i = current - 1; i <= current + 1; i++) {
-      if (i > 1 && i < total) {
+    // TOTAL <= 6
+    if (total <= 6) {
+      for (let i = 1; i <= total; i++) {
         items.push(i)
       }
+      return items
     }
 
-    if (current < total - 2) {
+    // PAGE AWAL
+    if (current <= 4) {
+      items.push(1, 2, 3, 4, 5)
       items.push('...')
+      items.push(total)
+      return items
     }
 
-    if (total > 1) {
-      items.push(total)
+    // PAGE AKHIR
+    if (current >= total - 3) {
+      items.push(1)
+      items.push('...')
+      for (let i = total - 4; i <= total; i++) {
+        items.push(i)
+      }
+      return items
     }
+
+    // PAGE TENGAH
+    items.push(1)
+    items.push('...')
+    items.push(current - 1, current, current + 1)
+    items.push('...')
+    items.push(total)
     return items
   }
 
   return (
     <div>
-      <div className="journal-pagination">
-        {/* PREV */}
+      <div className="flex items-center justify-end gap-4 mt-6 mb-8">
+        {/* PREVIOUS */}
         <button
           disabled={currentPage === 1}
           onClick={() =>
-            onPageChange(
-              currentPage - 1
-            )
-          } >
+            onPageChange(currentPage - 1)
+          }
+          className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" >
           Prev
         </button>
 
         {/* PAGE ITEMS */}
-        {
-          getPaginationItems(currentPage, totalPage).map((item, index) => {
-            if (item === '...') {
-              return (
-                <span
-                  key={index}
-                  className="pagination-dots" >
-                  ...
-                </span>
-              )
-            }
+        <div className="flex items-center gap-2">
+          {
+            getPaginationItems(
+              currentPage,
+              totalPage
+            ).map((item, index) => {
+              if (item === '...') {
+                return (
+                  <span key={index} className="w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400" >
+                    ...
+                  </span>
+                )
+              }
 
-            return (
-              <button
-                key={index}
-                className={currentPage === item ? 'active' : ''}
-                onClick={() =>
-                  onPageChange(
-                    Number(item)
-                  )
-                } >
-                {item}
-              </button>
-            )
-          })
-        }
+              const isActive = currentPage === item
+
+              return (
+                <button
+                  className={`w-11 h-11 rounded-2xl text-sm font-semibold transition-all ${isActive ? `bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg` : `bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700`}`}
+                  key={index}
+                  onClick={() =>
+                    onPageChange(Number(item))
+                  } >
+                  {item}
+                </button>
+              )
+            })
+          }
+        </div>
 
         {/* NEXT */}
         <button
+          className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
           disabled={
             currentPage === totalPage
           }
           onClick={() =>
-            onPageChange(
-              currentPage + 1
-            )
+            onPageChange(currentPage + 1)
           } >
           Next
         </button>
@@ -137,11 +153,30 @@ export default function JournalList({ data, currentPage, totalPage, onPageChange
         }
 
         .journal-pagination button.active {
-          background: #4f46e5;
+          background: linear-gradient(90deg, #4f8cff 0%, #5b7fff 50%, #696cff 100%);
           color: white;
           font-weight: 700;
         }
 
+        .journal-pagination button:disabled {
+
+          background: #f8fafc;
+
+          color: #9ca3af;
+
+          cursor: not-allowed;
+
+          box-shadow: none;
+
+          border: 1px solid #dbe2ea;
+        }
+
+        /* HOVER */
+        .journal-pagination button:hover:not(:disabled) {
+
+          transform: translateY(-2px);
+        }
+          
         .pagination-dots {
           padding: 0 4px;
           font-weight: 700;
