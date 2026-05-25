@@ -1,33 +1,18 @@
 import api from "./Api";
 import Swal from 'sweetalert2'
 
-type RequestMethod =
-  | "get"
-  | "post"
-  | "put"
-  | "patch"
-  | "delete";
+type RequestMethod = | "get" | "post" | "put" | "patch" | "delete";
 
 export interface RequestResponse<T = any> {
-
   ok: boolean;
-
   status_code: number;
-
   headers?: any;
-
   data?: T;
-
   message?: string;
-
   err_code?: string;
-
   err_msg?: string;
-
   err_details?: any;
-
   language?: string;
-
   timestamp?: string;
 }
 
@@ -42,15 +27,12 @@ let isLoggingOut = false;
 ========================= */
 
 async function autoLogout() {
-
   if (isLoggingOut) return;
 
   isLoggingOut = true;
 
   // HAPUS TOKEN
-  sessionStorage.removeItem(
-    "access-token"
-  );
+  sessionStorage.removeItem("access-token");
 
   localStorage.clear();
 
@@ -71,19 +53,13 @@ async function autoLogout() {
 }
 
 export async function request<T>(
-
   method: RequestMethod,
-
   endpoint: string,
-
   payload: any = {},
-
   timeout: number = 10000
-
 ): Promise<RequestResponse<T>> {
 
   try {
-
     const token = sessionStorage.getItem("access-token");
 
     const response = await api({

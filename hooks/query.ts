@@ -68,7 +68,9 @@ const fetchAccess =
     }
     return hasil.data.data
   }
-export function useAccess() {
+export function useAccess(
+  options?: any
+) {
   return useQuery<accessResponse>({
     queryKey: ['access'],
     queryFn: fetchAccess,
@@ -77,5 +79,6 @@ export function useAccess() {
     retry: 1,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    ...options
   })
 }
