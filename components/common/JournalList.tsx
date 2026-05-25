@@ -52,60 +52,89 @@ export default function JournalList({ data, currentPage, totalPage, onPageChange
 
   return (
     <div>
-      <div className="flex items-center justify-start md:justify-end gap-3 mt-6 mb-8 overflow-x-auto pb-2">
-        {/* PREVIOUS */}
-        <button
-          disabled={currentPage === 1}
-          onClick={() =>
-            onPageChange(currentPage - 1)
-          }
-          className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" >
-          Prev
-        </button>
+      <>
+        {/* DESKTOP */}
+        <div className="hidden md:flex items-center justify-end gap-3 mt-6 mb-8">
+          <button
+            disabled={currentPage === 1}
+            onClick={() =>
+              onPageChange(currentPage - 1)
+            }
+            className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" >
+            Previous
+          </button>
 
-        {/* PAGE ITEMS */}
-        <div className="flex items-center gap-2">
-          {
-            getPaginationItems(
-              currentPage,
-              totalPage
-            ).map((item, index) => {
-              if (item === '...') {
+          <div className="flex items-center gap-2">
+            {
+              getPaginationItems(currentPage, totalPage).map((item, index) => {
+                if (item === '...') {
+                  return (
+                    <span
+                      key={index}
+                      className="w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400" >
+                      ...
+                    </span>
+                  )
+                }
+
+                const isActive =currentPage === item
+
                 return (
-                  <span key={index} className="w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400" >
-                    ...
-                  </span>
+                  <button
+                    key={index}
+                    onClick={() =>
+                      onPageChange(Number(item))
+                    }
+                    className={`w-11 h-11 rounded-2xl text-sm font-semibold transition-all ${isActive
+                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg'
+                        : 'bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                      }`} >
+                    {item}
+                  </button>
                 )
-              }
+              })
+            }
+          </div>
 
-              const isActive = currentPage === item
-
-              return (
-                <button
-                  className={`w-11 h-11 rounded-2xl text-sm font-semibold transition-all ${isActive ? `bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg` : `bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700`}`}
-                  key={index}
-                  onClick={() =>
-                    onPageChange(Number(item))
-                  } >
-                  {item}
-                </button>
-              )
-            })
-          }
+          <button
+            disabled={
+              currentPage === totalPage
+            }
+            onClick={() =>
+              onPageChange(currentPage + 1)
+            }
+            className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700" >
+            Next
+          </button>
         </div>
 
-        {/* NEXT */}
-        <button
-          className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-          disabled={
-            currentPage === totalPage
-          }
-          onClick={() =>
-            onPageChange(currentPage + 1)
-          } >
-          Next
-        </button>
-      </div>
+        {/* MOBILE */}
+        <div className="flex md:hidden items-center justify-between mt-6 mb-8 gap-4">
+          <button
+            disabled={currentPage === 1}
+            onClick={() =>
+              onPageChange(currentPage - 1)
+            }
+            className="w-14 h-14 rounded-2xl border border-gray-200 bg-white flex items-center justify-center text-2xl text-gray-700 shadow-sm disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" >
+            ←
+          </button>
+
+          <div className="text-base font-semibold text-gray-700 dark:text-gray-300">
+            Halaman {currentPage} dari {totalPage}
+          </div>
+
+          <button
+            disabled={
+              currentPage === totalPage
+            }
+            onClick={() =>
+              onPageChange(currentPage + 1)
+            }
+            className="w-14 h-14 rounded-2xl border border-gray-200 bg-white flex items-center justify-center text-2xl text-gray-700 shadow-sm disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300" >
+            →
+          </button>
+        </div>
+      </>
 
       {/* GRID */}
       <div className="journal-grid">

@@ -169,32 +169,32 @@ export default function JournalCard({ item } : Props) {
       </div>
 
       <style jsx>
-        {`  
-:global(.dark) .journal-text {
+        {`
+          :global(.dark) .journal-text {
 
-  color: rgba(255,255,255,.88);
-}
-:global(.dark) .journal-section h3 {
+            color: rgba(255,255,255,.88);
+          }
+          :global(.dark) .journal-section h3 {
 
-  color: #7c7cff;
-}
-:global(.dark) .journal-footer {
+            color: #7c7cff;
+          }
+          :global(.dark) .journal-footer {
 
-  border-top:
-    1px solid rgba(255,255,255,.08);
-}
-:global(.dark) .journal-card {
+            border-top:
+              1px solid rgba(255,255,255,.08);
+          }
+          :global(.dark) .journal-card {
 
-  background: #162033;
-}
-:global(.dark) .journal-footer button {
+            background: #162033;
+          }
+          :global(.dark) .journal-footer button {
 
-  background:
-    rgba(255,255,255,.06);
+            background:
+              rgba(255,255,255,.06);
 
-  color:
-    rgba(255,255,255,.8);
-}
+            color:
+              rgba(255,255,255,.8);
+          }
     
           .journal-card {
             background: #fff;
