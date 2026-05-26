@@ -738,7 +738,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
             <div className="space-y-6 p-6">
               {/* ID */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   ID Jurnal
                 </label>
 
@@ -746,13 +746,13 @@ export default function AktifitasJurnalClient({ id }: Props) {
                   type="text"
                   value={data?.jurnal?.id || ""}
                   disabled
-                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
                 />
               </div>
 
               {/* TANGGAL */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Hari / Tanggal Mengajar
                 </label>
 
@@ -762,13 +762,13 @@ export default function AktifitasJurnalClient({ id }: Props) {
                     data?.jurnal?.tanggal_jurnal
                   )}
                   disabled
-                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
                 />
               </div>
 
               {/* KELAS */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Kelas
                 </label>
 
@@ -776,7 +776,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                   type="text"
                   value={data?.jurnal?.nama_kelas || ""}
                   disabled
-                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
                 />
               </div>
 
@@ -784,7 +784,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Jam Mulai
                   </label>
 
@@ -792,12 +792,12 @@ export default function AktifitasJurnalClient({ id }: Props) {
                     type="time"
                     value={jamMulai}
                     onChange={(e) => setJamMulai(e.target.value)}
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Jam Selesai
                   </label>
 
@@ -805,18 +805,18 @@ export default function AktifitasJurnalClient({ id }: Props) {
                     type="time"
                     value={jamSelesai}
                     onChange={(e) => setJamSelesai(e.target.value)}
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
                   />
                 </div>
               </div>
 
               {/* MATERI */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Materi Pembelajaran
                 </label>
 
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700">
                   <JournalEditor
                     name="materi_pembelajaran_edit"
                     value={materiPembelajaran}
@@ -827,11 +827,11 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
               {/* REFLEKSI */}
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
                   Refleksi Pembelajaran
                 </label>
 
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700">
                   <JournalEditor
                     name="refleksi_pembelajaran_edit"
                     value={refleksiPembelajaran}
