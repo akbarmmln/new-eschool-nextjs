@@ -81,6 +81,15 @@ export async function newjurnal(body: any) {
   );
 }
 
+export async function submitItemPenilaian(body: any) {
+  return await request(
+    "post",
+    `/api/v1/jurnal/submit-item-penilaian`,
+    body,
+    10000
+  );
+}
+
 export async function updateAbsensi(body: any) {
   return await request(
     "post",

@@ -1,6 +1,5 @@
 "use client";
 
-import Swal from 'sweetalert2'
 import { useEffect, useState } from "react";
 import {
   ClipboardCheck,
@@ -8,7 +7,9 @@ import {
   FilePenLine,
 } from "lucide-react";
 
-import { useDetailJurnal, useUpdateAbsensi } from "@/hooks/queryJurnal";
+import { useDetailJurnal, useUpdateAbsensi, useSubmitItemPenilaian } from "@/hooks/queryJurnal";
+import { showAlert } from "@/utils/swal";
+import isEmpty from "@/utils/isEmpty";
 
 type Student = {
   id: string;
@@ -54,13 +55,16 @@ export default function AktifitasJurnalClient({ id }: Props) {
   const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
   const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
   const [students, setStudents] = useState<Student[]>([]);
-  const saveAbsensiMutation = useUpdateAbsensi();
   const [penilaianItems, setPenilaianItems] = useState([
     {
       id: Date.now(),
       value: "",
     },
   ]);
+  const [judul, setJudul] = useState("");
+
+  const saveAbsensiMutation = useUpdateAbsensi();
+  const submitItemPenilaian = useSubmitItemPenilaian();
 
   useEffect(() => {
     if (data?.siswa) {
@@ -144,29 +148,66 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
       await saveAbsensiMutation.mutateAsync(payloadSubmit);
 
-      await Swal.fire({
-        icon: "success",
-        title: "Berhasil",
-        text: "Absensi berhasil disimpan",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#2563eb",
-        scrollbarPadding: false,
-        heightAuto: false,
-        backdrop: `rgba(15,23,42,0.55)`,
-      });
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Absensi berhasil disimpan"
+      );
 
       await refetch();
     } catch (e: any) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: `Gagal menyimpan absensi ${e.toString}`,
-        confirmButtonText: "OK",
-        confirmButtonColor: "#dc2626",
-        scrollbarPadding: false,
-        heightAuto: false,
-        backdrop: `rgba(15,23,42,0.55)`,
-      });
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal menyimpan absensi ${e.toString()}`
+      );
+    }
+  };
+
+  const handleSavePenilaian = async () => {
+    try {
+      const payload = {
+        id_jurnal: id,
+        judul: judul,
+        item_penilaian: penilaianItems
+          .map((item) => item.value.trim())
+          .filter((item) => item !== ""),
+        id_diajar: []
+      };
+
+      if (isEmpty(payload.judul)) {
+        await showAlert(
+          "warning",
+          "Parameter tidak sesuai",
+          `Grup/Judul Pembelajaran tidak boleh kosong`,
+        );
+        return
+      }
+
+      if (payload.item_penilaian.length == 0) {
+        await showAlert(
+          "warning",
+          "Parameter tidak sesuai",
+          `Item Penilaian setidak nya 1 untuk dilakukan`,
+        );
+        return
+      }
+
+      await submitItemPenilaian.mutateAsync(payload);
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Item penilaian berhasil disimpan"
+      );
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal menyimpan item penilaian ${e.toString}`,
+      );
     }
   };
 
@@ -391,17 +432,26 @@ export default function AktifitasJurnalClient({ id }: Props) {
                 </tbody>
               </table>
             </div>
-
           )}
 
           <div className="flex justify-end p-6">
             <button
               onClick={handleSaveAbsensi}
-              disabled={saveAbsensiMutation.isPending}
+              disabled={
+                saveAbsensiMutation.isPending ||
+                isFetching
+              }
               className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                ${saveAbsensiMutation.isPending ? "cursor-not-allowed bg-slate-400 shadow-none" : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"}`} >
+                ${saveAbsensiMutation.isPending || isFetching
+                  ? "cursor-not-allowed bg-slate-400 shadow-none"
+                  : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                }`} >
 
-              {saveAbsensiMutation.isPending ? "Menyimpan..." : "Simpan Absensi"}
+              {saveAbsensiMutation.isPending
+                ? "Menyimpan..."
+                : isFetching
+                  ? "Memperbarui..."
+                  : "Simpan Absensi"}
             </button>
           </div>
         </div>
@@ -410,7 +460,9 @@ export default function AktifitasJurnalClient({ id }: Props) {
       {/* PENILAIAN */}
       {activeTab === "penilaian" && (
         <>
-          {data?.jurnal?.initiate_absensi == 0 ? (
+          {isLoading || isFetching ? (
+            <AbsensiTableSkeleton />
+          ) : data?.jurnal?.initiate_absensi == 0 ? (
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
                 <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
@@ -437,7 +489,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                 </div>
               </div>
             </div>
-          ) : (
+          ) : data?.jurnal?.initiate_nilai == 0 ? (
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
               <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
                 <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
@@ -454,18 +506,20 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
                   <input
                     type="text"
+                    value={judul}
+                    onChange={(e) => setJudul(e.target.value)}
                     placeholder="Masukkan Grup/Judul pembelajaran"
                     className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    style={{
+                      height: 45
+                    }}
                   />
                 </div>
 
                 {/* ITEM PENILAIAN */}
                 <div className="space-y-5">
                   {penilaianItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/30"
-                    >
+                    <div key={item.id} className="border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/30">
                       <div className="flex items-center gap-4">
                         <input
                           type="text"
@@ -475,16 +529,22 @@ export default function AktifitasJurnalClient({ id }: Props) {
                           }
                           placeholder="Isi item Penilaian"
                           className="flex-1 rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                          style={{
+                            height: 45
+                          }}
                         />
 
                         <button
                           type="button"
                           onClick={() => handleRemoveItem(item.id)}
                           className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-white transition hover:bg-red-600 dark:bg-slate-700"
-                        >
+                          style={{
+                            height: 40,
+                            width: 40
+                          }} >
                           <i
                             className="ri-delete-bin-line"
-                            style={{ fontSize: 20 }}
+                            style={{ fontSize: 15 }}
                           />
                         </button>
                       </div>
@@ -494,23 +554,90 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
                 {/* ACTION */}
                 <div className="flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    onClick={handleAddItem}
-                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700"
-                  >
+                  <button type="button" onClick={handleAddItem} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
                     <i className="ri-add-line" />
                     Tambah Item
                   </button>
 
                   <button
-                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700"
-                  >
+                    className={`inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700
+                      ${submitItemPenilaian.isPending || isFetching
+                        ? "cursor-not-allowed bg-slate-400 shadow-none"
+                        : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                      }`}
+                    onClick={handleSavePenilaian}>
                     <i className="ri-save-line" />
-                    Simpan Data
+
+                    {submitItemPenilaian.isPending
+                      ? "Menyimpan..."
+                      : isFetching
+                        ? "Memperbarui..."
+                        : "Simpan Data"}
                   </button>
                 </div>
-              </div>            </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+                  <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                    Penilaian
+                  </h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          No
+                        </th>
+
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          Nama
+                        </th>
+
+                        <th className="px-6 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          Aksi
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {data?.siswa?.map(
+                        (siswa: any, index: number) => (
+                          <tr key={siswa.id} className="border-b border-slate-100 dark:border-slate-800">
+                            <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
+                              {index + 1}.
+                            </td>
+
+                            <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {siswa.nama_siswa}
+                            </td>
+
+                            <td className="px-6 py-5">
+                              <div className="flex justify-center gap-3">
+                                <button
+                                  className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700">
+                                  <i className="ri-download-line" />
+                                  Download
+                                </button>
+
+                                <button
+                                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
+                                  <i className="ri-edit-line" />
+                                  Input Nilai
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </>
           )}
         </>
       )}
@@ -539,7 +666,7 @@ function AbsensiTableSkeleton() {
         </thead>
 
         <tbody>
-          {[...Array(5)].map((_, index) => (
+          {[...Array(2)].map((_, index) => (
             <tr
               key={index}
               className="border-b border-slate-100 dark:border-slate-800"

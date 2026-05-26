@@ -3,7 +3,8 @@ import {
   jurnalList,
   detailJurnal,
   updateAbsensi,
-  newjurnal
+  newjurnal,
+  submitItemPenilaian
 } from '@/services/Call'
 
 // LIST JURNAL \\
@@ -77,6 +78,16 @@ export const useUpdateAbsensi = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
       const results = updateAbsensi(payload)
+      return results;
+    },
+  });
+};
+
+// SUBMIT ITEM PENILAIAN \\
+export const useSubmitItemPenilaian = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = submitItemPenilaian(payload)
       return results;
     },
   });
