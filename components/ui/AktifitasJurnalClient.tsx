@@ -1,5 +1,6 @@
 "use client";
 
+import Swal from 'sweetalert2'
 import { useEffect, useState } from "react";
 import {
   ClipboardCheck,
@@ -7,39 +8,16 @@ import {
   FilePenLine,
 } from "lucide-react";
 
-import { useDetailJurnal } from "@/hooks/queryJurnal";
+import { useDetailJurnal, useUpdateAbsensi } from "@/hooks/queryJurnal";
 
 type Student = {
-  row_id: string;
   id: string;
-  id_siswa: string;
   name: string;
-  status: "hadir" | "ijin" | "sakit" | "alpha";
+  status: "hadir" | "ijin" | "sakit" | "alpha" | null;
 };
 
 type Props = {
   id: string;
-};
-
-const convertAbsensiToStatus = (
-  absensi: string
-): Student["status"] => {
-  switch (absensi) {
-    case "1":
-      return "hadir";
-
-    case "2":
-      return "ijin";
-
-    case "3":
-      return "sakit";
-
-    case "4":
-      return "alpha";
-
-    default:
-      return "alpha";
-  }
 };
 
 const convertStatusToAbsensi = (
@@ -73,22 +51,34 @@ const formatTanggalIndonesia = (tanggal: string) => {
 };
 
 export default function AktifitasJurnalClient({ id }: Props) {
-  const { data, isLoading, error } = useDetailJurnal(id);
+  const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
   const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
   const [students, setStudents] = useState<Student[]>([]);
-  console.log('asdasdsad', data)
+  const saveAbsensiMutation = useUpdateAbsensi();
+  const [penilaianItems, setPenilaianItems] = useState([
+    {
+      id: Date.now(),
+      value: "",
+    },
+  ]);
 
   useEffect(() => {
     if (data?.siswa) {
-      const mappedStudents: Student[] = data.siswa.map(
-        (item: any) => ({
-          row_id: item.id_siswa,
+      const mappedStudents: Student[] =
+        data?.siswa?.map((item: any) => ({
           id: item.id,
-          id_siswa: item.id_siswa,
           name: item.nama_siswa,
-          status: convertAbsensiToStatus(item.absensi),
-        })
-      );
+          status:
+            item.absensi === "1"
+              ? "hadir"
+              : item.absensi === "2"
+                ? "ijin"
+                : item.absensi === "3"
+                  ? "sakit"
+                  : item.absensi === "4"
+                    ? "alpha"
+                    : null,
+        })) || [];
       setStudents(mappedStudents);
     }
   }, [data]);
@@ -99,7 +89,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
   ) => {
     setStudents((prev) =>
       prev.map((student) =>
-        student.row_id === rowId
+        student.id === rowId
           ? {
             ...student,
             status,
@@ -109,15 +99,75 @@ export default function AktifitasJurnalClient({ id }: Props) {
     );
   };
 
-  const handleSaveAbsensi = () => {
-    const payload = students.map((student) => ({
-      id_detail_diajar: student.id,
-      status: convertStatusToAbsensi(student.status),
-    }));
+  const handleAddItem = () => {
+    setPenilaianItems((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        value: "",
+      },
+    ]);
+  };
 
-    console.log('sadasdasdas', payload);
+  const handleRemoveItem = (id: number) => {
+    setPenilaianItems((prev) =>
+      prev.filter((item) => item.id !== id)
+    );
+  };
 
-    alert("Absensi berhasil disimpan");
+  const handleChangeItem = (
+    id: number,
+    value: string
+  ) => {
+    setPenilaianItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, value }
+          : item
+      )
+    );
+  };
+
+  const handleSaveAbsensi = async () => {
+    try {
+      const payload = students.map((student) => ({
+        id_detail_diajar: student.id,
+        status: student.status
+          ? convertStatusToAbsensi(student.status)
+          : null,
+      }));
+
+      const payloadSubmit = {
+        id: id,
+        absensi: payload
+      }
+
+      await saveAbsensiMutation.mutateAsync(payloadSubmit);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: "Absensi berhasil disimpan",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#2563eb",
+        scrollbarPadding: false,
+        heightAuto: false,
+        backdrop: `rgba(15,23,42,0.55)`,
+      });
+
+      await refetch();
+    } catch (e: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text: `Gagal menyimpan absensi ${e.toString}`,
+        confirmButtonText: "OK",
+        confirmButtonColor: "#dc2626",
+        scrollbarPadding: false,
+        heightAuto: false,
+        backdrop: `rgba(15,23,42,0.55)`,
+      });
+    }
   };
 
   if (error) {
@@ -159,7 +209,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
       {/* DETAIL CARD */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        {isLoading ? (
+        {isLoading || isFetching ? (
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             {[...Array(6)].map((_, index) => (
               <DetailSkeleton key={index} />
@@ -177,9 +227,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
               title="Tanggal dan Jam Mengajar"
               value={`${formatTanggalIndonesia(
                 data?.jurnal?.tanggal_jurnal
-              )} • ${data?.jurnal?.jam_mulai} - ${
-                data?.jurnal?.jam_selesai
-              }`}
+              )} • ${data?.jurnal?.jam_mulai} - ${data?.jurnal?.jam_selesai
+                }`}
             />
 
             <DetailItem
@@ -244,11 +293,10 @@ export default function AktifitasJurnalClient({ id }: Props) {
       <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800">
         <button
           onClick={() => setActiveTab("absensi")}
-          className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition ${
-            activeTab === "absensi"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-slate-500 hover:text-slate-700"
-          }`}
+          className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition ${activeTab === "absensi"
+            ? "border-blue-600 text-blue-600"
+            : "border-transparent text-slate-500 hover:text-slate-700"
+            }`}
         >
           <ClipboardCheck size={18} />
           Absensi
@@ -256,11 +304,10 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
         <button
           onClick={() => setActiveTab("penilaian")}
-          className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition ${
-            activeTab === "penilaian"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-slate-500 hover:text-slate-700"
-          }`}
+          className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition ${activeTab === "penilaian"
+            ? "border-blue-600 text-blue-600"
+            : "border-transparent text-slate-500 hover:text-slate-700"
+            }`}
         >
           <FilePenLine size={18} />
           Penilaian
@@ -276,82 +323,85 @@ export default function AktifitasJurnalClient({ id }: Props) {
             </h2>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    No
-                  </th>
+          {isLoading || isFetching ? (
+            <AbsensiTableSkeleton />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      No
+                    </th>
 
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    Nama
-                  </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      Nama
+                    </th>
 
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {students.map((student, index) => (
-                  <tr
-                    key={student.row_id}
-                    className="border-b border-slate-100 dark:border-slate-800"
-                  >
-                    <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
-                      {index + 1}.
-                    </td>
-
-                    <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {student.name}
-                    </td>
-
-                    <td className="px-6 py-5">
-                      <div className="flex flex-wrap gap-5">
-                        {[
-                          "hadir",
-                          "ijin",
-                          "sakit",
-                          "alpha",
-                        ].map((status) => (
-                          <label
-                            key={status}
-                            className="flex cursor-pointer items-center gap-2"
-                          >
-                            <input
-                              type="radio"
-                              name={`status-${student.row_id}`}
-                              checked={student.status === status}
-                              onChange={() =>
-                                handleStatusChange(
-                                  student.row_id,
-                                  status as Student["status"]
-                                )
-                              }
-                              className="h-4 w-4 accent-blue-600"
-                            />
-
-                            <span className="text-sm capitalize text-slate-700 dark:text-slate-300">
-                              {status}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </td>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                      Status
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody>
+                  {students.map((student, index) => (
+                    <tr key={student.id} className="border-b border-slate-100 dark:border-slate-800">
+                      <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
+                        {index + 1}.
+                      </td>
+
+                      <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {student.name}
+                      </td>
+
+                      <td className="px-6 py-5">
+                        <div className="flex flex-wrap gap-5">
+                          {[
+                            "hadir",
+                            "ijin",
+                            "sakit",
+                            "alpha",
+                          ].map((status) => (
+                            <label
+                              key={status}
+                              className="flex cursor-pointer items-center gap-2" >
+                              <input
+                                type="radio"
+                                name={`status-${student.id}`}
+                                checked={student.status === status}
+                                onChange={() =>
+                                  handleStatusChange(
+                                    student.id,
+                                    status as Student["status"]
+                                  )
+                                }
+                                className="h-4 w-4 accent-blue-600"
+                              />
+
+                              <span className="text-sm capitalize text-slate-700 dark:text-slate-300">
+                                {status}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+          )}
 
           <div className="flex justify-end p-6">
             <button
               onClick={handleSaveAbsensi}
-              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700"
-            >
-              Simpan Absensi
+              disabled={saveAbsensiMutation.isPending}
+              className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                ${saveAbsensiMutation.isPending ? "cursor-not-allowed bg-slate-400 shadow-none" : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"}`} >
+
+              {saveAbsensiMutation.isPending ? "Menyimpan..." : "Simpan Absensi"}
             </button>
           </div>
         </div>
@@ -359,16 +409,163 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
       {/* PENILAIAN */}
       {activeTab === "penilaian" && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <h2 className="text-lg font-semibold text-slate-700 dark:text-white">
-            Halaman Penilaian
-          </h2>
+        <>
+          {data?.jurnal?.initiate_absensi == 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                  Penilaian
+                </h2>
+              </div>
 
-          <p className="mt-2 text-sm text-slate-500">
-            Silahkan buat form penilaian disini
-          </p>
-        </div>
+              <div className="flex items-center justify-center p-16">
+                <div className="w-full max-w-sm rounded-xl bg-white p-8 text-center shadow-sm dark:bg-slate-900">
+                  <div className="mx-auto flex h-15 w-15 items-center justify-center rounded-full bg-yellow-100 text-yellow-500">
+                    <i
+                      className="ri-error-warning-line"
+                      style={{ fontSize: 30 }}
+                    />
+                  </div>
+
+                  <h3 className="mt-6 text-2xl font-bold text-yellow-500">
+                    WARNING
+                  </h3>
+
+                  <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
+                    Silahkan lakukan absensi terlebih dahulu
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                  Penilaian
+                </h2>
+              </div>
+
+              <div className="space-y-6 p-6">
+                {/* GROUP/JUDUL */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    Grup/Judul Pembelajaran
+                  </label>
+
+                  <input
+                    type="text"
+                    placeholder="Masukkan Grup/Judul pembelajaran"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </div>
+
+                {/* ITEM PENILAIAN */}
+                <div className="space-y-5">
+                  {penilaianItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-800/30"
+                    >
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="text"
+                          value={item.value}
+                          onChange={(e) =>
+                            handleChangeItem(item.id, e.target.value)
+                          }
+                          placeholder="Isi item Penilaian"
+                          className="flex-1 rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-white transition hover:bg-red-600 dark:bg-slate-700"
+                        >
+                          <i
+                            className="ri-delete-bin-line"
+                            style={{ fontSize: 20 }}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ACTION */}
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={handleAddItem}
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700"
+                  >
+                    <i className="ri-add-line" />
+                    Tambah Item
+                  </button>
+
+                  <button
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700"
+                  >
+                    <i className="ri-save-line" />
+                    Simpan Data
+                  </button>
+                </div>
+              </div>            </div>
+          )}
+        </>
       )}
+    </div>
+  );
+}
+
+function AbsensiTableSkeleton() {
+  return (
+    <div className="overflow-x-auto">
+      <table className="min-w-full">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+            <th className="px-6 py-4 text-left">
+              <div className="h-4 w-10 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            </th>
+
+            <th className="px-6 py-4 text-left">
+              <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            </th>
+
+            <th className="px-6 py-4 text-left">
+              <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {[...Array(5)].map((_, index) => (
+            <tr
+              key={index}
+              className="border-b border-slate-100 dark:border-slate-800"
+            >
+              <td className="px-6 py-5">
+                <div className="h-4 w-6 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </td>
+
+              <td className="px-6 py-5">
+                <div className="h-4 w-48 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </td>
+
+              <td className="px-6 py-5">
+                <div className="flex gap-4">
+                  {[...Array(4)].map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="h-4 w-14 animate-pulse rounded bg-slate-200 dark:bg-slate-700"
+                    />
+                  ))}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -409,9 +606,12 @@ function DetailItem({
           {title}
         </h3>
 
-        <p className="mt-1 text-sm leading-10 text-slate-500 dark:text-slate-400">
-          {value}
-        </p>
+        <div
+          className="prose prose-sm mt-1 max-w-none text-slate-500 dark:prose-invert dark:text-slate-400"
+          dangerouslySetInnerHTML={{
+            __html: value || "-",
+          }}
+        />
       </div>
     </div>
   );

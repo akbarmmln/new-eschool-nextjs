@@ -69,3 +69,26 @@ export async function detailJurnal(id: string) {
     10000
   );
 }
+
+export async function newjurnal(body: any) {
+  return await request(
+    "post",
+    `/api/v1/jurnal/create-new`,
+    {
+      ...body
+    },
+    10000
+  );
+}
+
+export async function updateAbsensi(body: any) {
+  return await request(
+    "post",
+    `/api/v1/jurnal/update-absensi`,
+    {
+      id: body.id,
+      absensi: body.absensi
+    },
+    10000
+  );
+}

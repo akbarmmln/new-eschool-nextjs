@@ -1296,3 +1296,11 @@ span.flatpickr-weekday,
 
   gap: 10px;
 }
+
+.swal2-container {
+  z-index: 999999 !important;
+}
+
+.swal2-backdrop-show {
+  backdrop-filter: blur(2px);
+}

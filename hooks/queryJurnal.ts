@@ -1,7 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import {
   jurnalList,
-  detailJurnal
+  detailJurnal,
+  updateAbsensi,
+  newjurnal
 } from '@/services/Call'
 
 // LIST JURNAL \\
@@ -59,3 +61,23 @@ export function useDetailJurnal(id: string) {
     refetchOnMount: false,
   })
 }
+
+// NEW JURNAL \\
+export const useNewJurnal = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = newjurnal(payload)
+      return results;
+    },
+  });
+};
+
+// UPDATE ABSENSI \\
+export const useUpdateAbsensi = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updateAbsensi(payload)
+      return results;
+    },
+  });
+};

@@ -1,11 +1,13 @@
 'use client'
 
-import {
-  useState,
-} from 'react'
+import { useState } from 'react'
+import Swal from 'sweetalert2'
 import JournalEditor from '@/components/common/Editor'
 import CustomDatePicker from '@/components/common/DatePicker'
 import dayjs from 'dayjs'
+import { useAccessContext } from '@/context/AccessContext'
+import { useNewJurnal } from "@/hooks/queryJurnal";
+import { useRouter } from "next/navigation";
 
 type Props = {
   kelas: any[]
@@ -28,6 +30,7 @@ export default function ModalTambahJurnal({
     return value?.replace(/<[^>]*>/g, '')?.trim() === ''
   }
   
+  const dataAccess = useAccessContext();
   const isFormValid =
     tanggal &&
     selectedKelas &&
@@ -35,19 +38,46 @@ export default function ModalTambahJurnal({
     jamSelesai &&
     !isEditorEmpty(materiPembelajaran) &&
     !isEditorEmpty(refleksiPembelajaran)
-  const handleSubmit = () => {
-    const payload = {
-      tanggal_mengajar: dayjs(tanggal).format('YYYY-MM-DD'),
-      id_kelas: selectedKelas,
-      jam_mulai: jamMulai,
-      jam_selesai: jamSelesai,
-      materi_pembelajaran: materiPembelajaran,
-      refleksi_pembelajaran: refleksiPembelajaran,
+
+  const router = useRouter();
+  const createJurnalMutation = useNewJurnal();
+  const handleSubmit = async () => {
+    try {
+      const accountId = dataAccess?.access?.id_account;
+      const payload = {
+        tanggal: dayjs(tanggal).format('YYYY-MM-DD'),
+        kelas: selectedKelas,
+        mulai: jamMulai,
+        selesai: jamSelesai,
+        materi: materiPembelajaran,
+        refleksi: refleksiPembelajaran,
+        guru: accountId
+      }
+
+      const result: any = await createJurnalMutation.mutateAsync(payload);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: "Jurnal baru berhasil disimpan",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#2563eb",
+        scrollbarPadding: false,
+        heightAuto: false,
+      });
+
+      router.push(`/akademik/aktifitas-jurnal/${result?.data?.data?.id}`);
+    } catch (e: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text: `Gagal menyimpan jurnal baru ${e.toString()}`,
+        confirmButtonText: "OK",
+        confirmButtonColor: "#dc2626",
+        scrollbarPadding: false,
+        heightAuto: false,
+      });
     }
-
-    console.log('PAYLOAD', payload)
-
-    // nanti call api disini
   }
   return (
     <>
@@ -201,12 +231,14 @@ export default function ModalTambahJurnal({
 
               <button className={`
                   btn-save
-                  ${!isFormValid ? 'btn-save-disabled' : ''}
+                  ${!isFormValid || createJurnalMutation.isPending ? "btn-save-disabled" : ""}
                 `}
-                disabled={!isFormValid}
+                disabled={!isFormValid || createJurnalMutation.isPending}
                 onClick={handleSubmit} >
                 
-                Simpan
+                {createJurnalMutation.isPending
+                  ? "Menyimpan..."
+                  : "Simpan"}
               </button>
             </div>
           </div>
