@@ -310,10 +310,15 @@ export default function AktifitasJurnalClient({ id }: Props) {
                 <PencilLine size={18} />
                 Ubah Detail
               </button>
-              <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
-                <FilePenLine size={18} />
-                Ubah Item Nilai
-              </button>
+
+              {data?.jurnal?.initiate_nilai == 1 ? (
+                <>
+                  <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
+                    <FilePenLine size={18} />
+                    Ubah Item Nilai
+                  </button>
+                </>
+              ) : (<></>)}
             </>
           )}
         </div>
