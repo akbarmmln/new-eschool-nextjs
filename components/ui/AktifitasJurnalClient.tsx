@@ -243,6 +243,36 @@ export default function AktifitasJurnalClient({ id }: Props) {
     }
   };
 
+  const handleUpdateJurnal = async () => {
+    try {
+      const payload = {
+        id_jurnal: id,
+        mulai: jamMulai,
+        selesai: jamSelesai,
+        materi: materiPembelajaran,
+        refleksi: refleksiPembelajaran
+      };
+
+      await updateJurnal.mutateAsync(payload);
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data jurnal berhasil diperbaharui"
+      );
+
+      setOpenModalEdit(false);
+      
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui data jurnal ${e.toString}`,
+      );
+    }
+  }
+
   if (error) {
     return (
       <div className="rounded-xl bg-red-100 p-4 text-red-600">
@@ -268,16 +298,22 @@ export default function AktifitasJurnalClient({ id }: Props) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button onClick={handleOpenModalEdit}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-            <PencilLine size={18} />
-            Ubah Detail
-          </button>
+          {isLoading || isFetching ? (
+            <></>
+          ) : (
+            <>
+              <button onClick={handleOpenModalEdit}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                <PencilLine size={18} />
+                Ubah Detail
+              </button>
+              <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
+                <FilePenLine size={18} />
+                Ubah Item Nilai
+              </button>
+            </>
+          )}
 
-          <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
-            <FilePenLine size={18} />
-            Ubah Item Nilai
-          </button>
         </div>
       </div>
 
@@ -676,8 +712,9 @@ export default function AktifitasJurnalClient({ id }: Props) {
       )}
 
       {openModalEdit && (
+        <>
         <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-slate-900">
+          <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
 
             {/* HEADER */}
             <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
@@ -804,7 +841,6 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
             {/* FOOTER */}
             <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900">
-
               <button
                 onClick={() => setOpenModalEdit(false)}
                 className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
@@ -817,7 +853,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
                   ${!isEditFormValid || updateJurnal.isPending
                     ? "cursor-not-allowed bg-slate-400 shadow-none"
                     : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
-                  }`} >
+                  }`}
+                onClick={handleUpdateJurnal} >
                 {updateJurnal.isPending
                   ? "Menyimpan..."
                   : "Simpan Perubahan"}
@@ -825,6 +862,19 @@ export default function AktifitasJurnalClient({ id }: Props) {
             </div>
           </div>
         </div>
+        <style jsx>
+        {`
+          .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+
+          .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        `}
+        </style>
+        </>
       )}
     </div>
   );
