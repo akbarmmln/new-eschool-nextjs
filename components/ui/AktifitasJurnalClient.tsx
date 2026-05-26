@@ -6,8 +6,8 @@ import {
   PencilLine,
   FilePenLine,
 } from "lucide-react";
-
-import { useDetailJurnal, useUpdateAbsensi, useSubmitItemPenilaian } from "@/hooks/queryJurnal";
+import JournalEditor from '@/components/common/Editor'
+import { useDetailJurnal, useUpdateAbsensi, useSubmitItemPenilaian, useUpdateJurnal } from "@/hooks/queryJurnal";
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
 
@@ -65,6 +65,29 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
   const saveAbsensiMutation = useUpdateAbsensi();
   const submitItemPenilaian = useSubmitItemPenilaian();
+  const updateJurnal = useUpdateJurnal();
+
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [materiPembelajaran, setMateriPembelajaran] = useState("");
+  const [refleksiPembelajaran, setRefleksiPembelajaran] = useState("");
+  const [jamMulai, setJamMulai] = useState('')
+  const [jamSelesai, setJamSelesai] = useState('')
+  
+  const isEditFormValid =
+    !isEmpty(data?.jurnal?.id) &&
+    !isEmpty(jamMulai) &&
+    !isEmpty(jamSelesai) &&
+    !isEditorEmpty(materiPembelajaran) &&
+    !isEditorEmpty(refleksiPembelajaran);
+
+  useEffect(() => {
+    if (data?.jurnal) {
+      setJamMulai(data.jurnal.jam_mulai || "");
+      setJamSelesai(data.jurnal.jam_selesai || "");
+      setMateriPembelajaran(data.jurnal.materi || "");
+      setRefleksiPembelajaran(data.jurnal.refleksi || "");
+    }
+  }, [data]);
 
   useEffect(() => {
     if (data?.siswa) {
@@ -86,6 +109,15 @@ export default function AktifitasJurnalClient({ id }: Props) {
       setStudents(mappedStudents);
     }
   }, [data]);
+
+  const handleOpenModalEdit = () => {
+    setJamMulai(data?.jurnal?.jam_mulai || "");
+    setJamSelesai(data?.jurnal?.jam_selesai || "");
+    setMateriPembelajaran(data?.jurnal?.materi || "");
+    setRefleksiPembelajaran(data?.jurnal?.refleksi || "");
+
+    setOpenModalEdit(true);
+  };
 
   const handleStatusChange = (
     rowId: string,
@@ -236,7 +268,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+          <button onClick={handleOpenModalEdit}
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
             <PencilLine size={18} />
             Ubah Detail
           </button>
@@ -641,6 +674,158 @@ export default function AktifitasJurnalClient({ id }: Props) {
           )}
         </>
       )}
+
+      {openModalEdit && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-white shadow-2xl dark:bg-slate-900">
+
+            {/* HEADER */}
+            <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+              <h2 className="text-2xl font-bold tracking-tight text-white">
+                Ubah Jurnal Mengajar
+              </h2>
+
+              <button
+                onClick={() => setOpenModalEdit(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                <i
+                  className="ri-close-line"
+                  style={{ fontSize: 30 }}
+                />
+              </button>
+            </div>
+
+            {/* BODY */}
+            <div className="space-y-6 p-6">
+              {/* ID */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  ID Jurnal
+                </label>
+
+                <input
+                  type="text"
+                  value={data?.jurnal?.id || ""}
+                  disabled
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                />
+              </div>
+
+              {/* TANGGAL */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Hari / Tanggal Mengajar
+                </label>
+
+                <input
+                  type="text"
+                  value={formatTanggalIndonesia(
+                    data?.jurnal?.tanggal_jurnal
+                  )}
+                  disabled
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                />
+              </div>
+
+              {/* KELAS */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Kelas
+                </label>
+
+                <input
+                  type="text"
+                  value={data?.jurnal?.nama_kelas || ""}
+                  disabled
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                />
+              </div>
+
+              {/* JAM */}
+              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    Jam Mulai
+                  </label>
+
+                  <input
+                    type="time"
+                    value={jamMulai}
+                    onChange={(e) => setJamMulai(e.target.value)}
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    Jam Selesai
+                  </label>
+
+                  <input
+                    type="time"
+                    value={jamSelesai}
+                    onChange={(e) => setJamSelesai(e.target.value)}
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              {/* MATERI */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Materi Pembelajaran
+                </label>
+
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                  <JournalEditor
+                    name="materi_pembelajaran_edit"
+                    value={materiPembelajaran}
+                    onChange={setMateriPembelajaran}
+                  />
+                </div>
+              </div>
+
+              {/* REFLEKSI */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Refleksi Pembelajaran
+                </label>
+
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+                  <JournalEditor
+                    name="refleksi_pembelajaran_edit"
+                    value={refleksiPembelajaran}
+                    onChange={setRefleksiPembelajaran}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* FOOTER */}
+            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900">
+
+              <button
+                onClick={() => setOpenModalEdit(false)}
+                className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                Batalkan
+              </button>
+
+              <button
+                disabled={!isEditFormValid || updateJurnal.isPending}
+                className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                  ${!isEditFormValid || updateJurnal.isPending
+                    ? "cursor-not-allowed bg-slate-400 shadow-none"
+                    : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                  }`} >
+                {updateJurnal.isPending
+                  ? "Menyimpan..."
+                  : "Simpan Perubahan"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -743,3 +928,14 @@ function DetailItem({
     </div>
   );
 }
+
+const isEditorEmpty = (value: string) => {
+  if (!value) return true;
+
+  const text = value
+    .replace(/<[^>]*>/g, "") // hapus tag html
+    .replace(/&nbsp;/g, "")
+    .trim();
+
+  return text === "";
+};

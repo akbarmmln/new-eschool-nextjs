@@ -4,7 +4,8 @@ import {
   detailJurnal,
   updateAbsensi,
   newjurnal,
-  submitItemPenilaian
+  submitItemPenilaian,
+  updateJurnal
 } from '@/services/Call'
 
 // LIST JURNAL \\
@@ -68,6 +69,16 @@ export const useNewJurnal = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
       const results = newjurnal(payload)
+      return results;
+    },
+  });
+};
+
+// UPDATE JURNAL \\
+export const useUpdateJurnal = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updateJurnal(payload)
       return results;
     },
   });
