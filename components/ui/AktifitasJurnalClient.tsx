@@ -299,7 +299,10 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
         <div className="flex flex-wrap gap-3">
           {isLoading || isFetching ? (
-            <></>
+            <>
+              <div className="h-[46px] w-[140px] animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+              <div className="h-[46px] w-[170px] animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+            </>
           ) : (
             <>
               <button onClick={handleOpenModalEdit}
@@ -313,7 +316,6 @@ export default function AktifitasJurnalClient({ id }: Props) {
               </button>
             </>
           )}
-
         </div>
       </div>
 
