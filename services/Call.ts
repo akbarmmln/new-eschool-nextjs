@@ -60,3 +60,12 @@ export async function listAllKelas() {
     10000
   );
 }
+
+export async function detailJurnal(id: string) {
+  return await request(
+    "get",
+    `/api/v1/jurnal/detail/${id}`,
+    {},
+    10000
+  );
+}

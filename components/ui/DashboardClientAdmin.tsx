@@ -27,7 +27,8 @@ export default function DashboardClientAdmin() {
     refetch: refetchListAllKelas,
     isLoading: isLoadingListAllKelas,
   } = useListAllKelas()
-
+  const id = "019d5404-db08-758a-aaf4-97d21044dfab";
+  
   return (
     <>
       <div className="greeting-card">

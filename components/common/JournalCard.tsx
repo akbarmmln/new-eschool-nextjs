@@ -1,13 +1,8 @@
-import {
-  format,
-} from 'date-fns'
-
-import {
-  id
-} from 'date-fns/locale'
+import { format } from 'date-fns'
+import Link from "next/link"
+import {id} from 'date-fns/locale'
 
 type Props = {
-
   item: any
 }
 
@@ -33,22 +28,15 @@ export default function JournalCard({ item } : Props) {
       (x: any) => x.absensi == '4'
     ).length
 
-  function renderContent(
-    value: string
-  ) {
-
+  function renderContent(value: string) {
     if (!value) {
-
       return '-'
     }
 
     // jika HTML dari editor
-    if (
-      value.includes('<')
-    ) {
+    if (value.includes('<')) {
 
       return (
-
         <div
           dangerouslySetInnerHTML={{
             __html: value
@@ -59,20 +47,17 @@ export default function JournalCard({ item } : Props) {
 
     // jika plain text
     return (
-
       <div
         style={{
           whiteSpace:
             'pre-wrap',
-        }}
-      >
+        }} >
         {value}
       </div>
     )
   }
 
   return (
-
     <div className="journal-card">
 
       {/* HEADER */}
@@ -153,19 +138,19 @@ export default function JournalCard({ item } : Props) {
 
       {/* FOOTER */}
       <div className="journal-footer dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700">
-
         <button>
           <i className="ri-download-line" />
         </button>
 
-        <button>
-          <i className="ri-edit-line" />
-        </button>
-
+        <Link href={`/akademik/aktifitas-jurnal/${item.id}`}>
+          <button>
+            <i className="ri-edit-line" />
+          </button>
+        </Link>
+        
         <button>
           <i className="ri-delete-bin-line" />
         </button>
-
       </div>
 
       <style jsx>
