@@ -1,9 +1,10 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
+import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
   jurnalList,
   detailJurnal,
   updateAbsensi,
   newjurnal,
+  getItemPenilaian,
   submitItemPenilaian,
   updateJurnal
 } from '@/services/Call'
@@ -62,6 +63,39 @@ export function useDetailJurnal(id: string) {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   })
+}
+
+// GET ITEM PENILAIAN \\
+type itemPenilaianResponse = {
+  [key: string]: any
+}
+const fetchItemPenilaian =
+  async ({
+    queryKey,
+  }: any): Promise<itemPenilaianResponse> => {
+    const [_, id] = queryKey
+
+    const hasil: any = await getItemPenilaian(id)
+    if (!hasil.ok) {
+      throw hasil
+    }
+    return hasil.data.data
+  }
+export function useGetItemPenilaian(
+  id: string,
+  options?: Partial<UseQueryOptions<itemPenilaianResponse>>
+) {
+  return useQuery<itemPenilaianResponse>({
+    queryKey: ['item-penilaian', id],
+    queryFn: fetchItemPenilaian,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+
+    ...options,
+  });
 }
 
 // NEW JURNAL \\

@@ -7,7 +7,7 @@ import {
   FilePenLine,
 } from "lucide-react";
 import JournalEditor from '@/components/common/Editor'
-import { useDetailJurnal, useUpdateAbsensi, useSubmitItemPenilaian, useUpdateJurnal } from "@/hooks/queryJurnal";
+import { useDetailJurnal, useUpdateAbsensi, useSubmitItemPenilaian, useUpdateJurnal, useGetItemPenilaian } from "@/hooks/queryJurnal";
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
 
@@ -53,6 +53,15 @@ const formatTanggalIndonesia = (tanggal: string) => {
 
 export default function AktifitasJurnalClient({ id }: Props) {
   const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
+  const {
+    data: dataItemPenilaian,
+    isLoading: isLoadingItemPenilaian,
+    isFetching: isFetchingItemPenilaian,
+    refetch: refetchItemPenilaian,
+  } = useGetItemPenilaian(id, {
+    enabled: false,
+  });
+
   const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
   const [students, setStudents] = useState<Student[]>([]);
   const [penilaianItems, setPenilaianItems] = useState([
@@ -68,6 +77,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
   const updateJurnal = useUpdateJurnal();
 
   const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [openModalEditItemPenilaian, setOpenModalEditItemPenilaian] = useState(false);
+
   const [materiPembelajaran, setMateriPembelajaran] = useState("");
   const [refleksiPembelajaran, setRefleksiPembelajaran] = useState("");
   const [jamMulai, setJamMulai] = useState('')
@@ -117,6 +128,32 @@ export default function AktifitasJurnalClient({ id }: Props) {
     setRefleksiPembelajaran(data?.jurnal?.refleksi || "");
 
     setOpenModalEdit(true);
+  };
+
+  const handleOpenModalEditItemPenilaian = async () => {
+    setOpenModalEditItemPenilaian(true);
+
+    const result = await refetchItemPenilaian();
+    const title_silabus = result?.data?.title_silabus;
+    const dataPenilaian = result?.data?.items;
+
+    if (dataPenilaian) {
+      setJudul(title_silabus || "");
+      setPenilaianItems(
+        (dataPenilaian || []).map(
+          (
+            item: {
+              id_item_silabus: string;
+              item_silabus: string;
+            },
+            index: number
+          ) => ({
+            id: item.id_item_silabus || `${index + 1}`,
+            value: item.item_silabus,
+          })
+        )
+      );
+    }
   };
 
   const handleStatusChange = (
@@ -313,7 +350,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
               {data?.jurnal?.initiate_nilai == 1 ? (
                 <>
-                  <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
+                  <button onClick={handleOpenModalEditItemPenilaian}
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
                     <FilePenLine size={18} />
                     Ubah Item Nilai
                   </button>
@@ -881,6 +919,156 @@ export default function AktifitasJurnalClient({ id }: Props) {
           }
         `}
         </style>
+        </>
+      )}
+
+      {openModalEditItemPenilaian && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+              {/* HEADER */}
+              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+                <h2 className="text-2xl font-bold tracking-tight text-white">
+                  Ubah Item Penilaian
+                </h2>
+
+                <button
+                  onClick={() => setOpenModalEditItemPenilaian(false)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                  <i
+                    className="ri-close-line"
+                    style={{ fontSize: 30 }}
+                  />
+                </button>
+              </div>
+
+              {/* BODY */}
+              {isLoadingItemPenilaian || isFetchingItemPenilaian ? (
+                <>
+                  <div className="space-y-6 p-8">
+
+                    <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200" />
+
+                    <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200" />
+
+                    {[1, 2].map((item) => (
+                      <div key={item} className="rounded-2xl border border-slate-200 p-4" >
+                        <div className="flex items-center gap-4">
+
+                          <div className="h-12 flex-1 animate-pulse rounded-xl bg-slate-200" />
+
+                          <div className="h-12 w-12 animate-pulse rounded-xl bg-slate-200" />
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="flex gap-3">
+                      <div className="h-12 w-40 animate-pulse rounded-xl bg-slate-200" />
+
+                      <div className="h-12 w-40 animate-pulse rounded-xl bg-slate-200" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+              <>
+                <div className="space-y-6 p-8">
+                  {/* ID */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      ID
+                    </label>
+
+                    <input
+                      type="text"
+                      value={id}
+                      disabled
+                      className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
+                    />
+                  </div>
+
+                  {/* JUDUL */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      Grup/Judul Pembelajaran
+                    </label>
+
+                    <input
+                      type="text"
+                      value={judul}
+                      onChange={(e) => setJudul(e.target.value)}
+                      placeholder="Masukkan Grup/Judul pembelajaran"
+                      className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* ITEM */}
+                  <div className="space-y-5">
+                    {penilaianItems.map((item) => (
+                      <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4" >
+                        <div className="flex items-center gap-4">
+
+                          <input
+                            type="text"
+                            value={item.value}
+                            onChange={(e) =>
+                              handleChangeItem(item.id, e.target.value)
+                            }
+                            placeholder="Isi item Penilaian"
+                            className="h-[48px] flex-1 rounded-xl border border-slate-200 bg-white px-5 text-sm outline-none transition focus:border-blue-500"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-white transition hover:bg-red-600"
+                            style={{
+                              height: 40,
+                              width: 40,
+                            }} >
+                            <i
+                              className="ri-delete-bin-line"
+                              style={{ fontSize: 15 }}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ACTION */}
+                  <div className="flex flex-wrap gap-3 pb-6">
+                    <button
+                      type="button"
+                      onClick={handleAddItem}
+                      className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700" >
+                      <i className="ri-add-line" />
+                      Tambah Item
+                    </button>
+
+                    <button
+                      onClick={handleSavePenilaian}
+                      className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                    ${submitItemPenilaian.isPending || isFetching
+                          ? "cursor-not-allowed bg-slate-400 shadow-none"
+                          : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                        }`}
+                      disabled={
+                        submitItemPenilaian.isPending || isFetching
+                      } >
+                      <i className="ri-save-line" />
+
+                      {submitItemPenilaian.isPending
+                        ? "Menyimpan..."
+                        : isFetching
+                          ? "Memperbarui..."
+                          : "Simpan Data"}
+                    </button>
+                  </div>
+                </div>
+              </>
+              ) }
+            </div>
+          </div>
         </>
       )}
     </div>

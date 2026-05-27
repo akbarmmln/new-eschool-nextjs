@@ -99,6 +99,15 @@ export async function submitItemPenilaian(body: any) {
   );
 }
 
+export async function getItemPenilaian(id: any) {
+  return await request(
+    "get",
+    `/api/v1/jurnal/item/nilai/${id}`,
+    {},
+    10000
+  );
+}
+
 export async function updateAbsensi(body: any) {
   return await request(
     "post",
