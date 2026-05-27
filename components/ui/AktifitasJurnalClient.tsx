@@ -61,24 +61,28 @@ export default function AktifitasJurnalClient({ id }: Props) {
   } = useGetItemPenilaian(id, {
     enabled: false,
   });
-
-  const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
-  const [students, setStudents] = useState<Student[]>([]);
-  const [penilaianItems, setPenilaianItems] = useState([
-    {
-      id: Date.now(),
-      value: "",
-    },
-  ]);
-  const [judul, setJudul] = useState("");
-
   const saveAbsensiMutation = useUpdateAbsensi();
   const submitItemPenilaian = useSubmitItemPenilaian();
   const updateJurnal = useUpdateJurnal();
 
+  const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
+  const [students, setStudents] = useState<Student[]>([]);
+  const [penilaianItems, setPenilaianItems] = useState<
+    {
+      id: string;
+      value: string;
+      id_item_silabus?: string;
+    }[]
+  >([
+    {
+      id: crypto.randomUUID(),
+      value: "",
+    },
+  ]);
+  const [deletedIdItemSilabus, setDeletedIdItemSilabus] = useState<string[]>([]);
+  const [judul, setJudul] = useState("");
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [openModalEditItemPenilaian, setOpenModalEditItemPenilaian] = useState(false);
-
   const [materiPembelajaran, setMateriPembelajaran] = useState("");
   const [refleksiPembelajaran, setRefleksiPembelajaran] = useState("");
   const [jamMulai, setJamMulai] = useState('')
@@ -131,6 +135,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
   };
 
   const handleOpenModalEditItemPenilaian = async () => {
+    setDeletedIdItemSilabus([]);
     setOpenModalEditItemPenilaian(true);
 
     const result = await refetchItemPenilaian();
@@ -148,8 +153,9 @@ export default function AktifitasJurnalClient({ id }: Props) {
             },
             index: number
           ) => ({
-            id: item.id_item_silabus || `${index + 1}`,
+            id: crypto.randomUUID(), // local id react
             value: item.item_silabus,
+            id_item_silabus: item.id_item_silabus, // id database
           })
         )
       );
@@ -176,20 +182,32 @@ export default function AktifitasJurnalClient({ id }: Props) {
     setPenilaianItems((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         value: "",
       },
     ]);
   };
 
-  const handleRemoveItem = (id: number) => {
+  const handleRemoveItem = (id: string) => {
+    const selectedItem = penilaianItems.find(
+      (item) => item.id === id
+    );
+
+    // hanya item database yang dimasukkan delete list
+    if (selectedItem?.id_item_silabus) {
+      setDeletedIdItemSilabus((prev) => [
+        ...prev,
+        selectedItem.id_item_silabus!,
+      ]);
+    }
+
     setPenilaianItems((prev) =>
       prev.filter((item) => item.id !== id)
     );
   };
 
   const handleChangeItem = (
-    id: number,
+    id: string,
     value: string
   ) => {
     setPenilaianItems((prev) =>
@@ -233,17 +251,21 @@ export default function AktifitasJurnalClient({ id }: Props) {
     }
   };
 
-  const handleSavePenilaian = async () => {
+  const handleSavePenilaian = async (type: 0 | 1) => {
     try {
-      const payload = {
+      let payload: {
+        id_jurnal: string;
+        judul: string;
+        item_penilaian: string[];
+        id_diajar: string[];
+        deleted_id_item_silabus: string[];
+      } = {
         id_jurnal: id,
         judul: judul,
-        item_penilaian: penilaianItems
-          .map((item) => item.value.trim())
-          .filter((item) => item !== ""),
-        id_diajar: []
+        item_penilaian: penilaianItems.map((item) => item.value.trim()).filter((item) => item !== ""),
+        id_diajar: [],
+        deleted_id_item_silabus: [],
       };
-
       if (isEmpty(payload.judul)) {
         await showAlert(
           "warning",
@@ -262,15 +284,18 @@ export default function AktifitasJurnalClient({ id }: Props) {
         return
       }
 
-      await submitItemPenilaian.mutateAsync(payload);
-
-      await showAlert(
-        "success",
-        "Berhasil",
-        "Item penilaian berhasil disimpan"
-      );
-
-      await refetch();
+      if (type === 0) {
+        await submitItemPenilaian.mutateAsync(payload);
+        await showAlert(
+          "success",
+          "Berhasil",
+          "Item penilaian berhasil disimpan"
+        );
+        await refetch();
+      } else if (type === 1) {
+        payload.deleted_id_item_silabus = deletedIdItemSilabus
+        console.log('asdasdsadsadad - edit', payload)
+      }
     } catch (e: any) {
       await showAlert(
         "error",
@@ -679,7 +704,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                         ? "cursor-not-allowed bg-slate-400 shadow-none"
                         : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                       }`}
-                    onClick={handleSavePenilaian}>
+                    onClick={() => handleSavePenilaian(0)} >
                     <i className="ri-save-line" />
 
                     {submitItemPenilaian.isPending
@@ -1045,16 +1070,15 @@ export default function AktifitasJurnalClient({ id }: Props) {
                       Tambah Item
                     </button>
 
-                    <button
-                      onClick={handleSavePenilaian}
-                      className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                    ${submitItemPenilaian.isPending || isFetching
+                    <button className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                      ${submitItemPenilaian.isPending || isFetching
                           ? "cursor-not-allowed bg-slate-400 shadow-none"
                           : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
-                        }`}
+                      }`}
                       disabled={
                         submitItemPenilaian.isPending || isFetching
-                      } >
+                      }
+                      onClick={() => handleSavePenilaian(1)} >
                       <i className="ri-save-line" />
 
                       {submitItemPenilaian.isPending

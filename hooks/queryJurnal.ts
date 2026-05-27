@@ -6,6 +6,7 @@ import {
   newjurnal,
   getItemPenilaian,
   submitItemPenilaian,
+  editItemPenilaian,
   updateJurnal
 } from '@/services/Call'
 
@@ -128,6 +129,15 @@ export const useUpdateAbsensi = () => {
   });
 };
 
+// EDIT ITEM PENILAIAN \\
+export const useEditItemPenilaian = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = editItemPenilaian(payload)
+      return results;
+    },
+  });
+};
 // SUBMIT ITEM PENILAIAN \\
 export const useSubmitItemPenilaian = () => {
   return useMutation({
