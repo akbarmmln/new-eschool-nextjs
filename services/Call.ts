@@ -137,3 +137,12 @@ export async function updateAbsensi(body: any) {
     10000
   );
 }
+
+export async function submitNilai(body: any) {
+  return await request(
+    "post",
+    `/api/v1/jurnal/update-penilaian`,
+    body,
+    10000
+  );
+}

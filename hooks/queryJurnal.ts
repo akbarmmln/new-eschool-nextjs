@@ -8,7 +8,8 @@ import {
   submitItemPenilaian,
   editItemPenilaian,
   inisiasiPenilaian,
-  updateJurnal
+  updateJurnal,
+  submitNilai
 } from '@/services/Call'
 
 // LIST JURNAL \\
@@ -185,6 +186,16 @@ export const useSubmitItemPenilaian = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
       const results = submitItemPenilaian(payload)
+      return results;
+    },
+  });
+};
+
+// SUBMIT NILAI \\
+export const useSubmitNilai = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = submitNilai(payload)
       return results;
     },
   });

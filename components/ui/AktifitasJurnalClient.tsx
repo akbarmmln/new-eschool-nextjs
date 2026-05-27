@@ -7,7 +7,9 @@ import {
   FilePenLine,
 } from "lucide-react";
 import JournalEditor from '@/components/common/Editor'
-import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian, useSubmitItemPenilaian, useEditItemPenilaian, useUpdateJurnal, useGetItemPenilaian } from "@/hooks/queryJurnal";
+import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian, 
+  useSubmitItemPenilaian, useEditItemPenilaian, useUpdateJurnal, 
+  useGetItemPenilaian, useSubmitNilai } from "@/hooks/queryJurnal";
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
 import { useQueryClient } from '@tanstack/react-query'
@@ -71,6 +73,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
   const [refleksiPembelajaran, setRefleksiPembelajaran] = useState("");
   const [jamMulai, setJamMulai] = useState('')
   const [jamSelesai, setJamSelesai] = useState('')
+  const [imageLoading, setImageLoading] = useState<{ [key: number]: boolean }>({});
   const [selectedSiswa, setSelectedSiswa] = useState<{
     idJurnal: string;
     idSiswa: string;
@@ -78,6 +81,15 @@ export default function AktifitasJurnalClient({ id }: Props) {
     nama: string;
   } | null>(null);
   const [nilaiItems, setNilaiItems] = useState<any[]>([]);
+  const [attachments, setAttachments] = useState<
+    {
+      id?: string;
+      file?: File;
+      url?: string;
+      keterangan: string;
+    }[]
+  >([]);
+  const [filesDeleted, setFilesDeleted] = useState<string[]>([]);
 
   const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
   const {
@@ -108,6 +120,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
   const submitItemPenilaian = useSubmitItemPenilaian();
   const editItemPenilaian = useEditItemPenilaian();
   const updateJurnal = useUpdateJurnal();
+  const submitNilai = useSubmitNilai();
 
   const isEditFormValid =
     !isEmpty(data?.jurnal?.id) &&
@@ -147,8 +160,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
   }, [data]);
 
   useEffect(() => {
+    console.log('useEffect', dataInisiasiPenilaian)
     if (dataInisiasiPenilaian?.silabus?.[0]?.items) {
-
       const mapped =
         dataInisiasiPenilaian.silabus[0].items.map(
           (item: any) => ({
@@ -161,6 +174,20 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
       setNilaiItems(mapped);
     }
+
+    if (dataInisiasiPenilaian?.attachments.length > 0) {
+      const mappedAttachments =
+        dataInisiasiPenilaian?.attachments.map(
+          (item: any) => ({
+            id: item.id,
+            url: item.url_image,
+            keterangan: item.caption || "",
+          })
+        );
+
+      setAttachments(mappedAttachments);
+    }
+
   }, [dataInisiasiPenilaian]);
 
   const handleOpenModalEdit = () => {
@@ -197,13 +224,17 @@ export default function AktifitasJurnalClient({ id }: Props) {
       );
     }
   };
-  const handleCloseModalEditItemPenilaian = () => {
+
+  const handleCloseInputNilai = () => {
     setOpenInputNilai(false);
     setSelectedSiswa(null);
+    setAttachments([]);
+    setFilesDeleted([]);
     queryClient.removeQueries({
       queryKey: ['inisiasi-penilaian'],
     });
   };
+
   const handleOpenInputNilai = async (idJurnal: string, idSiswa: string, idDiajar: string, nama: string) => {
     setSelectedSiswa({ idJurnal, idSiswa, idDiajar, nama });
     setOpenInputNilai(true);
@@ -415,10 +446,137 @@ export default function AktifitasJurnalClient({ id }: Props) {
       await showAlert(
         "error",
         "Gagal",
-        `Gagal memperbaharui data jurnal ${e.toString}`,
+        `Gagal memperbaharui data jurnal`,
       );
     }
   }
+
+  const handleUploadAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(
+      e.target.files || []
+    );
+
+    if (files.length === 0) return;
+
+    const startIndex = attachments.length;
+
+    const mappedFiles = files.map(
+      (file, index) => {
+
+        // set loading hanya untuk item baru
+        setImageLoading((prev) => ({
+          ...prev,
+          [startIndex + index]: true,
+        }));
+
+        return {
+          file,
+          keterangan: "",
+        };
+      }
+    );
+
+    setAttachments((prev) => [
+      ...prev,
+      ...mappedFiles,
+    ]);
+
+    e.target.value = "";
+  };
+
+  const handleChangeKeteranganAttachment = (index: number, value: string) => {
+    setAttachments((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+            ...item,
+            keterangan: value,
+          }
+          : item
+      )
+    );
+  };
+
+  const handleRemoveAttachment = (index: number) => {
+    const selectedAttachment =
+      attachments[index];
+
+    if (selectedAttachment?.id) {
+      const deletedId = selectedAttachment?.id;
+      if (deletedId) {
+        setFilesDeleted((prev) => [
+          ...prev,
+          deletedId,
+        ]);
+      }
+    }
+
+    setAttachments((prev) =>
+      prev.filter((_, i) => i !== index)
+    );
+  };
+
+  const handleSaveAttachments = async () => {
+    try {
+      // attachment baru saja
+      const newAttachments = attachments.filter((item) => item.file);
+
+      // convert ke base64 + caption
+      const newFiles = await Promise.all(
+        newAttachments.map(async (item) => {
+          const base64 =
+            await fileToBase64(
+              item.file as File
+            );
+
+          return {
+            file: base64,
+            caption: item.keterangan,
+          };
+        })
+      );
+
+      // radio button penilaian
+      const penilaian = nilaiItems.map(
+        (item: any) => ({
+          id_mengajar: item.id,
+          status: item.nilai,
+          keterangan: item.keterangan,
+        })
+      );
+
+      // payload final
+      const payload = {
+        id_jurnal: id,
+        id_siswa: selectedSiswa?.idSiswa,
+        filesDeleted: filesDeleted,
+        files: newFiles,
+        data: penilaian
+      };
+
+      const hasil = await submitNilai.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Penilaian berhasil dilakukan"
+      );
+
+      handleCloseInputNilai();
+
+      await refetch();
+    } catch (e) {
+      console.log('error nya ', e)
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal menyimpan penilaian`,
+      );
+    }
+  };
 
   if (error) {
     return (
@@ -1193,7 +1351,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
               </h1>
 
               <button className="flex h-11 w-11 items-center justify-center rounded-full bg-[#529e94] text-[#FFFFFF] transition hover:bg-red-500 hover:text-white" 
-                onClick={handleCloseModalEditItemPenilaian} >
+                onClick={handleCloseInputNilai} >
                 <i className="ri-close-line text-2xl" />
               </button>
             </div>
@@ -1250,7 +1408,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                                 <input
                                   type="radio"
                                   name={`nilai-${item.id}`}
-                                  checked={item.nilai === 1}
+                                  checked={item.nilai == 1}
                                   onChange={() =>
                                     handleChangeNilai(item.id, 1)
                                   }
@@ -1261,7 +1419,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                                 <input
                                   type="radio"
                                   name={`nilai-${item.id}`}
-                                  checked={item.nilai === 2}
+                                  checked={item.nilai == 2}
                                   onChange={() =>
                                     handleChangeNilai(item.id, 2)
                                   }
@@ -1272,7 +1430,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                                 <input
                                   type="radio"
                                   name={`nilai-${item.id}`}
-                                  checked={item.nilai === 3}
+                                  checked={item.nilai == 3}
                                   onChange={() =>
                                     handleChangeNilai(item.id, 3)
                                   }
@@ -1283,7 +1441,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                                 <input
                                   type="radio"
                                   name={`nilai-${item.id}`}
-                                  checked={item.nilai === 4}
+                                  checked={item.nilai == 4}
                                   onChange={() =>
                                     handleChangeNilai(item.id, 4)
                                   }
@@ -1311,6 +1469,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                     </>
                 ) }
               </div>
+
               {isLoadingInisiasiPenilaian || isFetchingInisiasiPenilaian ? (
                 <></>
               ) : (
@@ -1322,11 +1481,112 @@ export default function AktifitasJurnalClient({ id }: Props) {
                       </h2>
 
                       <div className="flex flex-wrap gap-4">
-                        <button
-                          className="flex h-[160px] w-[160px] items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 text-slate-400 transition hover:border-blue-500 hover:text-blue-500"
-                        >
+                        {/* ATTACHMENT LIST */}
+                        {attachments.map((item, index) => (
+                          <div key={index} className="w-[160px]" >
+
+                            {/* IMAGE */}
+                            <div
+                              className="
+                                relative
+                                h-[160px]
+                                overflow-hidden
+                                rounded-3xl
+                                bg-slate-100
+                              "
+                            >
+
+                              {/* SKELETON */}
+                              {imageLoading[index] && (
+                                <div
+                                  className="
+                                    absolute inset-0
+                                    animate-pulse
+                                    bg-slate-200
+                                  "
+                                />
+                              )}
+
+                              <img
+                                src={
+                                  item.file
+                                    ? URL.createObjectURL(item.file)
+                                    : item.url
+                                }
+                                alt={`attachment-${index}`}
+                                onLoad={() =>
+                                  setImageLoading((prev) => ({
+                                    ...prev,
+                                    [index]: false,
+                                  }))
+                                }
+                                className={`
+                                  h-full
+                                  w-full
+                                  object-contain
+                                  p-2
+                                  transition-opacity
+                                  duration-300
+
+                                  ${
+                                    imageLoading[index]
+                                      ? "opacity-0"
+                                      : "opacity-100"
+                                  }
+                                `}
+                              />
+
+                              {/* REMOVE */}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleRemoveAttachment(index)
+                                }
+                                className="
+                                  absolute right-2 top-2
+                                  z-10
+                                  flex h-12 w-12
+                                  items-center justify-center
+                                  rounded-full
+                                  bg-black/60
+                                  text-white
+                                  transition
+                                  hover:bg-red-500
+                                "
+                              >
+                                <i className="ri-close-line text-2xl" />
+                              </button>
+                            </div>
+
+                            {/* KETERANGAN */}
+                            <textarea
+                              value={item.keterangan}
+                              onChange={(e) =>
+                                handleChangeKeteranganAttachment(
+                                  index,
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Informasi tentang gambar..."
+                              rows={2}
+                              className="mt-3 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500"
+                            />
+                          </div>
+                        ))}
+
+                        {/* BUTTON ADD */}
+                        <label
+                          className="flex h-[160px] w-[160px] cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 text-slate-400 transition hover:border-blue-500 hover:text-blue-500">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handleUploadAttachment}
+                          />
+
                           <i className="ri-add-line text-5xl" />
-                        </button>
+                        </label>
                       </div>
                     </div>
 
@@ -1334,17 +1594,27 @@ export default function AktifitasJurnalClient({ id }: Props) {
                     <div className="fixed bottom-0 left-0 right-0 border-t border-slate-200 bg-white px-6 py-4">
                       <div className="flex justify-end gap-3">
 
-                        <button
-                          onClick={() => setOpenInputNilai(false)}
-                          className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300"
-                        >
+                        <button className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300"
+                          onClick={handleCloseInputNilai} >
                           Tutup
                         </button>
 
-                        <button
-                          className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
-                        >
-                          Simpan
+                        <button className={`rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700
+                            ${submitNilai.isPending || isFetching
+                                ? "cursor-not-allowed bg-slate-400 shadow-none"
+                                : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                            }
+                          `}
+                          disabled={
+                            submitNilai.isPending || isFetching
+                          }
+                          onClick={handleSaveAttachments} >
+                          
+                          {submitNilai.isPending
+                            ? "Menyimpan..."
+                            : isFetching
+                              ? "Memperbarui..."
+                              : "Simpan Nilai"}
                         </button>
                       </div>
                     </div>
@@ -1466,4 +1736,18 @@ const isEditorEmpty = (value: string) => {
     .trim();
 
   return text === "";
+};
+
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const result = reader.result as string;
+      const base64 = result.split(",")[1];
+      resolve(base64);
+    };
+
+    reader.onerror = reject;
+  });
 };
