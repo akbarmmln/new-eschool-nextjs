@@ -90,6 +90,15 @@ export async function updateJurnal(body: any) {
   );
 }
 
+export async function inisiasiPenilaian(body: any) {
+  return await request(
+    "post",
+    `/api/v1/jurnal/inisiasi-penilaian`,
+    body,
+    10000
+  );
+}
+
 export async function submitItemPenilaian(body: any) {
   return await request(
     "post",

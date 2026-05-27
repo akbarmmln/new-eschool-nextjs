@@ -1,13 +1,26 @@
 import { format } from 'date-fns'
 import Link from "next/link"
 import {id} from 'date-fns/locale'
+import { useEffect, useState } from "react";
 
 type Props = {
   item: any
 }
 
-export default function JournalCard({ item } : Props) {
 
+export default function JournalCard({ item } : Props) {
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const handleDownload = async (id: string) => {
+    try {
+      setDownloadingId(id);
+
+      // await downloadFile(id);
+
+    } finally {
+      // setDownloadingId(null);
+    }
+  };
   const hadir =
     item.detail_siswa.filter(
       (x: any) => x.absensi == '1'
@@ -138,8 +151,14 @@ export default function JournalCard({ item } : Props) {
 
       {/* FOOTER */}
       <div className="journal-footer dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700">
-        <button>
-          <i className="ri-download-line" />
+        <button onClick={() => handleDownload(item.id)}>
+          <i
+            className={
+              downloadingId === item.id
+                ? "ti ti-loader-2 spin"
+                : "ri-download-line"
+            }
+          />
         </button>
 
         <Link href={`/akademik/aktifitas-jurnal/${item.id}`}>
@@ -155,6 +174,16 @@ export default function JournalCard({ item } : Props) {
 
       <style jsx>
         {`
+          .spin {
+              display: inline-block;
+              animation: spin 1s linear infinite;
+          }
+
+          @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+          }
+
           :global(.dark) .journal-text {
 
             color: rgba(255,255,255,.88);

@@ -7,9 +7,10 @@ import {
   FilePenLine,
 } from "lucide-react";
 import JournalEditor from '@/components/common/Editor'
-import { useDetailJurnal, useUpdateAbsensi, useSubmitItemPenilaian, useEditItemPenilaian, useUpdateJurnal, useGetItemPenilaian } from "@/hooks/queryJurnal";
+import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian, useSubmitItemPenilaian, useEditItemPenilaian, useUpdateJurnal, useGetItemPenilaian } from "@/hooks/queryJurnal";
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
+import { useQueryClient } from '@tanstack/react-query'
 
 type Student = {
   id: string;
@@ -52,28 +53,10 @@ const formatTanggalIndonesia = (tanggal: string) => {
 };
 
 export default function AktifitasJurnalClient({ id }: Props) {
-  const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
-  const {
-    data: dataItemPenilaian,
-    isLoading: isLoadingItemPenilaian,
-    isFetching: isFetchingItemPenilaian,
-    refetch: refetchItemPenilaian,
-  } = useGetItemPenilaian(id, {
-    enabled: false,
-  });
-  const saveAbsensiMutation = useUpdateAbsensi();
-  const submitItemPenilaian = useSubmitItemPenilaian();
-  const editItemPenilaian = useEditItemPenilaian();
-  const updateJurnal = useUpdateJurnal();
-
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
   const [students, setStudents] = useState<Student[]>([]);
-  const [penilaianItems, setPenilaianItems] = useState<
-    {
-      id: string | null;
-      value: string;
-    }[]
-  >([
+  const [penilaianItems, setPenilaianItems] = useState<{ id: string | null; value: string; }[]>([
     {
       id: null,
       value: "",
@@ -83,11 +66,49 @@ export default function AktifitasJurnalClient({ id }: Props) {
   const [judul, setJudul] = useState("");
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [openModalEditItemPenilaian, setOpenModalEditItemPenilaian] = useState(false);
+  const [openInputNilai, setOpenInputNilai] = useState(false);
   const [materiPembelajaran, setMateriPembelajaran] = useState("");
   const [refleksiPembelajaran, setRefleksiPembelajaran] = useState("");
   const [jamMulai, setJamMulai] = useState('')
   const [jamSelesai, setJamSelesai] = useState('')
-  
+  const [selectedSiswa, setSelectedSiswa] = useState<{
+    idJurnal: string;
+    idSiswa: string;
+    idDiajar: string;
+    nama: string;
+  } | null>(null);
+  const [nilaiItems, setNilaiItems] = useState<any[]>([]);
+
+  const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
+  const {
+    data: dataItemPenilaian,
+    isLoading: isLoadingItemPenilaian,
+    isFetching: isFetchingItemPenilaian,
+    refetch: refetchItemPenilaian,
+  } = useGetItemPenilaian(id, {
+    enabled: false,
+  });
+  const {
+    data: dataInisiasiPenilaian,
+    isLoading: isLoadingInisiasiPenilaian,
+    isFetching: isFetchingInisiasiPenilaian,
+  } = useInisiasiPenilaian(
+    selectedSiswa?.idJurnal || "",
+    selectedSiswa?.idSiswa || "",
+    selectedSiswa?.idDiajar || "",
+    {
+      enabled:
+        !!selectedSiswa?.idJurnal &&
+        !!selectedSiswa?.idSiswa &&
+        !!selectedSiswa?.idDiajar,
+    }
+  );
+
+  const saveAbsensiMutation = useUpdateAbsensi();
+  const submitItemPenilaian = useSubmitItemPenilaian();
+  const editItemPenilaian = useEditItemPenilaian();
+  const updateJurnal = useUpdateJurnal();
+
   const isEditFormValid =
     !isEmpty(data?.jurnal?.id) &&
     !isEmpty(jamMulai) &&
@@ -125,6 +146,23 @@ export default function AktifitasJurnalClient({ id }: Props) {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (dataInisiasiPenilaian?.silabus?.[0]?.items) {
+
+      const mapped =
+        dataInisiasiPenilaian.silabus[0].items.map(
+          (item: any) => ({
+            id: item.id,
+            nama_item: item.nama_item,
+            nilai: item.nilai,
+            keterangan: item.keterangan || "",
+          })
+        );
+
+      setNilaiItems(mapped);
+    }
+  }, [dataInisiasiPenilaian]);
+
   const handleOpenModalEdit = () => {
     setJamMulai(data?.jurnal?.jam_mulai || "");
     setJamSelesai(data?.jurnal?.jam_selesai || "");
@@ -158,6 +196,43 @@ export default function AktifitasJurnalClient({ id }: Props) {
         )
       );
     }
+  };
+  const handleCloseModalEditItemPenilaian = () => {
+    setOpenInputNilai(false);
+    setSelectedSiswa(null);
+    queryClient.removeQueries({
+      queryKey: ['inisiasi-penilaian'],
+    });
+  };
+  const handleOpenInputNilai = async (idJurnal: string, idSiswa: string, idDiajar: string, nama: string) => {
+    setSelectedSiswa({ idJurnal, idSiswa, idDiajar, nama });
+    setOpenInputNilai(true);
+  };
+
+  const handleChangeNilai = (id: string, nilai: number) => {
+    setNilaiItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+            ...item,
+            nilai,
+          }
+          : item
+      )
+    );
+  };
+
+  const handleChangeKeterangan = (id: string, value: string) => {
+    setNilaiItems((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+            ...item,
+            keterangan: value,
+          }
+          : item
+      )
+    );
   };
 
   const handleStatusChange = (rowId: string, status: Student["status"]) => {
@@ -290,7 +365,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
       } else if (type === 1) {
         payload.deleted_id_item_silabus = deletedIdItemSilabus;
         payload.updated = payload.item_penilaian
-        
+
         const hasil = await editItemPenilaian.mutateAsync(payload);
         if (!hasil.ok) {
           throw hasil;
@@ -628,8 +703,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
                     />
                   </div>
 
-                  <h3 className="mt-6 text-2xl font-bold text-yellow-500">
-                    WARNING
+                  <h3 className="mt-3 text-1xl font-bold text-yellow-500">
+                    PEMBERITAHUAN
                   </h3>
 
                   <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
@@ -772,8 +847,10 @@ export default function AktifitasJurnalClient({ id }: Props) {
                                   Download
                                 </button>
 
-                                <button
-                                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">
+                                <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                                  onClick={() =>
+                                    handleOpenInputNilai(id, siswa.id_siswa, siswa.id, siswa.nama_siswa)
+                                  } >
                                   <i className="ri-edit-line" />
                                   Input Nilai
                                 </button>
@@ -1103,6 +1180,178 @@ export default function AktifitasJurnalClient({ id }: Props) {
               ) }
             </div>
           </div>
+        </>
+      )}
+
+      {openInputNilai && selectedSiswa && (
+        <>
+        <div className="fixed inset-0 z-[999999] bg-white">
+            {/* HEADER */}
+            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+              <h1 className="text-[20px] font-bold text-slate-800">
+                Input Nilai - {selectedSiswa.nama}
+              </h1>
+
+              <button className="flex h-11 w-11 items-center justify-center rounded-full bg-[#529e94] text-[#FFFFFF] transition hover:bg-red-500 hover:text-white" 
+                onClick={handleCloseModalEditItemPenilaian} >
+                <i className="ri-close-line text-2xl" />
+              </button>
+            </div>
+
+            {/* CONTENT */}
+            <div className="h-[calc(100vh-88px)] overflow-y-auto p-4 pb-32 md:p-6 md:pb-30">
+              <div className="overflow-x-auto rounded-3xl border border-slate-200">
+                {isLoadingInisiasiPenilaian || isFetchingInisiasiPenilaian ? (
+                  <>
+                  <AbsensiTableSkeleton />
+                  </>
+                ) : (
+                    <>
+                      <table className="min-w-[900px] w-full border-collapse">
+                        <thead>
+                          <tr>
+                            <th rowSpan={2} className="border border-slate-200 px-4 py-5 text-center">
+                              No
+                            </th>
+
+                            <th rowSpan={2} className="border border-slate-200 px-4 py-5 text-center">
+                              Aktifitas
+                            </th>
+
+                            <th colSpan={4} className="border border-slate-200 px-4 py-5 text-center">
+                              Hasil
+                            </th>
+
+                            <th rowSpan={2} className="border border-slate-200 px-4 py-5 text-center">
+                              Keterangan
+                            </th>
+                          </tr>
+
+                          <tr>
+                            <th className="border border-slate-200 px-4 py-5">BSB</th>
+                            <th className="border border-slate-200 px-4 py-5">BSH</th>
+                            <th className="border border-slate-200 px-4 py-5">MB</th>
+                            <th className="border border-slate-200 px-4 py-5">BB</th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {nilaiItems.map((item: any, index: number) => (
+                            <tr key={item.id}>
+                              <td className="border border-slate-200 px-4 py-5 text-center">
+                                {index + 1}
+                              </td>
+
+                              <td className="border border-slate-200 px-4 py-5">
+                                {item.nama_item}
+                              </td>
+
+                              <td className="border border-slate-200 px-4 py-5 text-center">
+                                <input
+                                  type="radio"
+                                  name={`nilai-${item.id}`}
+                                  checked={item.nilai === 1}
+                                  onChange={() =>
+                                    handleChangeNilai(item.id, 1)
+                                  }
+                                />
+                              </td>
+
+                              <td className="border border-slate-200 px-4 py-5 text-center">
+                                <input
+                                  type="radio"
+                                  name={`nilai-${item.id}`}
+                                  checked={item.nilai === 2}
+                                  onChange={() =>
+                                    handleChangeNilai(item.id, 2)
+                                  }
+                                />
+                              </td>
+
+                              <td className="border border-slate-200 px-4 py-5 text-center">
+                                <input
+                                  type="radio"
+                                  name={`nilai-${item.id}`}
+                                  checked={item.nilai === 3}
+                                  onChange={() =>
+                                    handleChangeNilai(item.id, 3)
+                                  }
+                                />
+                              </td>
+
+                              <td className="border border-slate-200 px-4 py-5 text-center">
+                                <input
+                                  type="radio"
+                                  name={`nilai-${item.id}`}
+                                  checked={item.nilai === 4}
+                                  onChange={() =>
+                                    handleChangeNilai(item.id, 4)
+                                  }
+                                />
+                              </td>
+
+                              <td className="border border-slate-200 px-4 py-5">
+                                <input
+                                  type="text"
+                                  value={item.keterangan}
+                                  onChange={(e) =>
+                                    handleChangeKeterangan(
+                                      item.id,
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Tuliskan keterangan tambahan..."
+                                  className="h-12 w-full rounded-xl border border-slate-200 px-4"
+                                />
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </>
+                ) }
+              </div>
+              {isLoadingInisiasiPenilaian || isFetchingInisiasiPenilaian ? (
+                <></>
+              ) : (
+                <>
+                    {/* ATTACHMENT */}
+                    <div className="mt-8">
+                      <h2 className="mb-4 text-xl font-bold text-slate-800">
+                        Upload Foto Tugas (Attachments)
+                      </h2>
+
+                      <div className="flex flex-wrap gap-4">
+                        <button
+                          className="flex h-[160px] w-[160px] items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 text-slate-400 transition hover:border-blue-500 hover:text-blue-500"
+                        >
+                          <i className="ri-add-line text-5xl" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* FOOTER */}
+                    <div className="fixed bottom-0 left-0 right-0 border-t border-slate-200 bg-white px-6 py-4">
+                      <div className="flex justify-end gap-3">
+
+                        <button
+                          onClick={() => setOpenInputNilai(false)}
+                          className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300"
+                        >
+                          Tutup
+                        </button>
+
+                        <button
+                          className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
+                        >
+                          Simpan
+                        </button>
+                      </div>
+                    </div>
+                </>
+              )}
+            </div>
+        </div>
         </>
       )}
     </div>

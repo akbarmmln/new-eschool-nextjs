@@ -7,6 +7,7 @@ import {
   getItemPenilaian,
   submitItemPenilaian,
   editItemPenilaian,
+  inisiasiPenilaian,
   updateJurnal
 } from '@/services/Call'
 
@@ -64,6 +65,46 @@ export function useDetailJurnal(id: string) {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   })
+}
+
+// GET INISIASI PENILAIAN \\
+type inisiasiPenilaianResponse = {
+  [key: string]: any
+}
+const fetchInisiasiPenilaian =
+  async ({
+    queryKey,
+  }: any): Promise<inisiasiPenilaianResponse> => {
+    const [_, id_jurnal, id_siswa, id_diajar] = queryKey
+
+    const body = {
+      id_jurnal,
+      id_siswa,
+      id_diajar
+    }
+    const hasil: any = await inisiasiPenilaian(body)
+    if (!hasil.ok) {
+      throw hasil
+    }
+    return hasil.data.data
+  }
+export function useInisiasiPenilaian(
+  id_jurnal: string,
+  id_siswa: string,
+  id_diajar: string,
+  options?: Partial<UseQueryOptions<inisiasiPenilaianResponse>>
+) {
+  return useQuery<inisiasiPenilaianResponse>({
+    queryKey: ['inisiasi-penilaian', id_jurnal, id_siswa, id_diajar],
+    queryFn: fetchInisiasiPenilaian,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+
+    ...options,
+  });
 }
 
 // GET ITEM PENILAIAN \\
