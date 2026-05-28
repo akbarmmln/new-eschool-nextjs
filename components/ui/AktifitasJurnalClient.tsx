@@ -1830,11 +1830,7 @@ function DetailSkeleton() {
   );
 }
 
-function DetailItem({
-  icon,
-  title,
-  value,
-}: DetailItemProps) {
+function DetailItem({ icon, title, value }: DetailItemProps) {
   return (
     <div className="flex items-center gap-4 rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/50">
       <div className="flex h-15 w-15 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-500">
