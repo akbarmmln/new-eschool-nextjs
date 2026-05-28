@@ -143,6 +143,6 @@ export async function submitNilai(body: any) {
     "post",
     `/api/v1/jurnal/update-penilaian`,
     body,
-    10000
+    300000
   );
 }

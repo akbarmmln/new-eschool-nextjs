@@ -88,6 +88,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
       url?: string;
       preview?: string;
       loading?: boolean;
+      progress?: number;
       keterangan: string;
     }[]
   >([]);
@@ -468,6 +469,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
         return {
           id: tempId,
           loading: true,
+          progress: 0,
           keterangan: "",
         };
       });
@@ -480,26 +482,52 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
     // proses async satu per satu
     files.forEach(async (rawFile, index) => {
+      const tempId = tempAttachments[index].id;
+      let fakeProgress = 0;
+
+      const interval = setInterval(() => {
+        fakeProgress = Math.min(
+          fakeProgress + 10,
+          95
+        );
+        setAttachments((prev) =>
+          prev.map((item) => {
+            if (item.id === tempId) {
+              return {
+                ...item,
+                progress: fakeProgress,
+              };
+            }
+            return item;
+          })
+        );
+
+      }, 150);
+
       const compressedFile = await compressImage(rawFile);
+
+      clearInterval(interval);
 
       const preview = URL.createObjectURL(compressedFile);
 
-      // replace skeleton
+      // selesai
       setAttachments((prev) =>
         prev.map((item) => {
-          if (item.id === tempAttachments[index].id) {
+          if (item.id === tempId) {
             return {
               ...item,
               file: compressedFile,
               preview,
               loading: false,
+              progress: 100,
             };
           }
+
           return item;
         })
       );
-    });
-
+    }
+    );
     e.target.value = "";
   };
 
@@ -1527,15 +1555,64 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
                               {/* SKELETON */}
                               {item.loading ? (
+                              <div
+                                className="
+                                  absolute inset-0
+                                  flex flex-col
+                                  items-center
+                                  justify-center
+                                  bg-slate-100
+                                  p-4
+                                "
+                              >
 
-                                <div
+                                <i
                                   className="
-                                    absolute inset-0
-                                    animate-pulse
-                                    bg-slate-200
+                                    ri-image-line
+                                    mb-4
+                                    text-4xl
+                                    text-slate-400
                                   "
                                 />
 
+                                <div
+                                  className="
+                                    h-3
+                                    w-full
+                                    overflow-hidden
+                                    rounded-full
+                                    bg-slate-200
+                                  "
+                                >
+
+                                  <div
+                                    className="
+                                      h-full
+                                      rounded-full
+                                      bg-blue-500
+                                      transition-all
+                                      duration-300
+                                    "
+                                    style={{
+                                      width: `${item.progress || 0}%`,
+                                    }}
+                                  />
+
+                                </div>
+
+                                <p
+                                  className="
+                                    mt-3
+                                    text-sm
+                                    font-medium
+                                    text-slate-500
+                                  "
+                                >
+                                  Compressing...
+                                  {item.progress || 0}%
+                                </p>
+
+                              </div>
                               ) : (
 
                                 <img
