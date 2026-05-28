@@ -13,6 +13,7 @@ import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian,
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
 import { useQueryClient } from '@tanstack/react-query'
+import { compressImage, fileToBase64 } from "@/utils/utils";
 
 type Student = {
   id: string;
@@ -73,7 +74,6 @@ export default function AktifitasJurnalClient({ id }: Props) {
   const [refleksiPembelajaran, setRefleksiPembelajaran] = useState("");
   const [jamMulai, setJamMulai] = useState('')
   const [jamSelesai, setJamSelesai] = useState('')
-  const [imageLoading, setImageLoading] = useState<{ [key: number]: boolean }>({});
   const [selectedSiswa, setSelectedSiswa] = useState<{
     idJurnal: string;
     idSiswa: string;
@@ -86,6 +86,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
       id?: string;
       file?: File;
       url?: string;
+      preview?: string;
+      loading?: boolean;
       keterangan: string;
     }[]
   >([]);
@@ -160,7 +162,6 @@ export default function AktifitasJurnalClient({ id }: Props) {
   }, [data]);
 
   useEffect(() => {
-    console.log('useEffect', dataInisiasiPenilaian)
     if (dataInisiasiPenilaian?.silabus?.[0]?.items) {
       const mapped =
         dataInisiasiPenilaian.silabus[0].items.map(
@@ -451,49 +452,69 @@ export default function AktifitasJurnalClient({ id }: Props) {
     }
   }
 
-  const handleUploadAttachment = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadAttachment = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(
       e.target.files || []
     );
 
-    if (files.length === 0) return;
+    if (files.length === 0) {
+      return;
+    }
 
-    const startIndex = attachments.length;
-
-    const mappedFiles = files.map(
-      (file, index) => {
-
-        // set loading hanya untuk item baru
-        setImageLoading((prev) => ({
-          ...prev,
-          [startIndex + index]: true,
-        }));
-
+    // placeholder skeleton
+    const tempAttachments =
+      files.map(() => {
+        const tempId = crypto.randomUUID();
         return {
-          file,
+          id: tempId,
+          loading: true,
           keterangan: "",
         };
-      }
-    );
+      });
 
+    // render skeleton langsung
     setAttachments((prev) => [
       ...prev,
-      ...mappedFiles,
+      ...tempAttachments,
     ]);
+
+    // proses async satu per satu
+    files.forEach(async (rawFile, index) => {
+      const compressedFile = await compressImage(rawFile);
+
+      const preview = URL.createObjectURL(compressedFile);
+
+      // replace skeleton
+      setAttachments((prev) =>
+        prev.map((item) => {
+          if (item.id === tempAttachments[index].id) {
+            return {
+              ...item,
+              file: compressedFile,
+              preview,
+              loading: false,
+            };
+          }
+          return item;
+        })
+      );
+    });
 
     e.target.value = "";
   };
 
-  const handleChangeKeteranganAttachment = (index: number, value: string) => {
+  const handleChangeAttachmentCaption = (index: number, value: string) => {
     setAttachments((prev) =>
-      prev.map((item, i) =>
-        i === index
-          ? {
+      prev.map((item, i) => {
+
+        if (i === index) {
+          return {
             ...item,
             keterangan: value,
-          }
-          : item
-      )
+          };
+        }
+        return item;
+      })
     );
   };
 
@@ -553,6 +574,14 @@ export default function AktifitasJurnalClient({ id }: Props) {
         files: newFiles,
         data: penilaian
       };
+
+      // const sizeInBytes = getBase64SizeInBytes(payload.files[0].file);
+
+      // const sizeInMB = sizeInBytes / 1024 / 1024;
+
+      // console.log(sizeInMB.toFixed(2),"MB");
+
+      // console.log('asdasdsaasd', payload);
 
       const hasil = await submitNilai.mutateAsync(payload);
       if (!hasil.ok) {
@@ -1497,7 +1526,8 @@ export default function AktifitasJurnalClient({ id }: Props) {
                             >
 
                               {/* SKELETON */}
-                              {imageLoading[index] && (
+                              {item.loading ? (
+
                                 <div
                                   className="
                                     absolute inset-0
@@ -1505,36 +1535,23 @@ export default function AktifitasJurnalClient({ id }: Props) {
                                     bg-slate-200
                                   "
                                 />
-                              )}
 
-                              <img
-                                src={
-                                  item.file
-                                    ? URL.createObjectURL(item.file)
-                                    : item.url
-                                }
-                                alt={`attachment-${index}`}
-                                onLoad={() =>
-                                  setImageLoading((prev) => ({
-                                    ...prev,
-                                    [index]: false,
-                                  }))
-                                }
-                                className={`
-                                  h-full
-                                  w-full
-                                  object-contain
-                                  p-2
-                                  transition-opacity
-                                  duration-300
+                              ) : (
 
-                                  ${
-                                    imageLoading[index]
-                                      ? "opacity-0"
-                                      : "opacity-100"
+                                <img
+                                  src={
+                                    item.preview ||
+                                    item.url
                                   }
-                                `}
-                              />
+                                  alt={`attachment-${index}`}
+                                  className="
+                                    h-full
+                                    w-full
+                                    object-contain
+                                    p-2
+                                  "
+                                />
+                              )}
 
                               {/* REMOVE */}
                               <button
@@ -1559,19 +1576,55 @@ export default function AktifitasJurnalClient({ id }: Props) {
                             </div>
 
                             {/* KETERANGAN */}
-                            <textarea
-                              value={item.keterangan}
-                              onChange={(e) =>
-                                handleChangeKeteranganAttachment(
-                                  index,
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Informasi tentang gambar..."
-                              rows={2}
-                              className="mt-3 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-blue-500"
-                            />
-                          </div>
+<textarea
+  value={
+    item.keterangan ||
+    (
+      item.url
+        ? "tidak ada deskripsi"
+        : ""
+    )
+  }
+
+  readOnly={!!item.url}
+
+  disabled={!!item.url}
+
+  onChange={(e) =>
+    handleChangeAttachmentCaption(
+      index,
+      e.target.value
+    )
+  }
+
+  placeholder="Informasi tentang gambar..."
+
+  className={`
+    mt-3
+    min-h-[90px]
+    w-full
+    rounded-2xl
+    border
+    border-slate-300
+    p-4
+    text-sm
+    outline-none
+    transition
+
+    ${
+      item.url
+        ? `
+          cursor-not-allowed
+          bg-slate-100
+          text-slate-500
+        `
+        : `
+          bg-white
+          focus:border-blue-500
+        `
+    }
+  `}
+/>                          </div>
                         ))}
 
                         {/* BUTTON ADD */}
@@ -1736,18 +1789,4 @@ const isEditorEmpty = (value: string) => {
     .trim();
 
   return text === "";
-};
-
-const fileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      const result = reader.result as string;
-      const base64 = result.split(",")[1];
-      resolve(base64);
-    };
-
-    reader.onerror = reject;
-  });
 };
