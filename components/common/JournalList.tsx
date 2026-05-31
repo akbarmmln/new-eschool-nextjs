@@ -77,7 +77,7 @@ export default function JournalList({ data, currentPage, totalPage, onPageChange
                   )
                 }
 
-                const isActive =currentPage === item
+                const isActive = currentPage === item
 
                 return (
                   <button

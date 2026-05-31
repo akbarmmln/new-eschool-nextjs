@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import AktifitasJurnalClient from '@/components/ui/AktifitasJurnalClient'
+import AktifitasJurnalSide from '@/components/ui/AktifitasJurnal'
 
 export const metadata: Metadata = {
   title: "Detail Jurnal",
@@ -14,5 +14,5 @@ export default async function AktifitasJurnal({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <AktifitasJurnalClient id={id} />
+  return <AktifitasJurnalSide id={id} />
 }

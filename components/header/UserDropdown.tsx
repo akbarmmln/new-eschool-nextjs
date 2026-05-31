@@ -5,10 +5,14 @@ import React, { useState } from "react";
 import { Dropdown } from "../ui/Dropdown";
 import { DropdownItem } from "../ui/DropdownItem";
 import { useProfile } from '@/hooks/query'
+import { useAccessContext } from '@/context/AccessContext'
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { data, isLoading: loadingCardProfile } = useProfile()
+  const dataAccess = useAccessContext();
+  const role = dataAccess?.access?.role
+  const tipe_account = dataAccess?.access?.tipe_account
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -66,7 +70,10 @@ export default function UserDropdown() {
           onClose={closeDropdown} >
           <div>
             <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-              {data?.nama}
+              {tipe_account == 'DS1' && role == '0' ? 'Admin & Guru'
+                : tipe_account == 'DS1' && role == '1' ? 'Guru'
+                  : 'Wali Murid'
+              }
             </span>
             <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
               {data?.email}

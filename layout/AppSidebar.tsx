@@ -7,9 +7,13 @@ import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import { HorizontaLDots } from "../icons/index";
 import { useMenus, useProfile } from '@/hooks/query'
+import { useAccessContext } from '@/context/AccessContext'
 
 const AppSidebar: React.FC = () => {
   const pathname = usePathname();
+  const dataAccess = useAccessContext();
+  const role = dataAccess?.access?.role
+  const tipe_account = dataAccess?.access?.tipe_account
 
   const {
     isExpanded,
@@ -355,7 +359,10 @@ const AppSidebar: React.FC = () => {
                   ) : (
                     <div
                       className=" mt-1 text-[13px] text-gray-500 dark:text-gray-400" >
-                      Administrator
+                      { tipe_account == 'DS1' && role == '0' ?  'Admin & Guru' 
+                        : tipe_account == 'DS1' && role == '1'  ? 'Guru' 
+                        : 'Wali Murid'
+                      }
                     </div>
                   )}
                 </div>

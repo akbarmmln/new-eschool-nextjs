@@ -46,7 +46,7 @@ const convertStatusToAbsensi = (
   }
 };
 
-export default function AktifitasJurnalClient({ id }: Props) {
+export default function AktifitasJurnal({ id }: Props) {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
   const [students, setStudents] = useState<Student[]>([]);
@@ -1200,7 +1200,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
             </div>
 
             {/* FOOTER */}
-            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900">
+            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
               <button
                 onClick={() => setOpenModalEdit(false)}
                 className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
@@ -1351,7 +1351,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                   </div>
 
                   {/* ACTION */}
-                  <div className="flex flex-wrap gap-3 pb-6">
+                  <div className="flex flex-wrap gap-3">
                     <button
                       type="button"
                       onClick={handleAddItem}

@@ -1,3 +1,4 @@
+import isEmpty from "@/utils/isEmpty";
 import { request } from "./Request";
 
 export async function login(email: string, password: string) {
@@ -152,7 +153,7 @@ export async function updateIpAndIa(body: any) {
     "post",
     `/api/v1/profile/ds1/update-personal`,
     body,
-    300000
+    10000
   );
 }
 
@@ -161,7 +162,7 @@ export async function updateEmail(body: any) {
     "post",
     `/api/v1/profile/update-email`,
     body,
-    300000
+    10000
   );
 }
 
@@ -170,6 +171,19 @@ export async function updatePassword(body: any) {
     "post",
     `/api/v1/profile/change/password`,
     body,
-    300000
+    10000
+  );
+}
+
+export async function tingkatanKelasList(page: string, search: string) {
+  let url = `/api/v1/class-level/list/${page}`;
+  if (!isEmpty(search)) {
+    url += `/${encodeURIComponent(search)}`;
+  }
+  return await request(
+    "get",
+    url,
+    {},
+    10000
   );
 }

@@ -89,12 +89,7 @@ const fetchInisiasiPenilaian =
     }
     return hasil.data.data
   }
-export function useInisiasiPenilaian(
-  id_jurnal: string,
-  id_siswa: string,
-  id_diajar: string,
-  options?: Partial<UseQueryOptions<inisiasiPenilaianResponse>>
-) {
+export function useInisiasiPenilaian(id_jurnal: string, id_siswa: string, id_diajar: string, options?: Partial<UseQueryOptions<inisiasiPenilaianResponse>>) {
   return useQuery<inisiasiPenilaianResponse>({
     queryKey: ['inisiasi-penilaian', id_jurnal, id_siswa, id_diajar],
     queryFn: fetchInisiasiPenilaian,
