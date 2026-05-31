@@ -29,6 +29,7 @@ const AppSidebar: React.FC = () => {
     error,
     refetch: refetchMenu
   } = useMenus()
+  console.log('asdsadasdasd', menus);
 
   const {
     data,
@@ -270,7 +271,7 @@ const AppSidebar: React.FC = () => {
 
               {/* SUCCESS */}
               {!isLoading && !error && menus?.map((menu) => {
-                const active = pathname === menu.href;
+                const active = isMenuActive(menu, pathname);
                 const collapsed = !isExpanded;
                 const hovered = isHovered;
                 const isMobile = isMobileOpen;
@@ -408,6 +409,44 @@ const AppSidebar: React.FC = () => {
         </div>
       </div>
     </aside>
+  );
+};
+
+const isMenuActive = (menu: any, pathname: string) => {
+  if (pathname === menu.href) {
+    return true;
+  }
+
+  const routeMap: Record<
+    string,
+    string[]
+  > = {
+    "/akademik/dashboard": [
+      "/akademik/aktifitas-jurnal"
+    ],
+
+    "/akademik/tingkat-kelas": [
+      "/akademik/detail-tingkat-kelas",
+    ],
+
+    "/akademik/kelas": [
+      "/akademik/detail-kelas",
+    ],
+
+    "/akademik/siswa": [
+      "/akademik/detail-siswa",
+    ],
+
+    "/akademik/guru": [
+      "/akademik/detail-guru",
+    ],
+  };
+
+  const extraRoutes =
+    routeMap[menu.href] || [];
+
+  return extraRoutes.some((route) =>
+    pathname.startsWith(route)
   );
 };
 

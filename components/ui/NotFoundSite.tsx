@@ -1,3 +1,5 @@
+"use client";
+
 import GridShape from "@/components/common/GridShape";
 import Image from "next/image";
 import Link from "next/link";

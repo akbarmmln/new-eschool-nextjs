@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useListAllTingkatKelas } from "@/hooks/QueryTingkatKelas";
+import Link from "next/link";
 
 export default function TingkatKelas() {
   const [currentPage, setCurrentPage] = useState(1)
@@ -204,9 +205,9 @@ export default function TingkatKelas() {
                     {data?.rows.map((item: any, index: number) => (
                       <tr key={item.id} className={index % 2 === 1 ? "bg-slate-50" : ""}>
                         <td className="px-8 py-3">
-                          <span className="font-medium text-blue-400">
+                          <Link href={`/akademik/detail-tingkat-kelas/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700">
                             {item.id}
-                          </span>
+                          </Link>
                         </td>
 
                         <td className="px-8 py-3 text-slate-600">
