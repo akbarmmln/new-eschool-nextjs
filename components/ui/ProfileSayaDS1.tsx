@@ -205,7 +205,7 @@ export default function ProfileSayaDS1() {
     }
   }
 
-  const updatePassord = useUpdatePassword();
+  const updatePassword = useUpdatePassword();
   const handleOpenModalEditPassword = () => {
     setPasswordLama('')
     setPasswordBaru('')
@@ -218,7 +218,45 @@ export default function ProfileSayaDS1() {
     setPasswordKonfBaru('')
     setOpenModalEditPassword(false);
   }
-  
+  const handleSavePassword = async () => {
+    try {
+      const payload = {
+        password_lama: passwordLama,
+        password_baru: passwordBaru
+      };
+
+      if (passwordBaru != passwordKonfBaru) {
+        await showAlert(
+          "warning",
+          "Gagal",
+          `Password baru tidak sama dengan konfirmasi password baru`,
+        );
+        return
+      }
+
+      const hasil = await updatePassword.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Password berhasil diperbaharui"
+      );
+
+      handleCloseModalEditEmail();
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui password: ${e.err_msg}`,
+      );
+    }
+  }
+
   return (
     <>
       <div className="space-y-6">
@@ -242,7 +280,7 @@ export default function ProfileSayaDS1() {
           {loadingCardProfile || isFetching ? (
             <>
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(2)].map((_, index) => (
+                {[...Array(4)].map((_, index) => (
                   <DetailSkeleton key={index} />
                 ))}
               </div>
@@ -342,7 +380,7 @@ export default function ProfileSayaDS1() {
           {loadingCardProfile || isFetching ? (
             <>
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(2)].map((_, index) => (
+                {[...Array(4)].map((_, index) => (
                   <DetailSkeleton key={index} />
                 ))}
               </div>
@@ -413,7 +451,7 @@ export default function ProfileSayaDS1() {
           {loadingCardProfile || isFetching ? (
             <>
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(1)].map((_, index) => (
+                {[...Array(2)].map((_, index) => (
                   <DetailSkeleton key={index} />
                 ))}
               </div>
@@ -439,7 +477,7 @@ export default function ProfileSayaDS1() {
           {loadingCardProfile || isFetching ? (
             <>
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(1)].map((_, index) => (
+                {[...Array(2)].map((_, index) => (
                   <DetailSkeleton key={index} />
                 ))}
               </div>
@@ -460,7 +498,6 @@ export default function ProfileSayaDS1() {
             </>
           )}
         </div>
-
       </div>
 
       {openModalEditIP && (
@@ -876,15 +913,15 @@ export default function ProfileSayaDS1() {
                 </button>
 
                 <button
-                  disabled={!isEditFormPasswordValid || updatePassord.isPending}
+                  disabled={!isEditFormPasswordValid || updatePassword.isPending}
                   className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${!isEditFormPasswordValid || updatePassord.isPending
+                  ${!isEditFormPasswordValid || updatePassword.isPending
                       ? "cursor-not-allowed bg-slate-400 shadow-none"
                       : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                     }`}
-                  onClick={handleSaveEmail} >
+                  onClick={handleSavePassword} >
 
-                  {updatePassord.isPending
+                  {updatePassword.isPending
                     ? "Menyimpan..."
                     : "Simpan Perubahan"}
                 </button>
