@@ -164,3 +164,12 @@ export async function updateEmail(body: any) {
     300000
   );
 }
+
+export async function updatePassword(body: any) {
+  return await request(
+    "post",
+    `/api/v1/profile/change/password`,
+    body,
+    300000
+  );
+}

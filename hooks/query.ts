@@ -4,7 +4,8 @@ import {
   getMenus,
   getAccess,
   updateIpAndIa,
-  updateEmail
+  updateEmail,
+  updatePassword
 } from '@/services/Call'
 
 // PROFILE \\
@@ -100,6 +101,16 @@ export const useUpdateEmail = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
       const results = updateEmail(payload)
+      return results;
+    },
+  });
+};
+
+// UPDATE PASSWORD \\
+export const useUpdatePassword = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updatePassword(payload)
       return results;
     },
   });
