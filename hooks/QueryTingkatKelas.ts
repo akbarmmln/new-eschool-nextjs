@@ -1,6 +1,7 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
-  tingkatanKelasList
+  tingkatanKelasList,
+  updateTingkatKelas
 } from '@/services/Call'
 
 // LIST ALL TINGKAT KELAS \\
@@ -30,3 +31,13 @@ export function useListAllTingkatKelas(page: String, search: any) {
     refetchOnMount: true,
   })
 }
+
+// UPDATE \\
+export const useUpdate = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updateTingkatKelas(payload)
+      return results;
+    },
+  });
+};

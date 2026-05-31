@@ -1,16 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useListAllTingkatKelas } from "@/hooks/QueryTingkatKelas";
+import { useListAllTingkatKelas, useUpdate } from "@/hooks/QueryTingkatKelas";
 import Link from "next/link";
 import Tooltip from "@/components/form/Tooltip";
+import isEmpty from "@/utils/isEmpty";
 
 export default function TingkatKelas() {
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
-
   const { data, isLoading, error, isFetching, refetch } = useListAllTingkatKelas(currentPage.toString(), keyword);
+
+  const [id, setId] = useState('')
+  const [nama, setNama] = useState('')
+  const [deskripsi, setDeskripsi] = useState('')
+
+  const isEditFormValid =
+    !isEmpty(nama) &&
+    !isEmpty(deskripsi);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -20,6 +30,25 @@ export default function TingkatKelas() {
 
     return () => clearTimeout(debounceTimer);
   }, [search]);
+
+  const update = useUpdate();
+  const handleOpenModalEdit = (id: string, nama: string, deskripsi: string) => {
+    setId(id);
+    setNama(nama || '');
+    setDeskripsi(deskripsi || '');
+
+    setOpenModalEdit(true);
+  };
+  const handleCloseModalEdit = () => {
+    setId('');
+    setNama('');
+    setDeskripsi('');
+
+    setOpenModalEdit(false);
+  };
+  const handleSaveUpdate = async () => {
+    
+  }
 
   function getPaginationItems(current: number, total: number) {
     const items: (number | string)[] = []
@@ -62,7 +91,6 @@ export default function TingkatKelas() {
   return (
     <>
       <div className="space-y-6">
-        {/* HEADER */}
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h1 className="text-2xl text-slate-800 dark:text-white">
@@ -219,7 +247,8 @@ export default function TingkatKelas() {
                           <td className="px-8 py-3">
                             <div className="flex items-center justify-center gap-4">
                               <Tooltip text={`Ubah Data ${item.nama}`}>
-                                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white">
+                                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
+                                  onClick={() => handleOpenModalEdit(item.id, item.nama, item.deskripsi)}>
                                   <i className="ri-edit-line text-lg" />
                                 </button>
                               </Tooltip>
@@ -268,6 +297,93 @@ export default function TingkatKelas() {
           )}
         </div>
       </div>
+
+      {openModalEdit && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+                <h2 className="text-2xl font-bold tracking-tight text-white">
+                  Ubah Data Tingkatan Kelas
+                </h2>
+
+                <button
+                  onClick={handleCloseModalEdit}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                  <i
+                    className="ri-close-line"
+                    style={{ fontSize: 30 }}
+                  />
+                </button>
+              </div>
+
+              <div className="space-y-6 p-6">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    ID Tingkat
+                  </label>
+
+                  <input
+                    type="text"
+                    value={id}
+                    disabled
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Nama
+                  </label>
+
+                  <input
+                    type="text"
+                    value={nama}
+                    onChange={(e) => setNama(e.target.value)}
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Deskripsi
+                  </label>
+
+                  <textarea
+                    value={deskripsi}
+                    onChange={(e) => setDeskripsi(e.target.value)}
+                    placeholder="Isikan deskripsi tentang jenjang ini..."
+                    className={`mt-3 min-h-[90px] w-full rounded-2xl border border-slate-300 p-4 text-sm outline-none transitionbg-white focus:border-blue-500`}
+                  />
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
+                <button
+                  onClick={() => handleCloseModalEdit()}
+                  className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                  Batalkan
+                </button>
+
+                <button
+                  disabled={!isEditFormValid || update.isPending}
+                  className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                  ${!isEditFormValid || update.isPending
+                      ? "cursor-not-allowed bg-slate-400 shadow-none"
+                      : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                    }`}
+                  onClick={handleSaveUpdate} >
+
+                  {update.isPending
+                    ? "Menyimpan..."
+                    : "Simpan Perubahan"}
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }

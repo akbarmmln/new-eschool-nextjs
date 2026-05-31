@@ -29,7 +29,6 @@ const AppSidebar: React.FC = () => {
     error,
     refetch: refetchMenu
   } = useMenus()
-  console.log('asdsadasdasd', menus);
 
   const {
     data,

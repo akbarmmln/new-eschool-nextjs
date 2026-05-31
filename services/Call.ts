@@ -187,3 +187,12 @@ export async function tingkatanKelasList(page: string, search: string) {
     10000
   );
 }
+
+export async function updateTingkatKelas(body: any) {
+  return await request(
+    "post",
+    `/api/v1/class-level/update`,
+    body,
+    10000
+  );
+}
