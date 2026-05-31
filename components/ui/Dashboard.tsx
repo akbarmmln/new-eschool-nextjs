@@ -4,7 +4,7 @@ import DashboardAdmin from '@/components/ui/DashboardAdmin'
 import DashboardWalMur from '@/components/ui/DashboardWalMur'
 import { useAccessContext } from '@/context/AccessContext'
 
-export default function DashboardClient() {
+export default function Dashboard() {
   const dataAccess = useAccessContext()
 
   if (dataAccess?.access?.role == '0') {

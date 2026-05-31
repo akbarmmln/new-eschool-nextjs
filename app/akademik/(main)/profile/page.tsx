@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ProfileSaya from '@/components/ui/ProfileSaya'
+import Profile from '@/components/ui/Profile'
 
 export const metadata: Metadata = {
   title: "Profile Saya",
@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function DashboardPage() {
-  return <ProfileSaya/>
+  return <Profile/>
 }

@@ -155,3 +155,12 @@ export async function updateIpAndIa(body: any) {
     300000
   );
 }
+
+export async function updateEmail(body: any) {
+  return await request(
+    "post",
+    `/api/v1/profile/update-email`,
+    body,
+    300000
+  );
+}

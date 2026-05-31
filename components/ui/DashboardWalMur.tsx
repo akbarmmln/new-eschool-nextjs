@@ -1,6 +1,6 @@
 "use client";
 
-export default function DashboardClientWalMur() {
+export default function DashboardWalMur() {
   return (
     <>
       <div

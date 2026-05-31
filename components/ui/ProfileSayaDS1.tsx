@@ -1,20 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { useProfile, useUpdateIpAndIa } from '@/hooks/query'
+import { useProfile, useUpdateIpAndIa, useUpdateEmail } from '@/hooks/query'
 import { formatTanggalIndonesia } from "@/utils/utils";
 import CustomDatePicker from '@/components/common/DatePicker'
 import isEmpty from "@/utils/isEmpty";
 import { showAlert } from "@/utils/swal";
 import dayjs from 'dayjs'
-import { useAccessContext } from '@/context/AccessContext'
 
-export default function ProfileSaya() {
-  const dataAccess = useAccessContext()
-  console.log('sdasdasdasd', dataAccess)
+export default function ProfileSayaDS1() {
   const { data, isLoading: loadingCardProfile, isFetching, refetch } = useProfile()
   const [openModalEditIP, setOpenModalEditIP] = useState(false);
   const [openModalEditIA, setOpenModalEditIA] = useState(false);
+  const [openModalEditEmail, setOpenModalEditEmail] = useState(false);
 
   const [namaLengkap, setNamaLengkap] = useState('')
   const [jenisKelamin, setJenisKelamin] = useState('')
@@ -27,6 +25,8 @@ export default function ProfileSaya() {
   const [noRW, setNoRW] = useState('')
   const [kecamatan, setKecamatan] = useState('')
   const [kelurahan, setKelurahan] = useState('')
+
+  const [email, setEmail] = useState('')
 
   const isEditFormIPValid =
     !isEmpty(namaLengkap) &&
@@ -41,7 +41,10 @@ export default function ProfileSaya() {
     !isEmpty(noRW) &&
     !isEmpty(kecamatan) &&
     !isEmpty(kelurahan);
-    
+
+  const isEditFormEmailValid = !isEmpty(email)
+
+  const updateIP = useUpdateIpAndIa();
   const handleOpenModalEditIP = () => {
     const nama = data?.nama || "";
     const jk = data?.jenis_kelamin || "";
@@ -57,7 +60,6 @@ export default function ProfileSaya() {
 
     setOpenModalEditIP(true);
   };
-
   const handleCloseModalEditIP = () => {
     setNamaLengkap("");
     setJenisKelamin("");
@@ -66,10 +68,6 @@ export default function ProfileSaya() {
     setNomorTelepon("");
     setOpenModalEditIP(false);
   };
-
-  const updateIP = useUpdateIpAndIa();
-  const updateIA = useUpdateIpAndIa();
-
   const handleSaveInformasiPribadi = async () => {
     try {
       const payload = {
@@ -106,6 +104,7 @@ export default function ProfileSaya() {
     }
   }
 
+  const updateIA = useUpdateIpAndIa();
   const handleOpenModalEditIA = () => {
     setAlamat(data?.alamat || '');
     setNoRT(data?.rt || '');
@@ -115,7 +114,6 @@ export default function ProfileSaya() {
 
     setOpenModalEditIA(true);
   }
-
   const handleCloseModalEditIA = () => {
     setAlamat('');
     setNoRT('');
@@ -125,7 +123,6 @@ export default function ProfileSaya() {
 
     setOpenModalEditIA(false);
   };
-
   const handleSaveInformasiAlamat = async () => {
     try {
       const payload = {
@@ -162,6 +159,44 @@ export default function ProfileSaya() {
     }
   }
 
+  const updateEmail = useUpdateEmail();
+  const handleOpenModalEditEmail = () => {
+    setEmail('')
+    setOpenModalEditEmail(true);
+  }
+  const handleCloseModalEditEmail = () => {
+    setEmail('')
+    setOpenModalEditEmail(false);
+  }
+  const handleSaveEmail = async () => {
+    try {
+      const payload = {
+        email_baru: email
+      };
+
+      const hasil = await updateEmail.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data email berhasil diperbaharui"
+      );
+
+      handleCloseModalEditEmail();
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui email: ${e.err_msg}`,
+      );
+    }
+  }
+
   return (
     <>
       <div className="space-y-6">
@@ -185,7 +220,7 @@ export default function ProfileSaya() {
           {loadingCardProfile || isFetching ? (
             <>
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(6)].map((_, index) => (
+                {[...Array(2)].map((_, index) => (
                   <DetailSkeleton key={index} />
                 ))}
               </div>
@@ -285,7 +320,7 @@ export default function ProfileSaya() {
           {loadingCardProfile || isFetching ? (
             <>
               <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(6)].map((_, index) => (
+                {[...Array(2)].map((_, index) => (
                   <DetailSkeleton key={index} />
                 ))}
               </div>
@@ -347,6 +382,32 @@ export default function ProfileSaya() {
                   title="Kelurahan"
                   value={!isEmpty(data?.kelurahan) ? data?.kelurahan : '-'}
                 />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          {loadingCardProfile || isFetching ? (
+            <>
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                {[...Array(1)].map((_, index) => (
+                  <DetailSkeleton key={index} />
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center justify-between p-2">
+                <h2 className="text-lg text-slate-800 dark:text-white">
+                  Email
+                </h2>
+
+                <button onClick={handleOpenModalEditEmail}
+                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700" >
+                  <i className="ri-edit-line" />
+                  Ubah
+                </button>
               </div>
             </>
           )}
@@ -648,6 +709,92 @@ export default function ProfileSaya() {
               }
             `}
           </style>
+        </>
+      )}
+
+      {openModalEditEmail && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+                <h2 className="text-2xl font-bold tracking-tight text-white">
+                  Ubah Email
+                </h2>
+
+                <button
+                  onClick={handleCloseModalEditEmail}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                  <i
+                    className="ri-close-line"
+                    style={{ fontSize: 30 }}
+                  />
+                </button>
+              </div>
+
+              <div className="space-y-6 p-6">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    ID User
+                  </label>
+
+                  <input
+                    type="text"
+                    value={data?.id || ""}
+                    disabled
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Email saat ini
+                  </label>
+
+                  <input
+                    type="text"
+                    value={data?.email || ""}
+                    disabled
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Email baru
+                  </label>
+
+                  <input
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5 dark:border-slate-800 dark:bg-slate-900">
+                <button
+                  onClick={() => handleCloseModalEditEmail()}
+                  className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                  Batalkan
+                </button>
+
+                <button
+                  disabled={!isEditFormEmailValid || updateEmail.isPending}
+                  className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                  ${!isEditFormEmailValid || updateEmail.isPending
+                      ? "cursor-not-allowed bg-slate-400 shadow-none"
+                      : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                    }`}
+                  onClick={handleSaveEmail} >
+
+                  {updateEmail.isPending
+                    ? "Menyimpan..."
+                    : "Simpan Perubahan"}
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       )}
     </>

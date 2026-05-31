@@ -9,7 +9,7 @@ import {
 import ModalTambahJurnal from '@/components/modals/ModalTambahJurnal'
 import JournalList from '@/components/common/JournalList'
 
-export default function DashboardClientAdmin() {
+export default function DashboardAdmin() {
   const [currentPage, setCurrentPage] = useState(1)
   const [openModalTambahJurnal, setOpenModalTambahJurnal] = useState(false)
 

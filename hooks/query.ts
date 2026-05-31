@@ -3,7 +3,8 @@ import {
   getProfile,
   getMenus,
   getAccess,
-  updateIpAndIa
+  updateIpAndIa,
+  updateEmail
 } from '@/services/Call'
 
 // PROFILE \\
@@ -89,6 +90,16 @@ export const useUpdateIpAndIa = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
       const results = updateIpAndIa(payload)
+      return results;
+    },
+  });
+};
+
+// UPDATE EMAIL \\
+export const useUpdateEmail = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updateEmail(payload)
       return results;
     },
   });
