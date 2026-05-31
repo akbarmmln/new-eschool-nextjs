@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import Dashboard from '@/components/ui/Dashboard'
+import ProfileSaya from '@/components/ui/ProfileSaya'
 
 export const metadata: Metadata = {
-  title: "Dashboard",
+  title: "Profile Saya",
   icons: {
     icon: "/assets/img/icons/education.svg"
   },
 };
 
 export default function DashboardPage() {
-  return <Dashboard/>
+  return <ProfileSaya/>
 }

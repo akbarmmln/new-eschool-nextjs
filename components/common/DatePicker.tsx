@@ -40,15 +40,18 @@ const CustomInput = React.forwardRef<
 
 CustomInput.displayName = 'CustomInput'
 
-export default function CustomDatePicker({ name, value, onChange,
-}: Props) {
+export default function CustomDatePicker({ name, value, onChange }: Props) {
   const currentYear = new Date().getFullYear()
 
   return (
     <>
     <div className="form-group">
       <DatePicker
-        selected={value}
+          selected={
+            value instanceof Date
+              ? value
+              : null
+          }
         onChange={onChange}
         locale={id}
         dateFormat="dd MMMM yyyy"

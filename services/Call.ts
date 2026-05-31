@@ -146,3 +146,12 @@ export async function submitNilai(body: any) {
     300000
   );
 }
+
+export async function updateIpAndIa(body: any) {
+  return await request(
+    "post",
+    `/api/v1/profile/ds1/update-personal`,
+    body,
+    300000
+  );
+}

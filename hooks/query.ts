@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
   getProfile,
   getMenus,
   getAccess,
+  updateIpAndIa
 } from '@/services/Call'
 
 // PROFILE \\
@@ -82,3 +83,13 @@ export function useAccess(
     ...options
   })
 }
+
+// UPDATE INFORMASI PRIBADI OR INFORMASI ALAMAT \\
+export const useUpdateIpAndIa = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updateIpAndIa(payload)
+      return results;
+    },
+  });
+};

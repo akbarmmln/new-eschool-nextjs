@@ -44,3 +44,12 @@ export const fileToBase64 = (file: File): Promise<string> => {
     reader.onerror = reject;
   });
 };
+
+export const formatTanggalIndonesia = (tanggal: string) => {
+  return new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(tanggal));
+};

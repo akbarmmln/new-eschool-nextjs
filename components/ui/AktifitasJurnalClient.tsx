@@ -13,7 +13,7 @@ import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian,
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
 import { useQueryClient } from '@tanstack/react-query'
-import { compressImage, fileToBase64 } from "@/utils/utils";
+import { compressImage, fileToBase64, formatTanggalIndonesia } from "@/utils/utils";
 
 type Student = {
   id: string;
@@ -44,15 +44,6 @@ const convertStatusToAbsensi = (
     default:
       return "4";
   }
-};
-
-const formatTanggalIndonesia = (tanggal: string) => {
-  return new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(tanggal));
 };
 
 export default function AktifitasJurnalClient({ id }: Props) {
@@ -139,9 +130,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
       setMateriPembelajaran(data.jurnal.materi || "");
       setRefleksiPembelajaran(data.jurnal.refleksi || "");
     }
-  }, [data]);
 
-  useEffect(() => {
     if (data?.siswa) {
       const mappedStudents: Student[] =
         data?.siswa?.map((item: any) => ({
@@ -690,11 +679,13 @@ export default function AktifitasJurnalClient({ id }: Props) {
       {/* DETAIL CARD */}
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
         {isLoading || isFetching ? (
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            {[...Array(6)].map((_, index) => (
-              <DetailSkeleton key={index} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {[...Array(6)].map((_, index) => (
+                <DetailSkeleton key={index} />
+              ))}
+            </div>
+          </>
         ) : (
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
             <DetailItem
@@ -705,10 +696,7 @@ export default function AktifitasJurnalClient({ id }: Props) {
                 />
               }
               title="Tanggal dan Jam Mengajar"
-              value={`${formatTanggalIndonesia(
-                data?.jurnal?.tanggal_jurnal
-              )} • ${data?.jurnal?.jam_mulai} - ${data?.jurnal?.jam_selesai
-                }`}
+              value={`${formatTanggalIndonesia(data?.jurnal?.tanggal_jurnal)} • ${data?.jurnal?.jam_mulai} - ${data?.jurnal?.jam_selesai}`}
             />
 
             <DetailItem
@@ -1541,58 +1529,18 @@ export default function AktifitasJurnalClient({ id }: Props) {
                         {/* ATTACHMENT LIST */}
                         {attachments.map((item, index) => (
                           <div key={index} className="w-[160px]" >
-
                             {/* IMAGE */}
-                            <div
-                              className="
-                                relative
-                                h-[160px]
-                                overflow-hidden
-                                rounded-3xl
-                                bg-slate-100
-                              "
-                            >
+                            <div className=" relative h-[160px] overflow-hiddenrounded-3xl bg-slate-100">
 
                               {/* SKELETON */}
                               {item.loading ? (
-                              <div
-                                className="
-                                  absolute inset-0
-                                  flex flex-col
-                                  items-center
-                                  justify-center
-                                  bg-slate-100
-                                  p-4
-                                "
-                              >
+                              <div className=" absolute inset-0 flex flex-col items-center justify-center bg-slate-100 p-4">
 
-                                <i
-                                  className="
-                                    ri-image-line
-                                    mb-4
-                                    text-4xl
-                                    text-slate-400
-                                  "
-                                />
+                                <i className=" ri-image-line mb-4 text-4xl text-slate-400" />
 
-                                <div
-                                  className="
-                                    h-3
-                                    w-full
-                                    overflow-hidden
-                                    rounded-full
-                                    bg-slate-200
-                                  "
-                                >
+                                <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200">
 
-                                  <div
-                                    className="
-                                      h-full
-                                      rounded-full
-                                      bg-blue-500
-                                      transition-all
-                                      duration-300
-                                    "
+                                  <div className=" h-full rounded-full bg-blue-500 transition-all duration-300"
                                     style={{
                                       width: `${item.progress || 0}%`,
                                     }}
@@ -1600,33 +1548,16 @@ export default function AktifitasJurnalClient({ id }: Props) {
 
                                 </div>
 
-                                <p
-                                  className="
-                                    mt-3
-                                    text-sm
-                                    font-medium
-                                    text-slate-500
-                                  "
-                                >
+                                <p className=" mt-3 text-sm font-medium text-slate-500 ">
                                   Compressing...
                                   {item.progress || 0}%
                                 </p>
-
                               </div>
                               ) : (
-
                                 <img
-                                  src={
-                                    item.preview ||
-                                    item.url
-                                  }
+                                  src={item.preview || item.url}
                                   alt={`attachment-${index}`}
-                                  className="
-                                    h-full
-                                    w-full
-                                    object-contain
-                                    p-2
-                                  "
+                                  className="h-full w-full object-contain p-2"
                                 />
                               )}
 
@@ -1636,72 +1567,35 @@ export default function AktifitasJurnalClient({ id }: Props) {
                                 onClick={() =>
                                   handleRemoveAttachment(index)
                                 }
-                                className="
-                                  absolute right-2 top-2
-                                  z-10
-                                  flex h-12 w-12
-                                  items-center justify-center
-                                  rounded-full
-                                  bg-black/60
-                                  text-white
-                                  transition
-                                  hover:bg-red-500
-                                "
-                              >
+                                className=" absolute right-2 top-2 z-10 flex h-12 w-12 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-red-500">
                                 <i className="ri-close-line text-2xl" />
                               </button>
                             </div>
 
                             {/* KETERANGAN */}
-<textarea
-  value={
-    item.keterangan ||
-    (
-      item.url
-        ? "tidak ada deskripsi"
-        : ""
-    )
-  }
-
-  readOnly={!!item.url}
-
-  disabled={!!item.url}
-
-  onChange={(e) =>
-    handleChangeAttachmentCaption(
-      index,
-      e.target.value
-    )
-  }
-
-  placeholder="Informasi tentang gambar..."
-
-  className={`
-    mt-3
-    min-h-[90px]
-    w-full
-    rounded-2xl
-    border
-    border-slate-300
-    p-4
-    text-sm
-    outline-none
-    transition
-
-    ${
-      item.url
-        ? `
-          cursor-not-allowed
-          bg-slate-100
-          text-slate-500
-        `
-        : `
-          bg-white
-          focus:border-blue-500
-        `
-    }
-  `}
-/>                          </div>
+                            <textarea
+                              value={
+                                item.keterangan ||
+                                (
+                                  item.url
+                                    ? "tidak ada deskripsi"
+                                    : ""
+                                )
+                              }
+                              readOnly={!!item.url}
+                              disabled={!!item.url}
+                              onChange={(e) =>
+                                handleChangeAttachmentCaption(
+                                  index,
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Informasi tentang gambar..."
+                              className={` mt-3 min-h-[90px] w-full rounded-2xl border border-slate-300 p-4 text-sm outline-none transition
+                                ${item.url ? `cursor-not-allowed bg-slate-100 text-slate-500` : `bg-white focus:border-blue-500`}
+                              `}
+                            />
+                          </div>
                         ))}
 
                         {/* BUTTON ADD */}
@@ -1810,11 +1704,7 @@ function AbsensiTableSkeleton() {
   );
 }
 
-type DetailItemProps = {
-  icon: React.ReactNode;
-  title: string;
-  value: string;
-};
+type DetailItemProps = { icon: React.ReactNode; title: string; value: string };
 
 function DetailSkeleton() {
   return (
