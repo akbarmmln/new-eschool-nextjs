@@ -53,7 +53,7 @@ export default function JournalList({ data, currentPage, totalPage, onPageChange
   return (
     <div>
       <>
-        {/* DESKTOP */}
+        {/* DESKTOP PAGINATION */}
         <div className="hidden md:flex items-center justify-end gap-3 mt-6 mb-8">
           <button
             disabled={currentPage === 1}
@@ -108,7 +108,7 @@ export default function JournalList({ data, currentPage, totalPage, onPageChange
           </button>
         </div>
 
-        {/* MOBILE */}
+        {/* MOBILE PAGINATION */}
         <div className="flex md:hidden items-center justify-between mt-6 mb-8 gap-4">
           <button
             disabled={currentPage === 1}

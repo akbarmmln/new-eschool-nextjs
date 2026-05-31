@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useListAllTingkatKelas } from "@/hooks/QueryTingkatKelas";
 import Link from "next/link";
+import Tooltip from "@/components/form/Tooltip";
 
 export default function TingkatKelas() {
   const [currentPage, setCurrentPage] = useState(1)
@@ -76,8 +77,8 @@ export default function TingkatKelas() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 p-6">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               {/* SEARCH */}
               <div className="relative w-full max-w-xs">
@@ -88,10 +89,11 @@ export default function TingkatKelas() {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Pencarian"
-                  className="h-12 w-full rounded-xl border border-slate-200 pl-11 pr-4 outline-none transition focus:border-blue-500"
+                  className="h-12 w-full rounded-xl border border-slate-200 pl-11 pr-4 outline-none transition text-slate-800 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                 />
               </div>
 
+              {/* PAGINATION */}
               {!isLoading && !isFetching && data?.rows?.length > 0 && (
                 <>
                   {/* DESKTOP */}
@@ -176,104 +178,145 @@ export default function TingkatKelas() {
               )}
             </div>
           </div>
+          {isLoading || isFetching ? (
+            <>
+            <TableSkeleton />
+            </>
+          ) : data?.rows?.length > 0 ? (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full mb-5">
+                  <thead>
+                    <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+                      <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        ID Tingkat
+                      </th>
 
-          <div className="overflow-x-auto p-1">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-200">
-                  <th className="px-8 py-5 text-left font-semibold text-slate-800">
-                    ID Tingkat
-                  </th>
+                      <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Kategori Tingkatan
+                      </th>
 
-                  <th className="px-8 py-5 text-left font-semibold text-slate-800">
-                    Kategori Tingkatan
-                  </th>
+                      <th className="px-8 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Aksi
+                      </th>
+                    </tr>
+                  </thead>
 
-                  <th className="px-8 py-5 text-center font-semibold text-slate-800">
-                    Aksi
-                  </th>
-                </tr>
-              </thead>
+                  <tbody>
+                      {data?.rows.map((item: any, index: number) => (
+                        <tr key={item.id} className={`${index % 2 === 1
+                            ? "bg-slate-50 dark:bg-white/[0.03]"
+                            : ""
+                          } border-b border-slate-100 dark:border-slate-800`}>
+                          <td className="px-8 py-3">
+                            <Link href={`/akademik/detail-tingkat-kelas/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                              {item.id}
+                            </Link>
+                          </td>
+                          <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
+                            {item.nama}
+                          </td>
+                          <td className="px-8 py-3">
+                            <div className="flex items-center justify-center gap-4">
+                              <Tooltip text={`Ubah Data ${item.nama}`}>
+                                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white">
+                                  <i className="ri-edit-line text-lg" />
+                                </button>
+                              </Tooltip>
+                              <Tooltip text={`Hapus Data ${item.nama}`}>
+                                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white">
+                                  <i className="ri-delete-bin-line text-lg" />
+                                </button>
+                              </Tooltip>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        ID Tingkat
+                      </th>
 
-              <tbody>
-                {isLoading || isFetching ? (
-                  <>
-                  <TableSkeleton />
-                  </>
-                ) : data?.rows?.length > 0 ? (
-                  <>
-                    {data?.rows.map((item: any, index: number) => (
-                      <tr key={item.id} className={index % 2 === 1 ? "bg-slate-50" : ""}>
-                        <td className="px-8 py-3">
-                          <Link href={`/akademik/detail-tingkat-kelas/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700">
-                            {item.id}
-                          </Link>
-                        </td>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Kategori Tingkatan
+                      </th>
 
-                        <td className="px-8 py-3 text-slate-600">
-                          {item.nama}
-                        </td>
-
-                        <td className="px-8 py-3">
-                          <div className="flex items-center justify-center gap-4">
-                            {/* EDIT */}
-                            <button
-                              className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
-                            >
-                              <i className="ri-edit-line text-lg" />
-                            </button>
-
-                            {/* DELETE */}
-                            <button
-                              className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white"
-                            >
-                              <i className="ri-delete-bin-line text-lg" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-
-                  </>
-                ) : (
-                <>
-                  <tr>
-                    <td colSpan={3} className="px-8 py-6 text-center text-lg text-slate-500 bg-slate-50">
-                      Data tidak tersedia
-                    </td>
-                  </tr>
-                </>
-              )}
-              </tbody>
-            </table>
-          </div>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Aksi
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colSpan={3} className="px-8 py-6 text-center text-lg text-slate-500 bg-slate-50 dark:bg-slate-800/40 dark:text-slate-400">
+                        Data tidak tersedia
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </>
   );
 }
 
-const TableSkeleton = () => {
+function TableSkeleton() {
   return (
-    <>
-      {[...Array(5)].map((_, index) => (
-        <tr key={index} className={index % 2 === 1 ? "bg-slate-50" : ""}>
-          <td className="px-8 py-3">
-            <div className="h-5 w-40 animate-pulse rounded bg-slate-200" />
-          </td>
+    <div className="overflow-x-auto">
+      <table className="min-w-full">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+            <th className="px-6 py-4 text-left">
+              <div className="h-4 w-10 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            </th>
 
-          <td className="px-8 py-3">
-            <div className="h-5 w-24 animate-pulse rounded bg-slate-200" />
-          </td>
+            <th className="px-6 py-4 text-left">
+              <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            </th>
 
-          <td className="px-8 py-3">
-            <div className="flex justify-center gap-4">
-              <div className="h-11 w-11 animate-pulse rounded-full bg-slate-200" />
-              <div className="h-11 w-11 animate-pulse rounded-full bg-slate-200" />
-            </div>
-          </td>
-        </tr>
-      ))}
-    </>
+            <th className="px-6 py-4 text-left">
+              <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {[...Array(2)].map((_, index) => (
+            <tr key={index} className="border-b border-slate-100 dark:border-slate-800">
+              <td className="px-6 py-5">
+                <div className="h-4 w-6 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </td>
+
+              <td className="px-6 py-5">
+                <div className="h-4 w-48 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+              </td>
+
+              <td className="px-6 py-5">
+                <div className="flex gap-4">
+                  {[...Array(4)].map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="h-4 w-14 animate-pulse rounded bg-slate-200 dark:bg-slate-700"
+                    />
+                  ))}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
-};
+}

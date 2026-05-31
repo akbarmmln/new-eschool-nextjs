@@ -1674,10 +1674,7 @@ function AbsensiTableSkeleton() {
 
         <tbody>
           {[...Array(2)].map((_, index) => (
-            <tr
-              key={index}
-              className="border-b border-slate-100 dark:border-slate-800"
-            >
+            <tr key={index} className="border-b border-slate-100 dark:border-slate-800">
               <td className="px-6 py-5">
                 <div className="h-4 w-6 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
               </td>

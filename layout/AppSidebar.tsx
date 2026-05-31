@@ -384,7 +384,7 @@ const AppSidebar: React.FC = () => {
                     Keluar
 
                     {/* ARROW */}
-                    <div className=" absolute bottom-[-5px] left-1/2 -translate-x-1/2 rotate-45 w-[10px] h-[10px] bg-white border-r border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 " />
+                    <div className="absolute bottom-[-5px] left-1/2 -translate-x-1/2 rotate-45 w-[10px] h-[10px] bg-white border-r border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700" />
                   </div>
 
                   {/* BUTTON */}
