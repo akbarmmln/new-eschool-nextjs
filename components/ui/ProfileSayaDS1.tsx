@@ -579,6 +579,7 @@ export default function ProfileSayaDS1() {
                     name="tanggal_lahir"
                     value={tanggalLahir}
                     onChange={setTanggalLahir}
+                    yearLength={60}
                   />
                 </div>
 

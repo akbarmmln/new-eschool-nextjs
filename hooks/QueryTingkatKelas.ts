@@ -1,7 +1,9 @@
 import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
   tingkatanKelasList,
-  updateTingkatKelas
+  updateTingkatKelas,
+  deleteTingkatKelas,
+  addTingkatKelas
 } from '@/services/Call'
 
 // LIST ALL TINGKAT KELAS \\
@@ -32,11 +34,31 @@ export function useListAllTingkatKelas(page: String, search: any) {
   })
 }
 
+// ADD \\
+export const useAdd = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = addTingkatKelas(payload)
+      return results;
+    },
+  });
+};
+
 // UPDATE \\
 export const useUpdate = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
       const results = updateTingkatKelas(payload)
+      return results;
+    },
+  });
+};
+
+// DELETE \\
+export const useDelete = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = deleteTingkatKelas(payload)
       return results;
     },
   });

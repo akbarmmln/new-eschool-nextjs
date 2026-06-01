@@ -196,3 +196,21 @@ export async function updateTingkatKelas(body: any) {
     10000
   );
 }
+
+export async function deleteTingkatKelas(body: any) {
+  return await request(
+    "post",
+    `/api/v1/class-level/delete`,
+    body,
+    10000
+  );
+}
+
+export async function addTingkatKelas(body: any) {
+  return await request(
+    "post",
+    `/api/v1/class-level/create`,
+    body,
+    10000
+  );
+}

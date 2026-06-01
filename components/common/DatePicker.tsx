@@ -10,7 +10,8 @@ type Props = {
   value: Date | null
   onChange: (
     date: Date | null
-  ) => void
+  ) => void,
+  yearLength?: number
 }
 
 const CustomInput = React.forwardRef<
@@ -40,7 +41,7 @@ const CustomInput = React.forwardRef<
 
 CustomInput.displayName = 'CustomInput'
 
-export default function CustomDatePicker({ name, value, onChange }: Props) {
+export default function CustomDatePicker({ name, value, onChange, yearLength = 10, }: Props) {
   const currentYear = new Date().getFullYear()
 
   return (
@@ -104,7 +105,7 @@ export default function CustomDatePicker({ name, value, onChange }: Props) {
               <select
                 value={date.getFullYear()} onChange={(e) => changeYear(Number(e.target.value))}>
                 {Array.from(
-                  { length: 10 },
+                  { length: yearLength },
                   (_, i) =>
                     currentYear - i
                 ).map((year) => (

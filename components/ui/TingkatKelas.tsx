@@ -1,13 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useListAllTingkatKelas, useUpdate } from "@/hooks/QueryTingkatKelas";
+import { useListAllTingkatKelas, useAdd, useUpdate, useDelete } from "@/hooks/QueryTingkatKelas";
 import Link from "next/link";
 import Tooltip from "@/components/form/Tooltip";
 import isEmpty from "@/utils/isEmpty";
+import { showAlert } from "@/utils/swal";
+import { useAccessContext } from '@/context/AccessContext'
 
 export default function TingkatKelas() {
+  const dataAccess = useAccessContext()
+  const role = dataAccess?.access?.role;
+
+  const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
+  const [selectedId, setSelectedId] = useState<any>(null);
+  const [selectedNama, setSelectedNama] = useState<any>(null);
 
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState("");
@@ -18,9 +27,11 @@ export default function TingkatKelas() {
   const [nama, setNama] = useState('')
   const [deskripsi, setDeskripsi] = useState('')
 
-  const isEditFormValid =
-    !isEmpty(nama) &&
-    !isEmpty(deskripsi);
+  const [namaAdd, setNamaAdd] = useState('')
+  const [deskripsiAdd, setDeskripsiAdd] = useState('')
+
+  const isEditFormValid = !isEmpty(nama)
+  const isAddFormValid = !isEmpty(namaAdd)
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -30,6 +41,49 @@ export default function TingkatKelas() {
 
     return () => clearTimeout(debounceTimer);
   }, [search]);
+
+  const create = useAdd();
+  const handleOpenModalAdd = () => {
+    setNamaAdd('');
+    setDeskripsiAdd('');
+
+    setOpenModalAdd(true)
+  }
+  const handleCloseModalAdd = () => {
+    setNamaAdd('');
+    setDeskripsiAdd('');
+
+    setOpenModalAdd(false)
+  }
+  const handleSaveCreate = async () => {
+    try {
+      const payload = {
+        nama: namaAdd,
+        deskripsi: deskripsiAdd
+      }
+
+      const hasil = await create.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data tingkatan kelas berhasil ditambahkan"
+      );
+
+      handleCloseModalAdd();
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal menambahkan data tingkatan kelas: ${e.err_msg}`,
+      );
+    }
+  }
 
   const update = useUpdate();
   const handleOpenModalEdit = (id: string, nama: string, deskripsi: string) => {
@@ -47,9 +101,78 @@ export default function TingkatKelas() {
     setOpenModalEdit(false);
   };
   const handleSaveUpdate = async () => {
-    
+    try {
+      const payload = {
+        id: id,
+        nama: nama,
+        deskripsi: deskripsi
+      };
+
+      const hasil = await update.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data tingkatan kelas berhasil diperbaharui"
+      );
+
+      handleCloseModalEdit();
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui data tingkatan kelas: ${e.err_msg}`,
+      );
+    }
   }
 
+  const deletes = useDelete();
+  const handleOpenModalDelete = (id: string, nama: string) => {
+    setSelectedId(id);
+    setSelectedNama(nama);
+
+    setOpenModalDelete(true)
+  }
+  const handleCloseModalDelete = () => {
+    setSelectedId('');
+    setSelectedNama('');
+
+    setOpenModalDelete(false)
+  }
+  const handleSaveDelete = async () => {
+    try {
+      const payload = {
+        id: selectedId
+      };
+
+      const hasil = await deletes.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data tingkatan kelas berhasil dihapus"
+      );
+
+      handleCloseModalDelete();
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal menghapus data tingkatan kelas: ${e.err_msg}`,
+      );
+    }
+  }
+  
   function getPaginationItems(current: number, total: number) {
     const items: (number | string)[] = []
 
@@ -102,6 +225,26 @@ export default function TingkatKelas() {
               <span>/</span>
               <span>Tingkatan Kelas</span>
             </div>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {role == '0' ? (
+              isLoading || isFetching ? (
+              <>
+                  <div className="h-[46px] w-[140px] animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+              </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleOpenModalAdd}
+                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                    <i className="ri-add-circle-fill text-xl text-blue-500" />
+                    Tambah Data
+                  </button>
+                </>
+              )
+            ) : ''
+            }
           </div>
         </div>
 
@@ -225,7 +368,7 @@ export default function TingkatKelas() {
                       </th>
 
                       <th className="px-8 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Aksi
+                        {role == '0' ? 'Aksi' : ''}
                       </th>
                     </tr>
                   </thead>
@@ -245,19 +388,23 @@ export default function TingkatKelas() {
                             {item.nama}
                           </td>
                           <td className="px-8 py-3">
-                            <div className="flex items-center justify-center gap-4">
-                              <Tooltip text={`Ubah Data ${item.nama}`}>
-                                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
-                                  onClick={() => handleOpenModalEdit(item.id, item.nama, item.deskripsi)}>
-                                  <i className="ri-edit-line text-lg" />
-                                </button>
-                              </Tooltip>
-                              <Tooltip text={`Hapus Data ${item.nama}`}>
-                                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white">
-                                  <i className="ri-delete-bin-line text-lg" />
-                                </button>
-                              </Tooltip>
-                            </div>
+                            {role == '0' ? (
+                              <div className="flex items-center justify-center gap-4">
+                                <Tooltip text={`Ubah Data ${item.nama}`}>
+                                  <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
+                                    onClick={() => handleOpenModalEdit(item.id, item.nama, item.deskripsi)}>
+                                    <i className="ri-edit-line text-lg" />
+                                  </button>
+                                </Tooltip>
+                                <Tooltip text={`Hapus Data ${item.nama}`}>
+                                  <button className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white"
+                                    onClick={() => handleOpenModalDelete(item.id, item.nama)}>
+                                    <i className="ri-delete-bin-line text-lg" />
+                                  </button>
+                                </Tooltip>
+                              </div>
+                            ) : ''
+                            }
                           </td>
                         </tr>
                       ))}
@@ -278,15 +425,11 @@ export default function TingkatKelas() {
                       <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
                         Kategori Tingkatan
                       </th>
-
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Aksi
-                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td colSpan={3} className="px-8 py-6 text-center text-lg text-slate-500 bg-slate-50 dark:bg-slate-800/40 dark:text-slate-400">
+                      <td colSpan={2} className="px-8 py-6 text-center text-lg text-slate-500 bg-slate-50 dark:bg-slate-800/40 dark:text-slate-400">
                         Data tidak tersedia
                       </td>
                     </tr>
@@ -297,6 +440,80 @@ export default function TingkatKelas() {
           )}
         </div>
       </div>
+
+      {openModalAdd && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+                <h2 className="text-2xl font-bold tracking-tight text-white">
+                  Tambah Data Tingkatan Kelas
+                </h2>
+
+                <button
+                  onClick={handleCloseModalAdd}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                  <i
+                    className="ri-close-line"
+                    style={{ fontSize: 30 }}
+                  />
+                </button>
+              </div>
+
+              <div className="space-y-6 p-6">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Nama
+                  </label>
+
+                  <input
+                    type="text"
+                    value={namaAdd}
+                    onChange={(e) => setNamaAdd(e.target.value)}
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Deskripsi
+                  </label>
+
+                  <textarea
+                    value={deskripsiAdd}
+                    onChange={(e) => setDeskripsiAdd(e.target.value)}
+                    placeholder="Isikan deskripsi tentang jenjang ini..."
+                    className={`mt-3 min-h-[90px] w-full rounded-2xl border border-slate-300 p-4 text-sm outline-none transitionbg-white focus:border-blue-500`}
+                  />
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
+                <button
+                  onClick={() => handleCloseModalAdd()}
+                  className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                  Batalkan
+                </button>
+
+                <button
+                  disabled={!isAddFormValid || create.isPending}
+                  className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                  ${!isAddFormValid || create.isPending
+                      ? "cursor-not-allowed bg-slate-400 shadow-none"
+                      : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                    }`}
+                  onClick={handleSaveCreate} >
+
+                  {create.isPending
+                    ? "Menyimpan..."
+                    : "Simpan Data"}
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </>
+      )}
 
       {openModalEdit && (
         <>
@@ -379,7 +596,55 @@ export default function TingkatKelas() {
                     : "Simpan Perubahan"}
                 </button>
               </div>
+            </div>
+          </div>
+        </>
+      )}
 
+      {openModalDelete && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"/>
+
+            <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+              <div className="p-8">
+                {/* Icon */}
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-50">
+                  <i className="ri-delete-bin-6-line text-5xl text-red-500" />
+                </div>
+
+                {/* Title */}
+                <h2 className="mb-4 text-center text-xl font-bold text-slate-700">
+                  Konfirmasi Penghapusan
+                </h2>
+
+                {/* Message */}
+                <p className="text-center text-base leading-relaxed text-slate-600">
+                  Anda akan menghapus tingkat kelas{" "}
+                  <span className="font-bold text-slate-800">
+                    {selectedNama}
+                  </span>
+                  , tindakan ini tidak dapat dibatalkan setelah Anda menghapusnya.
+                </p>
+
+                {/* Actions */}
+                <div className="mt-8 flex items-center justify-center gap-4">
+                  <button className="rounded-xl bg-slate-100 px-8 py-4 text-lg font-medium text-slate-700 transition hover:bg-slate-200"
+                    onClick={handleCloseModalDelete}>
+                    Batalkan
+                  </button>
+
+                  <button 
+                    disabled={deletes.isPending}
+                    className="rounded-xl bg-red-500 px-8 py-4 text-lg font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                    onClick={handleSaveDelete}>
+                    
+                    {deletes.isPending
+                      ? "Menghapus..."
+                      : "Ya, Hapus"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </>
