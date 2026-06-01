@@ -227,3 +227,21 @@ export async function kelasList(page: string, search: string) {
     10000
   );
 }
+
+export async function dropDownTingkatKelas() {
+  return await request(
+    "get",
+    `/api/v1/class-level/level`,
+    {},
+    10000
+  );
+}
+
+export async function dropDownGuru(keyword: string) {
+  return await request(
+    "get",
+    `/api/v1/teacher/search/${encodeURIComponent(keyword)}`,
+    {},
+    10000
+  );
+}

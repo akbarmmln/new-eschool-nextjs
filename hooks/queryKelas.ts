@@ -18,7 +18,7 @@ const fetchListAllKelas =
   }
 export function useDropdownKelas() {
   return useQuery<listDropDownKelas>({
-    queryKey: ['all-kelas'],
+    queryKey: ['dropdown-kelas'],
     queryFn: fetchListAllKelas,
     staleTime: 0,
     gcTime: 0,

@@ -3,8 +3,36 @@ import {
   tingkatanKelasList,
   updateTingkatKelas,
   deleteTingkatKelas,
-  addTingkatKelas
+  addTingkatKelas,
+  dropDownTingkatKelas
 } from '@/services/Call'
+
+// DROPDOWN TINGKAT KELAS \\
+type listDropDownTingkatKelas = any[]
+const fetchListAllTingkatKelas =
+  async ({
+    queryKey,
+  }: any): Promise<listDropDownTingkatKelas> => {
+    const hasil: any = await dropDownTingkatKelas()
+    if (!hasil.ok) {
+      throw hasil
+    }
+    return hasil.data.data
+  }
+export function useDropdownTingkatKelas(
+  options?: Partial<UseQueryOptions<listDropDownTingkatKelas>>
+) {
+  return useQuery<listDropDownTingkatKelas>({
+    queryKey: ['dropdown-tingkat-kelas'],
+    queryFn: fetchListAllTingkatKelas,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    ...options,
+  })
+}
 
 // LIST ALL TINGKAT KELAS \\
 type ListAllTingkatKelasResponse = {

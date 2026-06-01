@@ -615,7 +615,6 @@ export default function AktifitasJurnal({ id }: Props) {
 
       await refetch();
     } catch (e) {
-      console.log('error nya ', e)
       await showAlert(
         "error",
         "Gagal",
