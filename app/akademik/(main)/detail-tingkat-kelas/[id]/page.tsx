@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import DetailTingkatKelasSide from '@/components/ui/DetailTingkatKelas'
+import DetailTingkatKelas from '@/components/ui/DetailTingkatKelas'
 
 export const metadata: Metadata = {
   title: "Detail Tingkat Kelas",
@@ -8,6 +8,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DetailTingkatKelas() {
-  return <DetailTingkatKelasSide/>
+export default function DetailTingkatKelasPage() {
+  return <DetailTingkatKelas/>
 }

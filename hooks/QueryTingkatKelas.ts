@@ -7,13 +7,13 @@ import {
 } from '@/services/Call'
 
 // LIST ALL TINGKAT KELAS \\
-type ListAllKelasResponse = {
+type ListAllTingkatKelasResponse = {
   [key: string]: any
 }
 const fetcListTingkatanKelas =
   async ({
     queryKey,
-  }: any): Promise<ListAllKelasResponse> => {
+  }: any): Promise<ListAllTingkatKelasResponse> => {
     const [_, page, search] = queryKey
 
     const hasil: any = await tingkatanKelasList(page, search)
@@ -23,7 +23,7 @@ const fetcListTingkatanKelas =
     return hasil.data.data
   }
 export function useListAllTingkatKelas(page: String, search: any) {
-  return useQuery<ListAllKelasResponse>({
+  return useQuery<ListAllTingkatKelasResponse>({
     queryKey: ['all-tingkat-kelas', page, search],
     queryFn: fetcListTingkatanKelas,
     staleTime: 1000 * 60 * 1,

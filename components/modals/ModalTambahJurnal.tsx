@@ -11,11 +11,13 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   kelas: any[]
+  isLoadingKelas: boolean;
   onClose: () => void
 }
 
 export default function ModalTambahJurnal({
   kelas,
+  isLoadingKelas,
   onClose,
 }: Props) {
   const [materiPembelajaran, setMateriPembelajaran] = useState('')
@@ -116,24 +118,29 @@ export default function ModalTambahJurnal({
               </label>
 
               <div className="input-icon">
-                <select value={selectedKelas}
-                  onChange={(e) =>
-                    setSelectedKelas(e.target.value)
-                  } >
-                  <option value="">
-                    Pilih
-                  </option>
-
-                  {
-                    kelas.map((item) => (
-                      <option key={item.id} value={item.id} >
-                        {item.nama_kelas}
+                {isLoadingKelas ? (
+                  <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+                ) : (
+                <>
+                    <select value={selectedKelas}
+                      onChange={(e) =>
+                        setSelectedKelas(e.target.value)
+                      } >
+                      <option value="">
+                        Pilih
                       </option>
-                    ))
-                  }
-                </select>
 
-                <i className="ri-arrow-down-s-line" />
+                      {
+                        kelas.map((item) => (
+                          <option key={item.id} value={item.id} >
+                            {item.nama_kelas}
+                          </option>
+                        ))
+                      }
+                    </select>
+                    <i className="ri-arrow-down-s-line" />
+                </>
+              )}
               </div>
             </div>
 

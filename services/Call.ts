@@ -53,7 +53,7 @@ export async function jurnalList(page: string) {
   );
 }
 
-export async function listAllKelas() {
+export async function dropDownKelas() {
   return await request(
     "get",
     `/api/v1/class-room/class`,
@@ -211,6 +211,19 @@ export async function addTingkatKelas(body: any) {
     "post",
     `/api/v1/class-level/create`,
     body,
+    10000
+  );
+}
+
+export async function kelasList(page: string, search: string) {
+  let url = `/api/v1/class-room/list/${page}`;
+  if (!isEmpty(search)) {
+    url += `/${encodeURIComponent(search)}`;
+  }
+  return await request(
+    "get",
+    url,
+    {},
     10000
   );
 }

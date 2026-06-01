@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import TingkatKelasSide from '@/components/ui/TingkatKelas'
+import TingkatKelas from '@/components/ui/TingkatKelas'
 
 export const metadata: Metadata = {
-  title: "Tingkat Kelas",
+  title: "Data Tingkat Kelas",
   icons: {
     icon: "/assets/img/icons/education.svg"
   },
 };
 
-export default function TingkatKelas() {
-  return <TingkatKelasSide/>
+export default function TingkatKelasPage() {
+  return <TingkatKelas/>
 }

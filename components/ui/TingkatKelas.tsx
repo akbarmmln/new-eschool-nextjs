@@ -349,10 +349,9 @@ export default function TingkatKelas() {
               )}
             </div>
           </div>
+
           {isLoading || isFetching ? (
-            <>
             <TableSkeleton />
-            </>
           ) : data?.rows?.length > 0 ? (
             <>
               <div className="overflow-x-auto">
@@ -375,10 +374,7 @@ export default function TingkatKelas() {
 
                   <tbody>
                       {data?.rows.map((item: any, index: number) => (
-                        <tr key={item.id} className={`${index % 2 === 1
-                            ? "bg-slate-50 dark:bg-white/[0.03]"
-                            : ""
-                          } border-b border-slate-100 dark:border-slate-800`}>
+                        <tr key={item.id} className={`${index % 2 === 1 ? "bg-slate-50 dark:bg-white/[0.03]" : ""} border-b border-slate-100 dark:border-slate-800`}>
                           <td className="px-8 py-3">
                             <Link href={`/akademik/detail-tingkat-kelas/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                               {item.id}

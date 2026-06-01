@@ -2,7 +2,7 @@
 
 import { useProfile } from '@/hooks/query'
 import { useJurnal } from '@/hooks/queryJurnal'
-import { useListAllKelas } from '@/hooks/queryKelas'
+import { useDropdownKelas } from '@/hooks/queryKelas'
 import {
   useState,
 } from "react";
@@ -26,8 +26,7 @@ export default function DashboardAdmin() {
     error: errorListAllKelas,
     refetch: refetchListAllKelas,
     isLoading: isLoadingListAllKelas,
-  } = useListAllKelas()
-  const id = "019d5404-db08-758a-aaf4-97d21044dfab";
+  } = useDropdownKelas()
   
   return (
     <>
@@ -119,6 +118,7 @@ export default function DashboardAdmin() {
         openModalTambahJurnal && (
           <ModalTambahJurnal
             kelas={dataListAllKelas || []}
+            isLoadingKelas={isLoadingListAllKelas}
             onClose={() =>
               setOpenModalTambahJurnal(false)
             }

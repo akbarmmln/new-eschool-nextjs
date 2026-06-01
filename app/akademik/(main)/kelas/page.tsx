@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import Profile from '@/components/ui/Profile'
+import Kelas from '@/components/ui/Kelas'
 
 export const metadata: Metadata = {
-  title: "Profile Saya",
+  title: "Data Siswa",
   icons: {
     icon: "/assets/img/icons/education.svg"
   },
 };
 
-export default function ProfilePage() {
-  return <Profile/>
+export default function KelasPage() {
+  return <Kelas/>
 }
