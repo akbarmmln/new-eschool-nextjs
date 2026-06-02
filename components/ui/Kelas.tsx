@@ -9,10 +9,16 @@ import Link from "next/link";
 import Tooltip from "@/components/form/Tooltip";
 import isEmpty from "@/utils/isEmpty";
 import { showAlert } from "@/utils/swal";
+import { allowPage } from "@/utils/utils";
 
 export default function Kelas() {
+  const allow_tipe = ['DS1'];
+  const allow_role = ['0', '1'];
+
   const dataAccess = useAccessContext()
-  const role = dataAccess?.access?.role;
+  const tipe_account = dataAccess?.access?.tipe_account || '';
+  const role = dataAccess?.access?.role || '';
+  const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
 
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalEdit, setOpenModalEdit] = useState(false);
@@ -75,10 +81,7 @@ export default function Kelas() {
   }, [waliKelas]);
 
   useEffect(() => {
-    if (
-      !isSelectingGuru &&
-      debouncedKeyword.trim()
-    ) {
+    if (!isSelectingGuru && debouncedKeyword.trim()) {
       setShowDropdown(true);
     } else {
       setShowDropdown(false);
@@ -293,6 +296,14 @@ export default function Kelas() {
     return items
   }
 
+  if (!isAllowed) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
+  
   return (
     <>
       <div className="space-y-6">

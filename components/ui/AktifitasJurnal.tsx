@@ -12,8 +12,10 @@ import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian,
   useGetItemPenilaian, useSubmitNilai } from "@/hooks/queryJurnal";
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
+import { allowPage } from "@/utils/utils";
 import { useQueryClient } from '@tanstack/react-query'
 import { compressImage, fileToBase64, formatTanggalIndonesia } from "@/utils/utils";
+import { useAccessContext } from '@/context/AccessContext'
 
 type Student = {
   id: string;
@@ -47,6 +49,15 @@ const convertStatusToAbsensi = (
 };
 
 export default function AktifitasJurnal({ id }: Props) {
+  const allow_tipe = ['DS1'];
+  const allow_role = ['0', '1'];
+
+  const dataAccess = useAccessContext()
+  const tipe_account = dataAccess?.access?.tipe_account || '';
+  const role = dataAccess?.access?.role || '';
+
+  const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
+
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
   const [students, setStudents] = useState<Student[]>([]);
@@ -623,6 +634,14 @@ export default function AktifitasJurnal({ id }: Props) {
     }
   };
 
+  if (!isAllowed) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
+  
   if (error) {
     return (
       <div className="rounded-xl bg-red-100 p-4 text-red-600">

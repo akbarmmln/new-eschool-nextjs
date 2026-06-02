@@ -53,3 +53,8 @@ export const formatTanggalIndonesia = (tanggal: string) => {
     year: "numeric",
   }).format(new Date(tanggal));
 };
+
+export const allowPage = (allow_tipe: any, allow_role: any, tipe_account: string, tipe_role: string) => {
+  const isAllowed = allow_tipe.includes(tipe_account) && allow_role.includes(tipe_role);
+  return isAllowed
+}
