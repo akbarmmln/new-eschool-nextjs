@@ -35,7 +35,7 @@ export function useDropdownKelas() {
 type ListAllKelasResponse = {
   [key: string]: any
 }
-const fetcListTingkatanKelas =
+const fetcListKelas =
   async ({
     queryKey,
   }: any): Promise<ListAllKelasResponse> => {
@@ -50,7 +50,7 @@ const fetcListTingkatanKelas =
 export function useListAllKelas(page: String, search: any) {
   return useQuery<ListAllKelasResponse>({
     queryKey: ['all-kelas', page, search],
-    queryFn: fetcListTingkatanKelas,
+    queryFn: fetcListKelas,
     staleTime: 1000 * 60 * 1,
     gcTime: 1000 * 60 * 5,
     retry: 1,

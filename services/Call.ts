@@ -272,3 +272,43 @@ export async function createKelas(body: any) {
     10000
   );
 }
+
+export async function guruList(page: string, search: string) {
+  let url = `/api/v1/teacher/list/${page}`;
+  if (!isEmpty(search)) {
+    url += `/${encodeURIComponent(search)}`;
+  }
+  return await request(
+    "get",
+    url,
+    {},
+    10000
+  );
+}
+
+export async function updateGuru(body: any) {
+  return await request(
+    "post",
+    `/api/v1/teacher/update`,
+    body,
+    10000
+  );
+}
+
+export async function createGuru(body: any) {
+  return await request(
+    "post",
+    `/api/v1/teacher/create`,
+    body,
+    10000
+  );
+}
+
+export async function deleteGuru(body: any) {
+  return await request(
+    "post",
+    `/api/v1/teacher/delete`,
+    body,
+    10000
+  );
+}

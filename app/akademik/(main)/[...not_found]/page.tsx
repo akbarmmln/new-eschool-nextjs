@@ -1,13 +1,14 @@
-'use client'
-
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { usePreviousRoute } from '@/app/providers'
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Halaman tidak ada",
+  icons: {
+    icon: "/assets/img/icons/education.svg"
+  },
+};
 
 export default function NotFoundSite() {
-  const router = useRouter();
-  const previousRoute = usePreviousRoute();
-
   return (
     <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
       <div className="flex items-center justify-center px-6 py-10 transition-colors duration-300">

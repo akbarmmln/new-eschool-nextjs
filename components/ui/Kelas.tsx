@@ -688,7 +688,6 @@ export default function Kelas() {
                   : "Simpan Data"}
               </button>
             </div>
-
           </div>
         </div>
       )}

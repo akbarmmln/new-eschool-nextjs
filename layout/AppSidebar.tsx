@@ -138,7 +138,7 @@ const AppSidebar: React.FC = () => {
               )}
             </h2>
 
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-2">
               {/* LOADING */}
               {isLoading && Array.from({ length: 6 }).map((_, index) => {
                 const collapsed = !isExpanded;

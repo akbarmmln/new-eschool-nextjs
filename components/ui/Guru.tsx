@@ -1,43 +1,54 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useListAllTingkatKelas, useAdd, useUpdate, useDelete } from "@/hooks/QueryTingkatKelas";
+import { useAccessContext } from '@/context/AccessContext'
+import { allowPage } from "@/utils/utils";
+import { useListGuru, useCreate, useUpdate, useDelete } from "@/hooks/queryGuru";
 import Link from "next/link";
 import Tooltip from "@/components/form/Tooltip";
 import isEmpty from "@/utils/isEmpty";
 import { showAlert } from "@/utils/swal";
-import { useAccessContext } from '@/context/AccessContext'
-import { allowPage } from "@/utils/utils";
 
-export default function TingkatKelas() {
+export default function Kelas() {
   const allow_tipe = ['DS1'];
   const allow_role = ['0', '1'];
 
   const dataAccess = useAccessContext()
+  const id_account = dataAccess?.access?.id_account || '';
   const tipe_account = dataAccess?.access?.tipe_account || '';
   const role = dataAccess?.access?.role || '';
   const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
 
-  const [openModalAdd, setOpenModalAdd] = useState(false);
-  const [openModalEdit, setOpenModalEdit] = useState(false);
-  const [openModalDelete, setOpenModalDelete] = useState(false);
-  const [selectedId, setSelectedId] = useState<any>(null);
-  const [selectedNama, setSelectedNama] = useState<any>(null);
-
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
-  const { data, isLoading, error, isFetching, refetch } = useListAllTingkatKelas(currentPage.toString(), keyword);
 
-  const [id, setId] = useState('')
-  const [nama, setNama] = useState('')
-  const [deskripsi, setDeskripsi] = useState('')
+  const [openModalAdd, setOpenModalAdd] = useState(false);
+  const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
 
-  const [namaAdd, setNamaAdd] = useState('')
-  const [deskripsiAdd, setDeskripsiAdd] = useState('')
+  const [idGuru, setIdGuru] = useState('')
+  const [niyGuru, setNiyGuru] = useState('')
+  const [namaGuru, setNamaGuru] = useState('')
 
-  const isEditFormValid = !isEmpty(nama)
-  const isAddFormValid = !isEmpty(namaAdd)
+  const [niyGuruAdd, setNiyGuruAdd] = useState('')
+  const [namaGuruAdd, setNamaGuruAdd] = useState('')
+  const [emailGuruAdd, setEmailGuruAdd] = useState('')
+
+  const [selectedId, setSelectedId] = useState<any>(null);
+  const [selectedNama, setSelectedNama] = useState<any>(null);
+
+  const isEditFormValid =
+    !isEmpty(idGuru) &&
+    !isEmpty(niyGuru) &&
+    !isEmpty(namaGuru);
+
+  const isAddFormValid =
+    !isEmpty(niyGuruAdd) &&
+    !isEmpty(namaGuruAdd) &&
+    !isEmpty(emailGuruAdd);
+    
+  const { data, isLoading, error, isFetching, refetch } = useListGuru(currentPage.toString(), keyword);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -48,24 +59,35 @@ export default function TingkatKelas() {
     return () => clearTimeout(debounceTimer);
   }, [search]);
 
-  const create = useAdd();
-  const handleOpenModalAdd = () => {
-    setNamaAdd('');
-    setDeskripsiAdd('');
+  if (!isAllowed) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
 
-    setOpenModalAdd(true)
+  const create = useCreate();
+  const handleOpenModalAdd = () => {
+    setNiyGuruAdd('');
+    setNamaGuruAdd('');
+    setEmailGuruAdd('');
+
+    setOpenModalAdd(true);
   }
   const handleCloseModalAdd = () => {
-    setNamaAdd('');
-    setDeskripsiAdd('');
+    setNiyGuruAdd('');
+    setNamaGuruAdd('');
+    setEmailGuruAdd('');
 
     setOpenModalAdd(false)
   }
   const handleSaveCreate = async () => {
     try {
       const payload = {
-        nama: namaAdd,
-        deskripsi: deskripsiAdd
+        niy: niyGuruAdd,
+        nama: namaGuruAdd,
+        email: emailGuruAdd
       }
 
       const hasil = await create.mutateAsync(payload);
@@ -76,7 +98,7 @@ export default function TingkatKelas() {
       await showAlert(
         "success",
         "Berhasil",
-        "Data tingkatan kelas berhasil ditambahkan"
+        "Data pengajar berhasil ditambahkan"
       );
 
       handleCloseModalAdd();
@@ -86,33 +108,35 @@ export default function TingkatKelas() {
       await showAlert(
         "error",
         "Gagal",
-        `Gagal menambahkan data tingkatan kelas: ${e.err_msg}`,
+        `Gagal menambahkan data pengajar: ${e.err_msg}`,
       );
     }
   }
 
   const update = useUpdate();
-  const handleOpenModalEdit = (id: string, nama: string, deskripsi: string) => {
-    setId(id || '');
-    setNama(nama || '');
-    setDeskripsi(deskripsi || '');
+  const handleOpenModalEdit = (id: string, niy: string, nama: string) => {
+    setIdGuru(id || '');
+    setNiyGuru(niy || '');
+    setNamaGuru(nama || '');
 
     setOpenModalEdit(true);
-  };
+  }
   const handleCloseModalEdit = () => {
-    setId('');
-    setNama('');
-    setDeskripsi('');
+    setIdGuru('');
+    setNiyGuru('');
+    setNamaGuru('');
 
     setOpenModalEdit(false);
-  };
+  }
   const handleSaveUpdate = async () => {
     try {
       const payload = {
-        id: id,
-        nama: nama,
-        deskripsi: deskripsi
-      };
+        id: idGuru,
+        object_update: {
+          niy: niyGuru,
+          nama: namaGuru
+        }
+      }
 
       const hasil = await update.mutateAsync(payload);
       if (!hasil.ok) {
@@ -122,7 +146,7 @@ export default function TingkatKelas() {
       await showAlert(
         "success",
         "Berhasil",
-        "Data tingkatan kelas berhasil diperbaharui"
+        "Data pengajar berhasil diperbaharui"
       );
 
       handleCloseModalEdit();
@@ -132,7 +156,7 @@ export default function TingkatKelas() {
       await showAlert(
         "error",
         "Gagal",
-        `Gagal memperbaharui data tingkatan kelas: ${e.err_msg}`,
+        `Gagal memperbaharui data pengajar: ${e.err_msg}`,
       );
     }
   }
@@ -142,13 +166,13 @@ export default function TingkatKelas() {
     setSelectedId(id);
     setSelectedNama(nama);
 
-    setOpenModalDelete(true)
+    setOpenModalDelete(true);
   }
   const handleCloseModalDelete = () => {
     setSelectedId('');
     setSelectedNama('');
 
-    setOpenModalDelete(false)
+    setOpenModalDelete(false);
   }
   const handleSaveDelete = async () => {
     try {
@@ -164,7 +188,7 @@ export default function TingkatKelas() {
       await showAlert(
         "success",
         "Berhasil",
-        "Data tingkatan kelas berhasil dihapus"
+        "Data pengajar berhasil dihapus"
       );
 
       handleCloseModalDelete();
@@ -174,11 +198,11 @@ export default function TingkatKelas() {
       await showAlert(
         "error",
         "Gagal",
-        `Gagal menghapus data tingkatan kelas: ${e.err_msg}`,
+        `Gagal menghapus data pengajar: ${e.err_msg}`,
       );
     }
   }
-  
+
   function getPaginationItems(current: number, total: number) {
     const items: (number | string)[] = []
 
@@ -217,27 +241,19 @@ export default function TingkatKelas() {
     return items
   }
 
-  if (!isAllowed) {
-    return (
-      <div className="rounded-xl bg-red-100 p-4 text-red-600">
-        Maaf Anda tidak bisa mengakses halaman ini
-      </div>
-    );
-  }
-  
   return (
     <>
       <div className="space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h1 className="text-2xl text-slate-800 dark:text-white">
-              Data Tingkatan Kelas
+              Data Pengajar
             </h1>
 
             <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
               <span>Akademik</span>
               <span>/</span>
-              <span>Tingkatan Kelas</span>
+              <span>Guru</span>
             </div>
           </div>
 
@@ -249,11 +265,10 @@ export default function TingkatKelas() {
               </>
               ) : (
                 <>
-                  <button
-                    onClick={handleOpenModalAdd}
+                  <button onClick={handleOpenModalAdd}
                     className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                     <i className="ri-add-circle-fill text-xl text-blue-500" />
-                    Tambah Data
+                    Tambah Pengajar
                   </button>
                 </>
               )
@@ -369,55 +384,72 @@ export default function TingkatKelas() {
           ) : data?.rows?.length > 0 ? (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full mb-5">
+                <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        ID Tingkat
+                        ID Guru
                       </th>
 
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Kategori Tingkatan
+                        NIY
                       </th>
 
-                      <th className="px-8 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        {role == '0' ? 'Aksi' : ''}
+                      <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Nama Pengajar
                       </th>
+
+                      <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Email
+                      </th>
+
+                        <th className="px-8 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          {role == '0' ? 'Aksi' : ''}
+                        </th>
                     </tr>
                   </thead>
-
                   <tbody>
-                      {data?.rows.map((item: any, index: number) => (
-                        <tr key={item.id} className={`${index % 2 === 1 ? "bg-slate-50 dark:bg-white/[0.03]" : ""} border-b border-slate-100 dark:border-slate-800`}>
-                          <td className="px-8 py-3">
-                            <Link href={`/akademik/some-thing-new/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
-                              {item.id}
-                            </Link>
-                          </td>
-                          <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
-                            {item.nama}
-                          </td>
-                          <td className="px-8 py-3">
-                            {role == '0' ? (
-                              <div className="flex items-center justify-center gap-4">
-                                <Tooltip text={`Ubah Data ${item.nama}`}>
-                                  <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
-                                    onClick={() => handleOpenModalEdit(item.id, item.nama, item.deskripsi)}>
-                                    <i className="ri-edit-line text-lg" />
-                                  </button>
-                                </Tooltip>
-                                <Tooltip text={`Hapus Data ${item.nama}`}>
-                                  <button className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white"
-                                    onClick={() => handleOpenModalDelete(item.id, item.nama)}>
-                                    <i className="ri-delete-bin-line text-lg" />
-                                  </button>
-                                </Tooltip>
-                              </div>
-                            ) : ''
-                            }
-                          </td>
-                        </tr>
-                      ))}
+                    {data?.rows.map((item: any, index: number) => (
+                      <tr key={item.id} className={`${index % 2 === 1 ? "bg-slate-50 dark:bg-white/[0.03]" : ""} border-b border-slate-100 dark:border-slate-800`}>
+                        <td className="px-8 py-3">
+                          <Link href="#" className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                            {item.id}
+                          </Link>
+                        </td>
+                        <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
+                          {item.niy || '-'}
+                        </td>
+                        <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
+                          {item.nama || '-'}
+                        </td>
+                        <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
+                          {item.email || '-'}
+                        </td>
+                        <td className="px-8 py-3">
+                          {role == '0' && item.id != id_account ? (
+                            <div className="flex items-center justify-center gap-4">
+                              <Tooltip text={`Ubah Data ${item.nama}`}>
+                                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
+                                onClick={() => handleOpenModalEdit(item.id, item.niy, item.nama)}>
+                                  <i className="ri-edit-line text-lg" />
+                                </button>
+                              </Tooltip>
+                              <Tooltip text={`Hapus Data ${item.nama}`}>
+                                <button className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white"
+                                onClick={() => handleOpenModalDelete(item.id, item.nama)}>
+                                  <i className="ri-delete-bin-line text-lg" />
+                                </button>
+                              </Tooltip>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center gap-4">
+                              -
+                            </div>
+                          )
+                          }
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -428,18 +460,26 @@ export default function TingkatKelas() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        ID Tingkat
+                      <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        ID Guru
                       </th>
 
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Kategori Tingkatan
+                      <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        NIY
+                      </th>
+
+                      <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Nama Pengajar
+                      </th>
+
+                      <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Email
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td colSpan={2} className="px-8 py-6 text-center text-lg text-slate-500 bg-slate-50 dark:bg-slate-800/40 dark:text-slate-400">
+                      <td colSpan={4} className="px-8 py-6 text-center text-lg text-slate-500 bg-slate-50 dark:bg-slate-800/40 dark:text-slate-400">
                         Data tidak tersedia
                       </td>
                     </tr>
@@ -452,77 +492,88 @@ export default function TingkatKelas() {
       </div>
 
       {openModalAdd && (
-        <>
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
-              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
-                <h2 className="text-2xl font-bold tracking-tight text-white">
-                  Tambah Data Tingkatan Kelas
-                </h2>
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+              <h2 className="text-2xl font-bold tracking-tight text-white">
+                Tambah Data Pengajar
+              </h2>
 
-                <button
-                  onClick={handleCloseModalAdd}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
-                  <i
-                    className="ri-close-line"
-                    style={{ fontSize: 30 }}
-                  />
-                </button>
-              </div>
-
-              <div className="space-y-6 p-6">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    Nama
-                  </label>
-
-                  <input
-                    type="text"
-                    value={namaAdd}
-                    onChange={(e) => setNamaAdd(e.target.value)}
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    Deskripsi
-                  </label>
-
-                  <textarea
-                    value={deskripsiAdd}
-                    onChange={(e) => setDeskripsiAdd(e.target.value)}
-                    placeholder="Isikan deskripsi tentang jenjang ini..."
-                    className={`mt-3 min-h-[90px] w-full rounded-2xl border border-slate-300 p-4 text-sm outline-none transitionbg-white focus:border-blue-500`}
-                  />
-                </div>
-              </div>
-
-              <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
-                <button
-                  onClick={() => handleCloseModalAdd()}
-                  className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
-                  Batalkan
-                </button>
-
-                <button
-                  disabled={!isAddFormValid || create.isPending}
-                  className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${!isAddFormValid || create.isPending
-                      ? "cursor-not-allowed bg-slate-400 shadow-none"
-                      : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
-                    }`}
-                  onClick={handleSaveCreate} >
-
-                  {create.isPending
-                    ? "Menyimpan..."
-                    : "Simpan Data"}
-                </button>
-              </div>
-
+              <button
+                onClick={handleCloseModalAdd}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                <i
+                  className="ri-close-line"
+                  style={{ fontSize: 30 }}
+                />
+              </button>
             </div>
+
+            <div className="space-y-6 p-6">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  NIY
+                </label>
+
+                <input
+                  type="number"
+                  value={niyGuruAdd}
+                  onChange={(e) => setNiyGuruAdd(e.target.value)}
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Nama Guru
+                </label>
+
+                <input
+                  type="text"
+                  value={namaGuruAdd}
+                  onChange={(e) => setNamaGuruAdd(e.target.value)}
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Email Aktif
+                </label>
+
+                <input
+                  type="text"
+                  value={emailGuruAdd}
+                  onChange={(e) => setEmailGuruAdd(e.target.value)}
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
+              <button
+                onClick={() => handleCloseModalAdd()}
+                className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                Batalkan
+              </button>
+
+              <button
+                disabled={!isAddFormValid || create.isPending}
+                className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                  ${!isAddFormValid || create.isPending
+                    ? "cursor-not-allowed bg-slate-400 shadow-none"
+                    : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                  }`}
+                onClick={() => handleSaveCreate()}>
+
+                {create.isPending
+                  ? "Menyimpan..."
+                  : "Simpan Data"}
+              </button>
+            </div>
+
           </div>
-        </>
+        </div>
       )}
 
       {openModalEdit && (
@@ -531,7 +582,7 @@ export default function TingkatKelas() {
             <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
               <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
                 <h2 className="text-2xl font-bold tracking-tight text-white">
-                  Ubah Data Tingkatan Kelas
+                  Ubah Data Pengajar
                 </h2>
 
                 <button
@@ -547,14 +598,27 @@ export default function TingkatKelas() {
               <div className="space-y-6 p-6">
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    ID Tingkat
+                    ID Guru
                   </label>
 
                   <input
                     type="text"
-                    value={id}
+                    value={idGuru}
                     disabled
                     className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    NIY
+                  </label>
+
+                  <input
+                    type="number"
+                    value={niyGuru}
+                    onChange={(e) => setNiyGuru(e.target.value)}
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
                   />
                 </div>
 
@@ -565,22 +629,9 @@ export default function TingkatKelas() {
 
                   <input
                     type="text"
-                    value={nama}
-                    onChange={(e) => setNama(e.target.value)}
+                    value={namaGuru}
+                    onChange={(e) => setNamaGuru(e.target.value)}
                     className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    Deskripsi
-                  </label>
-
-                  <textarea
-                    value={deskripsi}
-                    onChange={(e) => setDeskripsi(e.target.value)}
-                    placeholder="Isikan deskripsi tentang jenjang ini..."
-                    className={`mt-3 min-h-[90px] w-full rounded-2xl border border-slate-300 p-4 text-sm outline-none transitionbg-white focus:border-blue-500`}
                   />
                 </div>
               </div>
@@ -599,7 +650,7 @@ export default function TingkatKelas() {
                       ? "cursor-not-allowed bg-slate-400 shadow-none"
                       : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                     }`}
-                  onClick={handleSaveUpdate} >
+                  onClick={() => handleSaveUpdate()}>
 
                   {update.isPending
                     ? "Menyimpan..."
@@ -612,54 +663,52 @@ export default function TingkatKelas() {
       )}
 
       {openModalDelete && (
-        <>
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"/>
-            <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl">
-              <div className="p-8">
-                {/* Icon */}
-                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-50">
-                  <i className="ri-delete-bin-6-line text-5xl text-red-500" />
-                </div>
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+          <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+            <div className="p-8">
+              {/* Icon */}
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-50">
+                <i className="ri-delete-bin-6-line text-5xl text-red-500" />
+              </div>
 
-                {/* Title */}
-                <h2 className="mb-4 text-center text-xl font-bold text-slate-700">
-                  Konfirmasi Penghapusan
-                </h2>
+              {/* Title */}
+              <h2 className="mb-4 text-center text-xl font-bold text-slate-700">
+                Konfirmasi Penghapusan
+              </h2>
 
-                {/* Message */}
-                <p className="text-center text-base leading-relaxed text-slate-600">
-                  Anda akan menghapus tingkat kelas{" "}
-                  <span className="font-bold text-slate-800">
-                    {selectedNama}
-                  </span>
-                  , tindakan ini tidak dapat dibatalkan setelah Anda menghapusnya.
-                </p>
+              {/* Message */}
+              <p className="text-center text-base leading-relaxed text-slate-600">
+                Anda akan menghapus {" "}
+                <span className="font-bold text-slate-800">
+                  {selectedNama}
+                </span>
+                , tindakan ini tidak dapat dibatalkan setelah Anda menghapusnya.
+              </p>
 
-                {/* Actions */}
-                <div className="mt-8 flex items-center justify-center gap-4">
-                  <button className="rounded-xl bg-slate-100 px-8 py-4 text-lg font-medium text-slate-700 transition hover:bg-slate-200"
-                    onClick={handleCloseModalDelete}>
-                    Batalkan
-                  </button>
+              {/* Actions */}
+              <div className="mt-8 flex items-center justify-center gap-4">
+                <button className="rounded-xl bg-slate-100 px-8 py-4 text-lg font-medium text-slate-700 transition hover:bg-slate-200"
+                  onClick={handleCloseModalDelete}>
+                  Batalkan
+                </button>
 
-                  <button 
-                    disabled={deletes.isPending}
-                    className="rounded-xl bg-red-500 px-8 py-4 text-lg font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
-                    onClick={handleSaveDelete}>
-                    
-                    {deletes.isPending
-                      ? "Menghapus..."
-                      : "Ya, Hapus"}
-                  </button>
-                </div>
+                <button
+                  disabled={deletes.isPending}
+                  className="rounded-xl bg-red-500 px-8 py-4 text-lg font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                  onClick={handleSaveDelete}>
+
+                  {deletes.isPending
+                    ? "Menghapus..."
+                    : "Ya, Hapus"}
+                </button>
               </div>
             </div>
           </div>
-        </>
+        </div>
       )}
     </>
-  );
+  )
 }
 
 function TableSkeleton() {

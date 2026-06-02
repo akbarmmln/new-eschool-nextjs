@@ -32,6 +32,10 @@ export default function ProfileSayaDS1() {
   const [passwordBaru, setPasswordBaru] = useState('')
   const [passwordKonfBaru, setPasswordKonfBaru] = useState('')
 
+  const [showPasswordLama, setShowPasswordLama] = useState(false);
+  const [showPasswordBaru, setShowPasswordBaru] = useState(false);
+  const [showPasswordKonfBaru, setShowPasswordKonfBaru] = useState(false);
+
   const isEditFormIPValid =
     !isEmpty(namaLengkap) &&
     !isEmpty(jenisKelamin) &&
@@ -245,7 +249,7 @@ export default function ProfileSayaDS1() {
         "Password berhasil diperbaharui"
       );
 
-      handleCloseModalEditEmail();
+      handleCloseModalEditPassword();
 
       await refetch();
     } catch (e: any) {
@@ -868,15 +872,28 @@ export default function ProfileSayaDS1() {
               <div className="space-y-6 p-6">
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    Password lama
+                    Password Lama
                   </label>
 
-                  <input
-                    type="text"
-                    value={passwordLama}
-                    onChange={(e) => setPasswordLama(e.target.value)}
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPasswordLama ? "text" : "password"}
+                      value={passwordLama}
+                      onChange={(e) => setPasswordLama(e.target.value)}
+                      className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 pr-12 text-sm outline-none transition focus:border-blue-500"
+                    />
+
+                    <button className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      type="button"
+                      onClick={() => setShowPasswordLama(!showPasswordLama)}>
+                      <i
+                        className={
+                          showPasswordLama ? "ri-eye-line" : "ri-eye-off-line"
+                        }
+                        style={{ fontSize: 20 }}
+                      />
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -884,12 +901,25 @@ export default function ProfileSayaDS1() {
                     Password Baru
                   </label>
 
-                  <input
-                    type="text"
-                    value={passwordBaru}
-                    onChange={(e) => setPasswordBaru(e.target.value)}
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPasswordBaru ? "text" : "password"}
+                      value={passwordBaru}
+                      onChange={(e) => setPasswordBaru(e.target.value)}
+                      className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 pr-12 text-sm outline-none transition focus:border-blue-500"
+                    />
+
+                    <button className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      type="button"
+                      onClick={() => setShowPasswordBaru(!showPasswordBaru)}>
+                      <i
+                        className={
+                          showPasswordBaru ? "ri-eye-line" : "ri-eye-off-line"
+                        }
+                        style={{ fontSize: 20 }}
+                      />
+                    </button>
+                  </div>
                 </div>
 
                 <div>
@@ -897,12 +927,25 @@ export default function ProfileSayaDS1() {
                     Konfirmasi Password Baru
                   </label>
 
-                  <input
-                    type="text"
-                    value={passwordKonfBaru}
-                    onChange={(e) => setPasswordKonfBaru(e.target.value)}
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPasswordKonfBaru ? "text" : "password"}
+                      value={passwordKonfBaru}
+                      onChange={(e) => setPasswordKonfBaru(e.target.value)}
+                      className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 pr-12 text-sm outline-none transition focus:border-blue-500"
+                    />
+
+                    <button className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
+                      type="button"
+                      onClick={() => setShowPasswordKonfBaru(!showPasswordKonfBaru)}>
+                      <i
+                        className={
+                          showPasswordKonfBaru ? "ri-eye-line" : "ri-eye-off-line"
+                        }
+                        style={{ fontSize: 20 }}
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
 
