@@ -23,6 +23,7 @@ export default function Kelas() {
 
   const {
     isLoading: isLoadingTingkatKelas,
+    isFetching: isFetchingTingkatKelas,
     refetch: refetchTingkatKelas,
   } = useDropdownTingkatKelas({
     enabled: false,
@@ -43,6 +44,7 @@ export default function Kelas() {
   const {
     data: guruList = [],
     isLoading: isLoadingGuruList,
+    isFetching: isFetchingGuruList,
   } = useDropdownGuru(debouncedKeyword, {
     enabled: debouncedKeyword.trim().length > 0,
   });
@@ -65,12 +67,15 @@ export default function Kelas() {
   }, [waliKelas]);
 
   useEffect(() => {
-    if (!isSelectingGuru && debouncedKeyword.trim() && guruList.length > 0) {
+    if (
+      !isSelectingGuru &&
+      debouncedKeyword.trim()
+    ) {
       setShowDropdown(true);
     } else {
       setShowDropdown(false);
     }
-  }, [guruList, debouncedKeyword, isSelectingGuru]);
+  }, [debouncedKeyword, isSelectingGuru]);
 
   const isEditFormValid =
     !isEmpty(idKelas) &&
@@ -451,7 +456,7 @@ export default function Kelas() {
                     Tingkat Kelas
                   </label>
                   <div className="input-icon mt-2">
-                    {isLoadingTingkatKelas ? (
+                    {isLoadingTingkatKelas || isFetchingTingkatKelas ? (
                       <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
                     ) : (
                       <>
@@ -477,7 +482,7 @@ export default function Kelas() {
                   </div>
                 </div>
 
-                <div>
+                <div className="relative">
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Wali Kelas
                   </label>
@@ -498,14 +503,14 @@ export default function Kelas() {
                   {showDropdown && (
                     <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
 
-                      {isLoadingGuruList ? (
+                      {isLoadingGuruList || isFetchingGuruList ? (
                         <div className="px-5 py-4 text-slate-500">
                           Mencari data...
                         </div>
                       ) : guruList.length > 0 ? (
                         <div className="max-h-64 overflow-y-auto">
                           {guruList.map((guru: any) => (
-                            <button
+                            <button className="w-full border-b border-slate-100 px-5 py-4 text-left transition hover:bg-blue-50"
                               key={guru.id}
                               type="button"
                               onClick={() => {
@@ -513,9 +518,7 @@ export default function Kelas() {
                                 setWaliKelasId(guru.id);
                                 setWaliKelas(guru.nama);
                                 setShowDropdown(false);
-                              }}
-                              className="w-full border-b border-slate-100 px-5 py-4 text-left transition hover:bg-blue-50"
-                            >
+                              }} >
                               <div className="font-semibold text-slate-800">
                                 {guru.nama}
                               </div>
