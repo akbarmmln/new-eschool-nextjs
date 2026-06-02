@@ -1,7 +1,10 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
   dropDownKelas,
-  kelasList
+  kelasList,
+  updateKelas,
+  deleteKelas,
+  createKelas
 } from '@/services/Call'
 
 // DROPDOWN KELAS \\
@@ -55,3 +58,33 @@ export function useListAllKelas(page: String, search: any) {
     refetchOnMount: true,
   })
 }
+
+// ADD \\
+export const useCreate = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = createKelas(payload)
+      return results;
+    },
+  });
+};
+
+// UPDATE \\
+export const useUpdate = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updateKelas(payload)
+      return results;
+    },
+  });
+};
+
+// DELETE \\
+export const useDelete = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = deleteKelas(payload)
+      return results;
+    },
+  });
+};

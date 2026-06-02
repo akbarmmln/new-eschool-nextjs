@@ -376,7 +376,7 @@ export default function TingkatKelas() {
                       {data?.rows.map((item: any, index: number) => (
                         <tr key={item.id} className={`${index % 2 === 1 ? "bg-slate-50 dark:bg-white/[0.03]" : ""} border-b border-slate-100 dark:border-slate-800`}>
                           <td className="px-8 py-3">
-                            <Link href={`/akademik/detail-tingkat-kelas/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                            <Link href={`/akademik/some-thing-new/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                               {item.id}
                             </Link>
                           </td>
@@ -601,7 +601,6 @@ export default function TingkatKelas() {
         <>
           <div className="fixed inset-0 z-[99999] flex items-center justify-center">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"/>
-
             <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl">
               <div className="p-8">
                 {/* Icon */}

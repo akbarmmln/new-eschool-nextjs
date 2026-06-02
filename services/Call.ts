@@ -245,3 +245,30 @@ export async function dropDownGuru(keyword: string) {
     10000
   );
 }
+
+export async function updateKelas(body: any) {
+  return await request(
+    "post",
+    `/api/v1/class-room/update`,
+    body,
+    10000
+  );
+}
+
+export async function deleteKelas(body: any) {
+  return await request(
+    "post",
+    `/api/v1/class-room/delete`,
+    body,
+    10000
+  );
+}
+
+export async function createKelas(body: any) {
+  return await request(
+    "post",
+    `/api/v1/class-room/create`,
+    body,
+    10000
+  );
+}

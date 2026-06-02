@@ -1,19 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useListAllKelas } from "@/hooks/queryKelas";
+import { useListAllKelas, useCreate, useUpdate, useDelete } from "@/hooks/queryKelas";
 import { useDropdownTingkatKelas } from "@/hooks/QueryTingkatKelas";
 import { useDropdownGuru } from "@/hooks/queryGuru";
 import { useAccessContext } from '@/context/AccessContext'
 import Link from "next/link";
 import Tooltip from "@/components/form/Tooltip";
 import isEmpty from "@/utils/isEmpty";
+import { showAlert } from "@/utils/swal";
 
 export default function Kelas() {
   const dataAccess = useAccessContext()
   const role = dataAccess?.access?.role;
 
+  const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalEdit, setOpenModalEdit] = useState(false);
+  const [openModalDelete, setOpenModalDelete] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState("");
@@ -38,8 +41,13 @@ export default function Kelas() {
   const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [isSelectingGuru, setIsSelectingGuru] = useState(false);
 
-  type listDropDownTingkatKelas = any[]
-  const [fillDropdownTingkatKelas, setFillDropdownTingkatKelas] = useState<listDropDownTingkatKelas>([])
+  const [selectedId, setSelectedId] = useState<any>(null);
+  const [selectedNama, setSelectedNama] = useState<any>(null);
+
+  const [namaKelasAdd, setNamaKelasAdd] = useState('')
+  const [tingkatKelasAdd, setTingkatKelasAdd] = useState('')
+
+  const [fillDropdownTingkatKelas, setFillDropdownTingkatKelas] = useState<any[]>([]);
 
   const {
     data: guruList = [],
@@ -83,6 +91,7 @@ export default function Kelas() {
     !isEmpty(tingkatKelas) &&
     !isEmpty(waliKelasId);
 
+  const update = useUpdate();
   const handleOpenModalEdit = async (id_kelas: string, nama_kelas: string, tingkat_kelas: string, wali_kelas: string, id_wali_kelas: string) => {
     setIdKelas(id_kelas || '');
     setNamaKelas(nama_kelas || '');
@@ -102,6 +111,7 @@ export default function Kelas() {
     setWaliKelas('');
     setWaliKelasId('');
 
+    setFillDropdownTingkatKelas([])
     setOpenModalEdit(false)
   }
   const handleSaveUpdate = async () => {
@@ -109,7 +119,6 @@ export default function Kelas() {
       const selected = fillDropdownTingkatKelas.find(
         (item) => item.nama === tingkatKelas
       );
-
       const tingkatKelasId = selected?.id || "";
       const payload = {
         id_kelas: idKelas,
@@ -117,12 +126,134 @@ export default function Kelas() {
         id_wali_kelas: waliKelasId,
         id_tingkatan_kelas: tingkatKelasId
       }
-      console.log('handleSaveUpdate', payload)
-    } catch (e) {
 
+      const hasil = await update.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data ruang kelas berhasil diperbaharui"
+      );
+
+      handleCloseModalEdit();
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui data ruang kelas: ${e.err_msg}`,
+      );
     }
   }
 
+  const deletes = useDelete();
+  const handleOpenModalDelete = (id_kelas: string, nama_kelas: string) => {
+    setSelectedId(id_kelas);
+    setSelectedNama(nama_kelas);
+
+    setOpenModalDelete(true);
+  }
+  const handleCloseModalDelete = () => {
+    setSelectedId('');
+    setSelectedNama('');
+
+    setOpenModalDelete(false);
+  }
+  const handleSaveDelete = async () => {
+    try {
+      const payload = {
+        id: selectedId
+      };
+
+      const hasil = await deletes.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data ruang kelas berhasil dihapus"
+      );
+
+      handleCloseModalDelete();
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal menghapus data ruang kelas: ${e.err_msg}`,
+      );
+    }
+  }
+
+  const isAddFormValid =
+    !isEmpty(namaKelasAdd) &&
+    !isEmpty(tingkatKelasAdd) &&
+    !isEmpty(waliKelasId);
+
+  const create = useCreate();
+  const handleOpenModalAdd = async () => {
+    setNamaKelasAdd('');
+    setTingkatKelasAdd('');
+    setWaliKelas('');
+    setWaliKelasId('');
+
+    setOpenModalAdd(true)
+
+    const result = await refetchTingkatKelas();
+    setFillDropdownTingkatKelas(result.data ?? [])
+  }
+  const handleCloseModalAdd = () => {
+    setNamaKelasAdd('');
+    setTingkatKelasAdd('');
+    setWaliKelas('');
+    setWaliKelasId('');
+
+    setFillDropdownTingkatKelas([])
+    setOpenModalAdd(false)
+  }
+  const handleSaveCreate = async () => {
+    try {
+      const selected = fillDropdownTingkatKelas.find(
+        (item) => item.nama === tingkatKelasAdd
+      );
+      const tingkatKelasId = selected?.id || "";
+
+      const payload = {
+        nama_kelas: namaKelasAdd,
+        id_wali_kelas: waliKelasId,
+        id_tingkatan_kelas: tingkatKelasId
+      }
+
+      const hasil = await create.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data ruang kelas berhasil ditambahkan"
+      );
+
+      handleCloseModalAdd();
+
+      await refetch();
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal menambah data ruang kelas: ${e.err_msg}`,
+      );
+
+    }
+  }
 
   function getPaginationItems(current: number, total: number) {
     const items: (number | string)[] = []
@@ -186,7 +317,7 @@ export default function Kelas() {
               </>
               ) : (
                 <>
-                  <button
+                  <button onClick={handleOpenModalAdd}
                     className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                     <i className="ri-add-circle-fill text-xl text-blue-500" />
                     Tambah Data
@@ -332,7 +463,7 @@ export default function Kelas() {
                   {data?.rows.map((item: any, index: number) => (
                     <tr key={item.id} className={`${index % 2 === 1 ? "bg-slate-50 dark:bg-white/[0.03]" : ""} border-b border-slate-100 dark:border-slate-800`}>
                       <td className="px-8 py-3">
-                        <Link href={`/akademik/detail-tingkat-kelas/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                        <Link href={`/akademik/some-thing-new/${item.id}`} className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                           {item.id}
                         </Link>
                       </td>
@@ -355,7 +486,8 @@ export default function Kelas() {
                               </button>
                             </Tooltip>
                             <Tooltip text={`Hapus Data ${item.nama_kelas}`}>
-                              <button className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white">
+                              <button className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white"
+                                onClick={() => handleOpenModalDelete(item.id, item.nama_kelas)}>
                                 <i className="ri-delete-bin-line text-lg" />
                               </button>
                             </Tooltip>
@@ -405,6 +537,151 @@ export default function Kelas() {
         </div>
       </div>
 
+      {openModalAdd && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+              <h2 className="text-2xl font-bold tracking-tight text-white">
+                Tambah Ruang Kelas
+              </h2>
+
+              <button
+                onClick={handleCloseModalAdd}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                <i
+                  className="ri-close-line"
+                  style={{ fontSize: 30 }}
+                />
+              </button>
+            </div>
+
+            <div className="space-y-6 p-6">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Nama Kelas
+                </label>
+
+                <input
+                  type="text"
+                  value={namaKelasAdd}
+                  onChange={(e) => setNamaKelasAdd(e.target.value)}
+                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>
+                  Tingkat Kelas
+                </label>
+                <div className="input-icon mt-2">
+                  {isLoadingTingkatKelas || isFetchingTingkatKelas ? (
+                    <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+                  ) : (
+                    <>
+                      <select value={tingkatKelasAdd}
+                        onChange={(e) =>
+                          setTingkatKelasAdd(e.target.value)
+                        } >
+                        <option value="">
+                          Pilih
+                        </option>
+
+                        {
+                          fillDropdownTingkatKelas?.map((item) => (
+                            <option key={item.id} value={item.nama} >
+                              {item.nama}
+                            </option>
+                          ))
+                        }
+                      </select>
+                      <i className="ri-arrow-down-s-line" />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="relative">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Wali Kelas
+                </label>
+
+                <input
+                  type="text"
+                  value={waliKelas}
+                  onChange={(e) => {
+                    setIsSelectingGuru(false);
+                    setWaliKelas(e.target.value);
+                    setWaliKelasId('');
+                  }}
+                  placeholder="Cari wali kelas..."
+                  className="h-[48px] w-full rounded-xl border border-slate-200 px-5 text-sm outline-none transition focus:border-blue-500"
+                />
+
+                {showDropdown && (
+                  <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+
+                    {isLoadingGuruList || isFetchingGuruList ? (
+                      <div className="px-5 py-4 text-slate-500">
+                        Mencari data...
+                      </div>
+                    ) : guruList.length > 0 ? (
+                      <div className="max-h-64 overflow-y-auto">
+                        {guruList.map((guru: any) => (
+                          <button className="w-full border-b border-slate-100 px-5 py-4 text-left transition hover:bg-blue-50"
+                            key={guru.id}
+                            type="button"
+                            onClick={() => {
+                              setIsSelectingGuru(true);
+                              setWaliKelasId(guru.id);
+                              setWaliKelas(guru.nama);
+                              setShowDropdown(false);
+                            }} >
+                            <div className="font-semibold text-slate-800">
+                              {guru.nama}
+                            </div>
+
+                            <div className="mt-1 text-sm text-slate-500">
+                              {guru.id}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="px-5 py-4 text-center text-slate-500">
+                        Data guru tidak ditemukan
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
+              <button
+                onClick={() => handleCloseModalAdd()}
+                className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                Batalkan
+              </button>
+
+              <button
+                disabled={!isAddFormValid || create.isPending}
+                className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                  ${!isAddFormValid || create.isPending
+                    ? "cursor-not-allowed bg-slate-400 shadow-none"
+                    : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                  }`}
+                onClick={() => handleSaveCreate()}>
+
+                {create.isPending
+                  ? "Menyimpan..."
+                  : "Simpan Data"}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+      
       {openModalEdit && (
         <>
           <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
@@ -496,7 +773,6 @@ export default function Kelas() {
                       setWaliKelasId('');
                     }}
                     placeholder="Cari wali kelas..."
-                    // className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
                     className="h-[48px] w-full rounded-xl border border-slate-200 px-5 text-sm outline-none transition focus:border-blue-500"
                   />
 
@@ -547,18 +823,67 @@ export default function Kelas() {
                 </button>
 
                 <button
-                  disabled={!isEditFormValid }
+                  disabled={!isEditFormValid || update.isPending}
                   className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${!isEditFormValid
+                  ${!isEditFormValid || update.isPending
                       ? "cursor-not-allowed bg-slate-400 shadow-none"
                       : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                     }`}
                   onClick={() => handleSaveUpdate()}>
 
-                  Simpan Perubahan
+                  {update.isPending
+                    ? "Menyimpan..."
+                    : "Simpan Perubahan"}
                 </button>
               </div>
+            </div>
+          </div>
+        </>
+      )}
 
+      {openModalDelete && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+              <div className="p-8">
+                {/* Icon */}
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-50">
+                  <i className="ri-delete-bin-6-line text-5xl text-red-500" />
+                </div>
+
+                {/* Title */}
+                <h2 className="mb-4 text-center text-xl font-bold text-slate-700">
+                  Konfirmasi Penghapusan
+                </h2>
+
+                {/* Message */}
+                <p className="text-center text-base leading-relaxed text-slate-600">
+                  Anda akan menghapus kelas{" "}
+                  <span className="font-bold text-slate-800">
+                    {selectedNama}
+                  </span>
+                  , tindakan ini tidak dapat dibatalkan setelah Anda menghapusnya.
+                </p>
+
+                {/* Actions */}
+                <div className="mt-8 flex items-center justify-center gap-4">
+                  <button className="rounded-xl bg-slate-100 px-8 py-4 text-lg font-medium text-slate-700 transition hover:bg-slate-200"
+                    onClick={handleCloseModalDelete}>
+                    Batalkan
+                  </button>
+
+                  <button
+                    disabled={deletes.isPending}
+                    className="rounded-xl bg-red-500 px-8 py-4 text-lg font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                    onClick={handleSaveDelete}>
+
+                    {deletes.isPending
+                      ? "Menghapus..."
+                      : "Ya, Hapus"}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </>
