@@ -312,3 +312,25 @@ export async function deleteGuru(body: any) {
     10000
   );
 }
+
+export async function siswaList(page: string, search: string) {
+  let url = `/api/v1/siswa/list/${page}`;
+  if (!isEmpty(search)) {
+    url += `/${encodeURIComponent(search)}`;
+  }
+  return await request(
+    "get",
+    url,
+    {},
+    10000
+  );
+}
+
+export async function deleteSiswa(body: any) {
+  return await request(
+    "post",
+    `/api/v1/siswa/delete`,
+    body,
+    10000
+  );
+}

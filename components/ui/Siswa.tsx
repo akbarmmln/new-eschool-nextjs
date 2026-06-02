@@ -2,53 +2,32 @@
 
 import { useState, useEffect } from "react";
 import { useAccessContext } from '@/context/AccessContext'
-import { allowPage } from "@/utils/utils";
-import { useListGuru, useCreate, useUpdate, useDelete } from "@/hooks/queryGuru";
 import Link from "next/link";
 import Tooltip from "@/components/form/Tooltip";
 import isEmpty from "@/utils/isEmpty";
 import { showAlert } from "@/utils/swal";
+import { allowPage } from "@/utils/utils";
+import { useListSiswa, useDelete } from "@/hooks/querySiswa";
 
 export default function Kelas() {
   const allow_tipe = ['DS1'];
   const allow_role = ['0', '1'];
 
   const dataAccess = useAccessContext()
-  const id_account = dataAccess?.access?.id_account || '';
   const tipe_account = dataAccess?.access?.tipe_account || '';
   const role = dataAccess?.access?.role || '';
   const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
+
+  const [openModalDelete, setOpenModalDelete] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
 
-  const [openModalAdd, setOpenModalAdd] = useState(false);
-  const [openModalEdit, setOpenModalEdit] = useState(false);
-  const [openModalDelete, setOpenModalDelete] = useState(false);
-
-  const [idGuru, setIdGuru] = useState('')
-  const [niyGuru, setNiyGuru] = useState('')
-  const [namaGuru, setNamaGuru] = useState('')
-
-  const [niyGuruAdd, setNiyGuruAdd] = useState('')
-  const [namaGuruAdd, setNamaGuruAdd] = useState('')
-  const [emailGuruAdd, setEmailGuruAdd] = useState('')
-
   const [selectedId, setSelectedId] = useState<any>(null);
   const [selectedNama, setSelectedNama] = useState<any>(null);
 
-  const isEditFormValid =
-    !isEmpty(idGuru) &&
-    !isEmpty(niyGuru) &&
-    !isEmpty(namaGuru);
-
-  const isAddFormValid =
-    !isEmpty(niyGuruAdd) &&
-    !isEmpty(namaGuruAdd) &&
-    !isEmpty(emailGuruAdd);
-    
-  const { data, isLoading, error, isFetching, refetch } = useListGuru(currentPage.toString(), keyword);
+  const { data, isLoading, error, isFetching, refetch } = useListSiswa(currentPage.toString(), keyword);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -67,100 +46,6 @@ export default function Kelas() {
     );
   }
 
-  const create = useCreate();
-  const handleOpenModalAdd = () => {
-    setNiyGuruAdd('');
-    setNamaGuruAdd('');
-    setEmailGuruAdd('');
-
-    setOpenModalAdd(true);
-  }
-  const handleCloseModalAdd = () => {
-    setNiyGuruAdd('');
-    setNamaGuruAdd('');
-    setEmailGuruAdd('');
-
-    setOpenModalAdd(false)
-  }
-  const handleSaveCreate = async () => {
-    try {
-      const payload = {
-        niy: niyGuruAdd,
-        nama: namaGuruAdd,
-        email: emailGuruAdd
-      }
-
-      const hasil = await create.mutateAsync(payload);
-      if (!hasil.ok) {
-        throw hasil;
-      }
-
-      await showAlert(
-        "success",
-        "Berhasil",
-        "Data pengajar berhasil ditambahkan"
-      );
-
-      handleCloseModalAdd();
-
-      await refetch();
-    } catch (e: any) {
-      await showAlert(
-        "error",
-        "Gagal",
-        `Gagal menambahkan data pengajar: ${e.err_msg}`,
-      );
-    }
-  }
-
-  const update = useUpdate();
-  const handleOpenModalEdit = (id: string, niy: string, nama: string) => {
-    setIdGuru(id || '');
-    setNiyGuru(niy || '');
-    setNamaGuru(nama || '');
-
-    setOpenModalEdit(true);
-  }
-  const handleCloseModalEdit = () => {
-    setIdGuru('');
-    setNiyGuru('');
-    setNamaGuru('');
-
-    setOpenModalEdit(false);
-  }
-  const handleSaveUpdate = async () => {
-    try {
-      const payload = {
-        id: idGuru,
-        object_update: {
-          niy: niyGuru,
-          nama: namaGuru
-        }
-      }
-
-      const hasil = await update.mutateAsync(payload);
-      if (!hasil.ok) {
-        throw hasil;
-      }
-
-      await showAlert(
-        "success",
-        "Berhasil",
-        "Data pengajar berhasil diperbaharui"
-      );
-
-      handleCloseModalEdit();
-
-      await refetch();
-    } catch (e: any) {
-      await showAlert(
-        "error",
-        "Gagal",
-        `Gagal memperbaharui data pengajar: ${e.err_msg}`,
-      );
-    }
-  }
-
   const deletes = useDelete();
   const handleOpenModalDelete = (id: string, nama: string) => {
     setSelectedId(id);
@@ -171,7 +56,7 @@ export default function Kelas() {
   const handleCloseModalDelete = () => {
     setSelectedId('');
     setSelectedNama('');
-
+    
     setOpenModalDelete(false);
   }
   const handleSaveDelete = async () => {
@@ -188,7 +73,7 @@ export default function Kelas() {
       await showAlert(
         "success",
         "Berhasil",
-        "Data pengajar berhasil dihapus"
+        "Data siswa berhasil dihapus"
       );
 
       handleCloseModalDelete();
@@ -198,7 +83,7 @@ export default function Kelas() {
       await showAlert(
         "error",
         "Gagal",
-        `Gagal menghapus data pengajar: ${e.err_msg}`,
+        `Gagal menghapus data siswa: ${e.err_msg}`,
       );
     }
   }
@@ -247,33 +132,22 @@ export default function Kelas() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h1 className="text-2xl text-slate-800 dark:text-white">
-              Data Pengajar
+              Data Siswa
             </h1>
 
             <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
               <span>Akademik</span>
               <span>/</span>
-              <span>Guru</span>
+              <span>Peserta Didik</span>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {role == '0' ? (
-              isLoading || isFetching ? (
-              <>
-                  <div className="h-[46px] w-[140px] animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
-              </>
-              ) : (
-                <>
-                  <button onClick={handleOpenModalAdd}
-                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                    <i className="ri-add-circle-fill text-xl text-blue-500" />
-                    Tambah Pengajar
-                  </button>
-                </>
-              )
-            ) : ''
-            }
+            <button
+              className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+              <i className="ri-add-circle-fill text-xl text-blue-500" />
+              Tambah Siswa
+            </button>
           </div>
         </div>
 
@@ -387,65 +261,59 @@ export default function Kelas() {
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        ID Guru
+                        NIK
                       </th>
 
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        NIY
+                        Nama Siswa
                       </th>
 
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Nama Pengajar
+                        Kelas
                       </th>
 
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Email
+                        Wali Kelas
                       </th>
 
                       <th className="px-8 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        {role == '0' ? 'Aksi' : ''}
+                        Aksi
                       </th>
                     </tr>
                   </thead>
+                  
                   <tbody>
                     {data?.rows.map((item: any, index: number) => (
                       <tr key={item.id} className={`${index % 2 === 1 ? "bg-slate-50 dark:bg-white/[0.03]" : ""} border-b border-slate-100 dark:border-slate-800`}>
                         <td className="px-8 py-3">
                           <Link href="#" className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
-                            {item.id}
+                            {item.nik}
                           </Link>
                         </td>
                         <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
-                          {item.niy || '-'}
+                          {item.nama_siswa || '-'}
                         </td>
                         <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
-                          {item.nama || '-'}
+                          {item.nama_kelas || '-'}
                         </td>
                         <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
-                          {item.email || '-'}
+                          {item.nama_guru || '-'}
                         </td>
                         <td className="px-8 py-3">
-                          {role == '0' && item.id != id_account ? (
                             <div className="flex items-center justify-center gap-4">
-                              <Tooltip text={`Ubah Data ${item.nama}`}>
+                              <Tooltip text={`Ubah Data ${item.nama_siswa}`}>
                                 <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
-                                onClick={() => handleOpenModalEdit(item.id, item.niy, item.nama)}>
+                                >
                                   <i className="ri-edit-line text-lg" />
                                 </button>
                               </Tooltip>
-                              <Tooltip text={`Hapus Data ${item.nama}`}>
+                              <Tooltip text={`Hapus Data ${item.nama_siswa}`}>
                                 <button className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-500 transition hover:bg-red-500 hover:text-white"
-                                onClick={() => handleOpenModalDelete(item.id, item.nama)}>
+                                  onClick={() => handleOpenModalDelete(item.id, item.nama_siswa)}>
                                   <i className="ri-delete-bin-line text-lg" />
                                 </button>
                               </Tooltip>
                             </div>
-                          ) : (
-                            <div className="flex items-center justify-center gap-4">
-                              -
-                            </div>
-                          )
-                          }
                         </td>
                       </tr>
                     ))}
@@ -460,19 +328,19 @@ export default function Kelas() {
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        ID Guru
+                        NIK
                       </th>
 
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        NIY
+                        Nama Siswa
                       </th>
 
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Nama Pengajar
+                        Kelas
                       </th>
 
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Email
+                        Wali Kelas
                       </th>
                     </tr>
                   </thead>
@@ -490,221 +358,52 @@ export default function Kelas() {
         </div>
       </div>
 
-      {openModalAdd && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
-              <h2 className="text-2xl font-bold tracking-tight text-white">
-                Tambah Data Pengajar
-              </h2>
-
-              <button
-                onClick={handleCloseModalAdd}
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
-                <i
-                  className="ri-close-line"
-                  style={{ fontSize: 30 }}
-                />
-              </button>
-            </div>
-
-            <div className="space-y-6 p-6">
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  NIY
-                </label>
-
-                <input
-                  type="number"
-                  value={niyGuruAdd}
-                  onChange={(e) => setNiyGuruAdd(e.target.value)}
-                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Nama Guru
-                </label>
-
-                <input
-                  type="text"
-                  value={namaGuruAdd}
-                  onChange={(e) => setNamaGuruAdd(e.target.value)}
-                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-700">
-                  Email Aktif
-                </label>
-
-                <input
-                  type="text"
-                  value={emailGuruAdd}
-                  onChange={(e) => setEmailGuruAdd(e.target.value)}
-                  className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                />
-              </div>
-            </div>
-
-            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
-              <button
-                onClick={() => handleCloseModalAdd()}
-                className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
-                Batalkan
-              </button>
-
-              <button
-                disabled={!isAddFormValid || create.isPending}
-                className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${!isAddFormValid || create.isPending
-                    ? "cursor-not-allowed bg-slate-400 shadow-none"
-                    : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
-                  }`}
-                onClick={() => handleSaveCreate()}>
-
-                {create.isPending
-                  ? "Menyimpan..."
-                  : "Simpan Data"}
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {openModalEdit && (
+      {openModalDelete && (
         <>
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
-              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
-                <h2 className="text-2xl font-bold tracking-tight text-white">
-                  Ubah Data Pengajar
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+            <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+              <div className="p-8">
+                {/* Icon */}
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-50">
+                  <i className="ri-delete-bin-6-line text-5xl text-red-500" />
+                </div>
+
+                {/* Title */}
+                <h2 className="mb-4 text-center text-xl font-bold text-slate-700">
+                  Konfirmasi Penghapusan
                 </h2>
 
-                <button
-                  onClick={handleCloseModalEdit}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
-                  <i
-                    className="ri-close-line"
-                    style={{ fontSize: 30 }}
-                  />
-                </button>
-              </div>
+                {/* Message */}
+                <p className="text-center text-base leading-relaxed text-slate-600">
+                  Anda akan menghapus {" "}
+                  <span className="font-bold text-slate-800">
+                    {selectedNama}
+                  </span>
+                  , tindakan ini tidak dapat dibatalkan setelah Anda menghapusnya.
+                </p>
 
-              <div className="space-y-6 p-6">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    ID Guru
-                  </label>
+                {/* Actions */}
+                <div className="mt-8 flex items-center justify-center gap-4">
+                  <button className="rounded-xl bg-slate-100 px-8 py-4 text-lg font-medium text-slate-700 transition hover:bg-slate-200"
+                    onClick={handleCloseModalDelete}>
+                    Batalkan
+                  </button>
 
-                  <input
-                    type="text"
-                    value={idGuru}
-                    disabled
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
-                  />
+                  <button
+                    disabled={deletes.isPending}
+                    className="rounded-xl bg-red-500 px-8 py-4 text-lg font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
+                    onClick={handleSaveDelete}>
+
+                    {deletes.isPending
+                      ? "Menghapus..."
+                      : "Ya, Hapus"}
+                  </button>
                 </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    NIY
-                  </label>
-
-                  <input
-                    type="number"
-                    value={niyGuru}
-                    onChange={(e) => setNiyGuru(e.target.value)}
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    Nama
-                  </label>
-
-                  <input
-                    type="text"
-                    value={namaGuru}
-                    onChange={(e) => setNamaGuru(e.target.value)}
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
-                <button
-                  onClick={() => handleCloseModalEdit()}
-                  className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
-                  Batalkan
-                </button>
-
-                <button
-                  disabled={!isEditFormValid || update.isPending}
-                  className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${!isEditFormValid || update.isPending
-                      ? "cursor-not-allowed bg-slate-400 shadow-none"
-                      : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
-                    }`}
-                  onClick={() => handleSaveUpdate()}>
-
-                  {update.isPending
-                    ? "Menyimpan..."
-                    : "Simpan Perubahan"}
-                </button>
               </div>
             </div>
           </div>
         </>
-      )}
-
-      {openModalDelete && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl">
-            <div className="p-8">
-              {/* Icon */}
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-red-50">
-                <i className="ri-delete-bin-6-line text-5xl text-red-500" />
-              </div>
-
-              {/* Title */}
-              <h2 className="mb-4 text-center text-xl font-bold text-slate-700">
-                Konfirmasi Penghapusan
-              </h2>
-
-              {/* Message */}
-              <p className="text-center text-base leading-relaxed text-slate-600">
-                Anda akan menghapus {" "}
-                <span className="font-bold text-slate-800">
-                  {selectedNama}
-                </span>
-                , tindakan ini tidak dapat dibatalkan setelah Anda menghapusnya.
-              </p>
-
-              {/* Actions */}
-              <div className="mt-8 flex items-center justify-center gap-4">
-                <button className="rounded-xl bg-slate-100 px-8 py-4 text-lg font-medium text-slate-700 transition hover:bg-slate-200"
-                  onClick={handleCloseModalDelete}>
-                  Batalkan
-                </button>
-
-                <button
-                  disabled={deletes.isPending}
-                  className="rounded-xl bg-red-500 px-8 py-4 text-lg font-medium text-white transition hover:bg-red-600 disabled:opacity-50"
-                  onClick={handleSaveDelete}>
-
-                  {deletes.isPending
-                    ? "Menghapus..."
-                    : "Ya, Hapus"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
       )}
     </>
   )
