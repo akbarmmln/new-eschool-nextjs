@@ -23,6 +23,7 @@ export default function TambahSiswa() {
 
   const [namaAyah, setNamaAyah] = useState('');
   const [namaIbu, setNamaIbu] = useState('');
+  const [emailValid, setEmailValid] = useState('')
 
   const isPencarianFormValid = !isEmpty(emailPencarian);
 
@@ -37,7 +38,8 @@ export default function TambahSiswa() {
     !isEmpty(kelurahan) &&
     !isEmpty(kecamatan) &&
     !isEmpty(namaAyah) &&
-    !isEmpty(namaIbu);
+    !isEmpty(namaIbu) &&
+    !isEmpty(emailValid);
 
   const searchEmailWalMur = useSearchEmailWalMur();
 
@@ -47,11 +49,13 @@ export default function TambahSiswa() {
       if (!data) {
         setNamaAyah('')
         setNamaIbu('')
+        setEmailValid(emailPencarian);
 
         setIsWalMurFound(false);
       } else {
         setNamaAyah(data.nama_ayah || '')
         setNamaIbu(data.nama_ibu || '')
+        setEmailValid(emailPencarian);
 
         setIsWalMurFound(true);
       }
@@ -60,6 +64,33 @@ export default function TambahSiswa() {
       setNamaIbu('')
 
       setIsWalMurFound(false);
+    }
+  }
+
+  const handleSaveCreate = async () => {
+    try {
+      const payload = {
+        nik: nik,
+        nama_lengkap: namaLengkap,
+        jenis_kelamin: jenisKelamin,
+        tanggal_lahir: tanggalLahir,
+        alamat: alamatLengkap,
+        no_rt: noRT,
+        no_rw: noRW,
+        kelurahan: kelurahan,
+        kecamatan: kecamatan,
+        id_kelas: '',
+        nama_ayah: namaAyah,
+        nama_ibu: namaIbu,
+        email_aktif: emailValid,
+        ocup_ayah: '',
+        ocup_ibu: '',
+        image: '',
+      }
+
+      console.log('handleSaveCreate', payload)
+    } catch (e) {
+
     }
   }
 
@@ -372,92 +403,6 @@ export default function TambahSiswa() {
                   </div>
                 </div>
               </div>
-
-              {/* <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
-                  <h2 className="text-xl font-bold text-slate-800">
-                    Data Orang Tua
-                  </h2>
-                </div>
-
-                <div className="space-y-6 p-6">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700">
-                      Nama Ayah
-                    </label>
-
-                    <div className="relative">
-                      <i className="ri-user-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-
-                      <input
-                        type="text"
-                        placeholder="Nama Lengkap Ayah"
-                        className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700">
-                      Nama Ibu
-                    </label>
-
-                    <div className="relative">
-                      <i className="ri-user-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-
-                      <input
-                        type="text"
-                        placeholder="Nama Lengkap Ibu"
-                        className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                        No. Telepon Orang Tua
-                      </label>
-
-                      <div className="relative">
-                        <i className="ri-phone-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-
-                        <input
-                          type="text"
-                          placeholder="08XXXXXXXXXX"
-                          className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                       Email Aktif
-                      </label>
-
-                      <div className="relative">
-                        <i className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-
-                        <input
-                          type="text"
-                          placeholder="example@email.com"
-                          className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <i className="ri-information-line text-lg text-emerald-600" />
-
-                      <p className="text-sm text-emerald-700">
-                        Pastikan alamat email yang dimasukkan masih aktif karena akan digunakan untuk proses login ke sistem aplikasi
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
             </div>
 
             {/* ACTION */}
@@ -468,6 +413,7 @@ export default function TambahSiswa() {
               </button>
 
               <button 
+                onClick={handleSaveCreate}
                 disabled={!isFormValid}
                 className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
                   ${!isFormValid
