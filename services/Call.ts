@@ -334,3 +334,12 @@ export async function deleteSiswa(body: any) {
     10000
   );
 }
+
+export async function searchEmailWalMur(body: any) {
+  return await request(
+    "post",
+    `/api/v1/siswa/ortu/search-email`,
+    body,
+    10000
+  );
+}

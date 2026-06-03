@@ -4,6 +4,7 @@ import { useState } from "react";
 import CustomDatePicker from '@/components/common/DatePicker'
 import { useRouter } from "next/navigation";
 import isEmpty from "@/utils/isEmpty";
+import { useSearchEmailWalMur } from "@/hooks/querySiswa";
 
 export default function TambahSiswa() {
   const router = useRouter();
@@ -17,6 +18,14 @@ export default function TambahSiswa() {
   const [kelurahan, setKelurahan] = useState('')
   const [kecamatan, setKecamatan] = useState('')
 
+  const [emailPencarian, setEmailPencarian] = useState('')
+  const [isWalMurFound, setIsWalMurFound] = useState(true);
+
+  const [namaAyah, setNamaAyah] = useState('');
+  const [namaIbu, setNamaIbu] = useState('');
+
+  const isPencarianFormValid = !isEmpty(emailPencarian);
+
   const isFormValid =
     !isEmpty(nik) &&
     !isEmpty(namaLengkap) &&
@@ -26,7 +35,33 @@ export default function TambahSiswa() {
     !isEmpty(noRT) &&
     !isEmpty(noRW) &&
     !isEmpty(kelurahan) &&
-    !isEmpty(kecamatan);
+    !isEmpty(kecamatan) &&
+    !isEmpty(namaAyah) &&
+    !isEmpty(namaIbu);
+
+  const searchEmailWalMur = useSearchEmailWalMur();
+
+  const handlePencarianWalMur = async () => {
+    try {
+      const data = await searchEmailWalMur.mutateAsync({ search: emailPencarian });
+      if (!data) {
+        setNamaAyah('')
+        setNamaIbu('')
+
+        setIsWalMurFound(false);
+      } else {
+        setNamaAyah(data.nama_ayah || '')
+        setNamaIbu(data.nama_ibu || '')
+
+        setIsWalMurFound(true);
+      }
+    } catch (e) {
+      setNamaAyah('')
+      setNamaIbu('')
+
+      setIsWalMurFound(false);
+    }
+  }
 
   return (
     <>
@@ -236,8 +271,109 @@ export default function TambahSiswa() {
                 </div>
               </div>
 
-              {/* ORANG TUA */}
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+                  <h2 className="text-xl font-bold text-slate-800">
+                    Data Orang Tua
+                  </h2>
+                </div>
+
+                <div className="space-y-6 p-6">
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Email Aktif
+                  </label>
+
+                  <div className="flex gap-3">
+                    <div className="relative flex-1">
+                      <i className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+                      <input
+                        type="email"
+                        value={emailPencarian}
+                        onChange={(e) => setEmailPencarian(e.target.value)}
+                        placeholder="example@mail.com"
+                        className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <button
+                      disabled={!isPencarianFormValid || searchEmailWalMur.isPending}
+                      className={`h-12 rounded-xl bg-blue-600 px-6 text-white hover:bg-blue-700 disabled:opacity-50
+                        ${!isPencarianFormValid || searchEmailWalMur.isPending
+                          ? "cursor-not-allowed bg-slate-400 shadow-none"
+                          : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                        }`}
+                      onClick={handlePencarianWalMur}
+                      type="button">
+
+                      {searchEmailWalMur.isPending
+                        ? "Mencari..."
+                        : "Cari"}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        Nama Ayah
+                      </label>
+
+                      <div className="relative">
+                        <i className="ti ti-man absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+                        <input
+                          type="text"
+                          placeholder="Nama Lengkap Ayah"
+                          readOnly={isWalMurFound}
+                          value={namaAyah}
+                          onChange={(e) => setNamaAyah(e.target.value)}
+                          className={`h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500
+                            ${
+                            isWalMurFound
+                              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
+                              : "border-slate-300 focus:border-blue-500"
+                            }`}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                       Nama Ibu
+                      </label>
+
+                      <div className="relative">
+                        <i className="ti ti-woman absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+                        <input
+                          type="text"
+                          placeholder="Nama Lengkap Ibu"
+                          readOnly={isWalMurFound}
+                          value={namaIbu}
+                          onChange={(e) => setNamaIbu(e.target.value)}
+                          className={`h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500
+                            ${
+                            isWalMurFound
+                              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
+                              : "border-slate-300 focus:border-blue-500"
+                            }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                    <div className="flex items-start gap-3">
+                      <i className="ri-information-line text-lg text-emerald-600" />
+
+                      <p className="text-sm text-emerald-700">
+                        Pastikan alamat email yang dimasukkan masih aktif karena akan digunakan untuk proses login ke sistem aplikasi
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
                   <h2 className="text-xl font-bold text-slate-800">
                     Data Orang Tua
@@ -321,7 +457,7 @@ export default function TambahSiswa() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* ACTION */}

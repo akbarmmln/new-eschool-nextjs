@@ -1,8 +1,29 @@
 import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
+  searchEmailWalMur,
   siswaList,
   deleteSiswa
 } from '@/services/Call'
+
+// SEARCH EMAIL WALMUR \\
+export function useSearchEmailWalMur() {
+  return useMutation({
+    mutationFn: async (
+      payload: {
+        search: string;
+      }
+    ) => {
+      const hasil: any =
+        await searchEmailWalMur(payload);
+
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      return hasil.data.data;
+    },
+  });
+}
 
 // LIST ALL SISWA \\
 type ListAllSiswaResponse = {
