@@ -1,4 +1,7 @@
-import imageCompression from "browser-image-compression";
+import imageCompression, {
+  Options
+} from "browser-image-compression";
+import isEmpty from "./isEmpty";
 
 export const getBase64SizeInBytes = (base64: string) => {
   // hilangkan padding "="
@@ -7,7 +10,12 @@ export const getBase64SizeInBytes = (base64: string) => {
   return ((base64.length * 3) / 4) - padding;
 };
 
-export const compressImage = async (file: File): Promise<File> => {
+export const compressImage = async (
+  file: File,
+  onProgress?: (
+    progress: number
+  ) => void
+): Promise<File> => {
   // sebelum compress
   console.log("before", (file.size / 1024 / 1024).toFixed(2), "MB");
 
@@ -16,13 +24,23 @@ export const compressImage = async (file: File): Promise<File> => {
     return file;
   }
 
+  const setting: Options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  };
+
+  if (onProgress) {
+    setting.onProgress = (
+      progress: number
+    ) => {
+      onProgress(progress);
+    };
+  }
+
   const compressedFile = await imageCompression(
     file,
-    {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-    }
+    setting
   );
 
   // sesudah compress

@@ -21,6 +21,8 @@ export default function TambahSiswa() {
   
   const [fotoSiswa, setFotoSiswa] = useState("");
   const [fotoPreview, setFotoPreview] = useState("");
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressProgress, setCompressProgress] = useState(0);
 
   const [nik, setNik] = useState('')
   const [namaLengkap, setNamaLengkap] = useState('')
@@ -114,18 +116,31 @@ export default function TambahSiswa() {
 
       if (!file) return;
 
-      // compress jika perlu
-      const compressedFile = await compressImage(file);
+      setIsCompressing(true);
+      setCompressProgress(0);
 
-      // convert ke base64
+      const compressedFile = await compressImage(
+        file,
+        (progress) => {
+          setCompressProgress(progress);
+        }
+      );
+
       const base64 = await fileToBase64(compressedFile);
 
       setFotoSiswa(base64);
+
       setFotoPreview(`data:${compressedFile.type};base64,${base64}`);
-    } catch (error) {
-      console.error('error handleUploadFotoSiswa', error);
+    } finally {
+      setCompressProgress(100);
+
+      setTimeout(() => {
+        setIsCompressing(false);
+        setCompressProgress(0);
+      }, 500);
     }
   };
+
 
   if (!isAllowed) {
     return (
@@ -168,11 +183,30 @@ export default function TambahSiswa() {
                       Foto Profil Siswa
                     </label>
 
-                    <label
-                      htmlFor="foto-siswa"
-                      className="flex h-[250px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:bg-slate-100"
-                    >
-                      {fotoPreview ? (
+                    <label className="flex h-[250px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:bg-slate-100"
+                      htmlFor="foto-siswa">
+                      {isCompressing ? (
+                        <div className="flex flex-col items-center justify-center">
+                          <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
+
+                          <p className="mt-4 text-sm font-medium text-slate-700">
+                            Mengoptimalkan gambar...
+                          </p>
+
+                          <div className="mt-4 h-2 w-72 overflow-hidden rounded-full bg-slate-200">
+                            <div
+                              className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                              style={{
+                                width: `${compressProgress}%`,
+                              }}
+                            />
+                          </div>
+
+                          <p className="mt-2 text-xs text-slate-500">
+                            {compressProgress}%
+                          </p>
+                        </div>
+                      ) : fotoPreview ? (
                         <img
                           src={fotoPreview}
                           alt="Foto Siswa"
@@ -200,13 +234,13 @@ export default function TambahSiswa() {
                       accept="image/png,image/jpeg,image/jpg"
                       className="hidden"
                       onChange={handleUploadFotoSiswa}
+                      disabled={isCompressing}
                     />
 
                     <p className="mt-2 text-xs italic text-slate-400">
                       Gambar akan dikompres otomatis untuk mengoptimalkan ukuran file.
                     </p>
                   </div>
-
                   <div className="space-y-6">
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-slate-700">
