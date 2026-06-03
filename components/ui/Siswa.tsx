@@ -143,11 +143,11 @@ export default function Kelas() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <button
+            <Link href={`/akademik/tambah-siswa`}
               className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
               <i className="ri-add-circle-fill text-xl text-blue-500" />
               Tambah Siswa
-            </button>
+            </Link>
           </div>
         </div>
 

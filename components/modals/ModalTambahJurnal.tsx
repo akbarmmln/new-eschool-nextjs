@@ -108,6 +108,7 @@ export default function ModalTambahJurnal({
                 name="tanggal_mengajar"
                 value={tanggal}
                 onChange={setTanggal}
+                yearLength={2}
               />
             </div>
 

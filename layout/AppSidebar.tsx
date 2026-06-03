@@ -434,6 +434,7 @@ const isMenuActive = (menu: any, pathname: string) => {
 
     "/akademik/siswa": [
       "/akademik/detail-siswa",
+      "/akademik/tambah-siswa"
     ],
 
     "/akademik/guru": [
