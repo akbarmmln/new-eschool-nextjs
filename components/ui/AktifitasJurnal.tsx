@@ -547,8 +547,7 @@ export default function AktifitasJurnal({ id }: Props) {
   };
 
   const handleRemoveAttachment = (index: number) => {
-    const selectedAttachment =
-      attachments[index];
+    const selectedAttachment = attachments[index];
 
     if (selectedAttachment?.id) {
       const deletedId = selectedAttachment?.id;

@@ -5,9 +5,23 @@ import CustomDatePicker from '@/components/common/DatePicker'
 import { useRouter } from "next/navigation";
 import isEmpty from "@/utils/isEmpty";
 import { useSearchEmailWalMur } from "@/hooks/querySiswa";
+import { useAccessContext } from '@/context/AccessContext'
+import { allowPage } from "@/utils/utils";
+import { compressImage, fileToBase64 } from "@/utils/utils";
 
 export default function TambahSiswa() {
   const router = useRouter();
+  const allow_tipe = ['DS1'];
+  const allow_role = ['0', '1'];
+
+  const dataAccess = useAccessContext()
+  const tipe_account = dataAccess?.access?.tipe_account || '';
+  const role = dataAccess?.access?.role || '';
+  const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
+  
+  const [fotoSiswa, setFotoSiswa] = useState("");
+  const [fotoPreview, setFotoPreview] = useState("");
+
   const [nik, setNik] = useState('')
   const [namaLengkap, setNamaLengkap] = useState('')
   const [jenisKelamin, setJenisKelamin] = useState('')
@@ -85,15 +99,42 @@ export default function TambahSiswa() {
         email_aktif: emailValid,
         ocup_ayah: '',
         ocup_ibu: '',
-        image: '',
+        image: fotoSiswa,
       }
 
-      console.log('handleSaveCreate', payload)
+      console.log('handleSaveCreate', JSON.stringify(payload))
     } catch (e) {
 
     }
   }
 
+  const handleUploadFotoSiswa = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+
+      if (!file) return;
+
+      // compress jika perlu
+      const compressedFile = await compressImage(file);
+
+      // convert ke base64
+      const base64 = await fileToBase64(compressedFile);
+
+      setFotoSiswa(base64);
+      setFotoPreview(`data:${compressedFile.type};base64,${base64}`);
+    } catch (error) {
+      console.error('error handleUploadFotoSiswa', error);
+    }
+  };
+
+  if (!isAllowed) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
+  
   return (
     <>
       <div className="space-y-6">
@@ -127,18 +168,42 @@ export default function TambahSiswa() {
                       Foto Profil Siswa
                     </label>
 
-                    <div className="flex h-[250px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:bg-slate-100">
-                      <i className="ri-camera-line text-slate-400" style={{ fontSize: 50 }}/>
+                    <label
+                      htmlFor="foto-siswa"
+                      className="flex h-[250px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:bg-slate-100"
+                    >
+                      {fotoPreview ? (
+                        <img
+                          src={fotoPreview}
+                          alt="Foto Siswa"
+                          className="h-full w-full rounded-xl object-cover"
+                        />
+                      ) : (
+                        <>
+                          <i
+                            className="ri-camera-line text-slate-400"
+                            style={{ fontSize: 50 }}
+                          />
 
-                      <p className="mt-4 text-center text-xs text-slate-500">
-                        Klik atau seret foto ke sini
-                        <br />
-                        (Format JPG/PNG)
-                      </p>
-                    </div>
+                          <p className="mt-4 text-center text-xs text-slate-500">
+                            Klik atau seret foto ke sini
+                            <br />
+                            (Format JPG/PNG)
+                          </p>
+                        </>
+                      )}
+                    </label>
+
+                    <input
+                      id="foto-siswa"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      className="hidden"
+                      onChange={handleUploadFotoSiswa}
+                    />
 
                     <p className="mt-2 text-xs italic text-slate-400">
-                      Ukuran maksimal: 2MB
+                      Gambar akan dikompres otomatis untuk mengoptimalkan ukuran file.
                     </p>
                   </div>
 
