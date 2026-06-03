@@ -23,6 +23,7 @@ export default function TambahSiswa() {
   const [fotoPreview, setFotoPreview] = useState("");
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressProgress, setCompressProgress] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [nik, setNik] = useState('')
   const [namaLengkap, setNamaLengkap] = useState('')
@@ -111,25 +112,40 @@ export default function TambahSiswa() {
   }
 
   const handleUploadFotoSiswa = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    await processImage(file);
+  };
+  const handleDrop = async (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+
+    if (!file) return;
+
+    await processImage(file);
+  };
+
+  const processImage = async (file: File) => {
     try {
-      const file = e.target.files?.[0];
-
-      if (!file) return;
-
       setIsCompressing(true);
       setCompressProgress(0);
 
-      const compressedFile = await compressImage(
-        file,
-        (progress) => {
-          setCompressProgress(progress);
-        }
-      );
+      const compressedFile =
+        await compressImage(
+          file,
+          (progress) => {
+            setCompressProgress(progress);
+          }
+        );
 
       const base64 = await fileToBase64(compressedFile);
 
       setFotoSiswa(base64);
-
       setFotoPreview(`data:${compressedFile.type};base64,${base64}`);
     } finally {
       setCompressProgress(100);
@@ -140,7 +156,6 @@ export default function TambahSiswa() {
       }, 500);
     }
   };
-
 
   if (!isAllowed) {
     return (
@@ -183,17 +198,31 @@ export default function TambahSiswa() {
                       Foto Profil Siswa
                     </label>
 
-                    <label className="flex h-[250px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:bg-slate-100"
-                      htmlFor="foto-siswa">
+                    <label
+                      htmlFor="foto-siswa"
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                      }}
+                      onDragLeave={() =>
+                        setIsDragging(false)
+                      }
+                      onDrop={handleDrop}
+                      className={`flex h-[250px] cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition
+                      ${isDragging
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-slate-300 bg-slate-50 hover:bg-slate-100"
+                        }`}
+                      >
                       {isCompressing ? (
-                        <div className="flex flex-col items-center justify-center">
+                        <div className="flex h-full w-full flex-col items-center justify-center px-6">
                           <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
 
-                          <p className="mt-4 text-sm font-medium text-slate-700">
+                          <p className="mt-4 text-center text-sm font-medium text-slate-700">
                             Mengoptimalkan gambar...
                           </p>
 
-                          <div className="mt-4 h-2 w-72 overflow-hidden rounded-full bg-slate-200">
+                          <div className="mt-4 w-full max-w-xs rounded-full bg-slate-200">
                             <div
                               className="h-2 rounded-full bg-blue-600 transition-all duration-300"
                               style={{
@@ -202,16 +231,29 @@ export default function TambahSiswa() {
                             />
                           </div>
 
-                          <p className="mt-2 text-xs text-slate-500">
+                          <p className="mt-3 text-xs text-slate-500">
                             {compressProgress}%
                           </p>
                         </div>
                       ) : fotoPreview ? (
-                        <img
-                          src={fotoPreview}
-                          alt="Foto Siswa"
-                          className="h-full w-full rounded-xl object-cover"
-                        />
+                        <div className="flex h-full w-full items-center justify-center">
+                          <img
+                            src={fotoPreview}
+                            alt="Foto Siswa"
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                      ) : isDragging ? (
+                        <>
+                          <i
+                            className="ri-upload-cloud-2-line text-blue-600"
+                            style={{ fontSize: 60 }}
+                          />
+
+                          <p className="mt-4 text-center text-sm font-medium text-blue-600">
+                            Lepaskan file di sini
+                          </p>
+                        </>
                       ) : (
                         <>
                           <i
@@ -227,7 +269,6 @@ export default function TambahSiswa() {
                         </>
                       )}
                     </label>
-
                     <input
                       id="foto-siswa"
                       type="file"
@@ -312,6 +353,31 @@ export default function TambahSiswa() {
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* DATA Ruang Kelas */}
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
+                <h2 className="text-xl font-bold text-slate-800">
+                  Ruang Kelas
+                </h2>
+              </div>
+
+              <div className="p-6">
+                  <div className="space-y-6">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        -
+                      </label>
+
+                      <input
+                        type="text"
+                        placeholder="Masukkan 16 digit NIK"
+                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
               </div>
             </div>
 
@@ -513,9 +579,9 @@ export default function TambahSiswa() {
 
               <button 
                 onClick={handleSaveCreate}
-                disabled={!isFormValid}
+                disabled={!isFormValid || isCompressing}
                 className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${!isFormValid
+                  ${!isFormValid || isCompressing
                     ? "cursor-not-allowed bg-slate-400 shadow-none"
                     : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                   }`}>
