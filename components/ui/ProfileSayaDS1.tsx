@@ -456,18 +456,16 @@ export default function ProfileSayaDS1() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           {loadingCardProfile || isFetching ? (
-            <>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(2)].map((_, index) => (
-                  <DetailSkeleton key={index} />
-                ))}
-              </div>
-            </>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {[...Array(4)].map((_, index) => (
+                <DetailSkeleton key={index} />
+              ))}
+            </div>
           ) : (
-            <>
-              <div className="flex items-center justify-between p-2">
+            <div className="border-b border-slate-250 px-6 py-4 dark:border-slate-100 dark:bg-slate-900">
+              <div className="flex items-center justify-between">
                 <h2 className="text-lg text-slate-800 dark:text-white">
                   Email
                 </h2>
@@ -478,24 +476,22 @@ export default function ProfileSayaDS1() {
                   Ubah
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           {loadingCardProfile || isFetching ? (
-            <>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(2)].map((_, index) => (
-                  <DetailSkeleton key={index} />
-                ))}
-              </div>
-            </>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {[...Array(4)].map((_, index) => (
+                <DetailSkeleton key={index} />
+              ))}
+            </div>
           ) : (
-            <>
-              <div className="flex items-center justify-between p-2">
+            <div className="border-b border-slate-250 px-6 py-4 dark:border-slate-100 dark:bg-slate-900">
+              <div className="flex items-center justify-between">
                 <h2 className="text-lg text-slate-800 dark:text-white">
-                  Password
+                  Kata Sandi
                 </h2>
 
                 <button onClick={handleOpenModalEditPassword}
@@ -504,7 +500,7 @@ export default function ProfileSayaDS1() {
                   Ubah
                 </button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
