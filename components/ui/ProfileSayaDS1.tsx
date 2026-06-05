@@ -579,7 +579,7 @@ export default function ProfileSayaDS1() {
                     Tanggal Lahir
                   </label>
                   
-                  <div className="relative mt-2">
+                  <div className="relative">
                     <CustomDatePicker
                       name="tanggal_lahir"
                       value={tanggalLahir}

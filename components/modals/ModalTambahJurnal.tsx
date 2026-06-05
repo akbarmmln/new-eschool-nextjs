@@ -104,12 +104,15 @@ export default function ModalTambahJurnal({
               <label>
                 Hari / Tanggal Mengajar
               </label>
-              <CustomDatePicker
-                name="tanggal_mengajar"
-                value={tanggal}
-                onChange={setTanggal}
-                yearLength={2}
-              />
+              <div className="relative">
+                <CustomDatePicker
+                  name="tanggal_mengajar"
+                  value={tanggal}
+                  onChange={setTanggal}
+                  yearLength={2}
+                />
+                <i className="ri-calendar-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-400" />
+              </div>
             </div>
 
             {/* KELAS */}
