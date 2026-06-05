@@ -180,21 +180,21 @@ export default function TambahSiswa() {
           </div>
         </div>
 
-        <div className="min-h-screen bg-slate-50 md-6">
+        <div className="min-h-screen bg-slate-50 md-6 dark:border-slate-800 dark:bg-slate-900">
           <div className="mx-auto max-w-7xl space-y-6">
 
             {/* DATA PRIBADI SISWA */}
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
-                <h2 className="text-xl font-bold text-slate-800">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                   Data Pribadi Siswa
                 </h2>
               </div>
 
-              <div className="p-6">
+              <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
                 <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
                   <div>
-                    <label className="mb-3 block text-sm font-semibold text-slate-700">
+                    <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-white">
                       Foto Profil Siswa
                     </label>
 
@@ -282,9 +282,10 @@ export default function TambahSiswa() {
                       Gambar akan dikompres otomatis untuk mengoptimalkan ukuran file.
                     </p>
                   </div>
+
                   <div className="space-y-6">
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
                         NIK (Nomor Induk Kependudukan)
                       </label>
 
@@ -293,12 +294,12 @@ export default function TambahSiswa() {
                         value={nik}
                         onChange={(e) => setNik(e.target.value)}
                         placeholder="Masukkan 16 digit NIK"
-                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition focus:border-blue-500"
+                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
                         Nama Lengkap
                       </label>
 
@@ -307,12 +308,12 @@ export default function TambahSiswa() {
                         value={namaLengkap}
                         onChange={(e) => setNamaLengkap(e.target.value)}
                         placeholder="Nama sesuai ijazah/akta"
-                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition focus:border-blue-500"
+                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                       />
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-2">
-                      <div className="form-group">
+                      <div className="form-group dark:text-white">
                         <label>
                           Jenis Kelamin
                         </label>
@@ -337,7 +338,7 @@ export default function TambahSiswa() {
                       </div>
 
                       <div className="form-group">
-                        <label className="block text-sm font-semibold text-slate-700">
+                        <label className="block text-sm font-semibold text-slate-700 dark:text-white">
                           Tanggal Lahir
                         </label>
 

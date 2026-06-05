@@ -57,31 +57,28 @@ export default function CustomDatePicker({ name, value, onChange, yearLength = 1
         locale={id}
         dateFormat="dd MMMM yyyy"
         customInput={<CustomInput name={name}/>}
-
+        // portalId="root"
+        withPortal
         renderCustomHeader={({
           date, changeYear, changeMonth, decreaseMonth, increaseMonth,
         }) => (
           <div className="custom-datepicker-header">
             <div className="header-top">
-              <button
-                type="button"
-                onClick={decreaseMonth} >
+              <button type="button" onClick={decreaseMonth}>
                 <i className="ri-arrow-left-s-line" />
               </button>
 
               <div className="header-title">
                 {date.toLocaleString(
-                  'id-ID',
+                  "id-ID",
                   {
-                    month: 'long',
-                    year: 'numeric',
+                    month: "long",
+                    year: "numeric",
                   }
                 )}
               </div>
 
-              <button
-                type="button"
-                onClick={increaseMonth} >
+              <button type="button" onClick={increaseMonth}>
                 <i className="ri-arrow-right-s-line" />
               </button>
             </div>
