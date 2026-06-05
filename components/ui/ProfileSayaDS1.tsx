@@ -280,172 +280,177 @@ export default function ProfileSayaDS1() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           {loadingCardProfile || isFetching ? (
-            <>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(4)].map((_, index) => (
-                  <DetailSkeleton key={index} />
-                ))}
-              </div>
-            </>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {[...Array(4)].map((_, index) => (
+                <DetailSkeleton key={index} />
+              ))}
+            </div>
           ) : (
             <>
-              <div className="flex items-center justify-between border-b border-slate-200 p-2 mb-4">
-                <h2 className="text-lg text-slate-800 dark:text-white">
-                  Informasi Pribadi
-                </h2>
+              <div className="border-b border-slate-250 px-6 py-4 dark:border-slate-100 dark:bg-slate-900">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg text-slate-800 dark:text-white">
+                    Informasi Pribadi
+                  </h2>
 
-                <button onClick={handleOpenModalEditIP}
-                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700" >
-                  <i className="ri-edit-line" />
-                  Ubah
-                </button>
-              </div>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                <DetailItem
-                  icon={
-                    <i
-                      className="ri-id-card-line"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="NIY"
-                  value={!isEmpty(data?.niy) ? data?.niy : '-'}
-                />
-
-                <DetailItem
-                  icon={
-                    <i
-                      className="ri-calendar-line"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="Tanggal Lahir"
-                  value={!isEmpty(data?.tanggal_lahir) ? formatTanggalIndonesia(data?.tanggal_lahir) : '-'}
-                />
-
-                <DetailItem
-                  icon={
-                    <i
-                      className="ri-user-line"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="Nama Lengkap"
-                  value={!isEmpty(data?.nama) ? data?.nama : '-'}
-                />
-
-                <DetailItem
-                  icon={
-                    <i
-                      className="ti ti-friends"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="Jenis Kelamin"
-                  value={
-                    data?.jenis_kelamin === "L"
-                      ? "Laki-Laki"
-                      : data?.jenis_kelamin === "P"
-                        ? "Perempuan"
-                        : "-"
-                  }
-                />
-
-                <DetailItem
-                  icon={
-                    <i
-                      className="ti ti-school"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="Pendidikan"
-                  value={!isEmpty(data?.pendidikan) ? data?.pendidikan : '-'}
-                />
-
-                <DetailItem
-                  icon={
-                    <i
-                      className="ti ti-phone"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="Nomor Telepon"
-                  value={!isEmpty(data?.nomor_handphone) ? data?.nomor_handphone : '-'}
-                />
+                  <button onClick={handleOpenModalEditIP}
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700" >
+                    <i className="ri-edit-line" />
+                    Ubah
+                  </button>
+                </div>
               </div>
 
+              <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ri-id-card-line"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="NIY"
+                    value={!isEmpty(data?.niy) ? data?.niy : '-'}
+                  />
+
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ri-calendar-line"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Tanggal Lahir"
+                    value={!isEmpty(data?.tanggal_lahir) ? formatTanggalIndonesia(data?.tanggal_lahir) : '-'}
+                  />
+
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ri-user-line"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Nama Lengkap"
+                    value={!isEmpty(data?.nama) ? data?.nama : '-'}
+                  />
+
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ti ti-friends"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Jenis Kelamin"
+                    value={
+                      data?.jenis_kelamin === "L"
+                        ? "Laki-Laki"
+                        : data?.jenis_kelamin === "P"
+                          ? "Perempuan"
+                          : "-"
+                    }
+                  />
+
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ti ti-school"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Pendidikan"
+                    value={!isEmpty(data?.pendidikan) ? data?.pendidikan : '-'}
+                  />
+
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ti ti-phone"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Nomor Telepon"
+                    value={!isEmpty(data?.nomor_handphone) ? data?.nomor_handphone : '-'}
+                  />
+                </div>
+              </div>
             </>
           )}
         </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           {loadingCardProfile || isFetching ? (
-            <>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                {[...Array(4)].map((_, index) => (
-                  <DetailSkeleton key={index} />
-                ))}
-              </div>
-            </>
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+              {[...Array(4)].map((_, index) => (
+                <DetailSkeleton key={index} />
+              ))}
+            </div>
           ) : (
             <>
-              <div className="flex items-center justify-between border-b border-slate-200 p-2 mb-4">
-                <h2 className="text-lg text-slate-800 dark:text-white">
-                  Informasi Alamat
-                </h2>
+              <div className="border-b border-slate-250 px-6 py-4 dark:border-slate-100 dark:bg-slate-900">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg text-slate-800 dark:text-white">
+                    Informasi Alamat
+                  </h2>
 
-                <button onClick={handleOpenModalEditIA}
-                  className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700" >
-                  <i className="ri-edit-line" />
-                  Ubah
-                </button>
+                  <button onClick={handleOpenModalEditIA}
+                    className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700" >
+                    <i className="ri-edit-line" />
+                    Ubah
+                  </button>
+                </div>
               </div>
-              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                <DetailItem
-                  icon={
-                    <i
-                      className="ti ti-map-2"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="Alamat / Nama Jalan"
-                  value={!isEmpty(data?.alamat) ? data?.alamat : '-'}
-                />
 
-                <DetailItem
-                  icon={
-                    <i
-                      className="ti ti-home-link"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="RT / RW"
-                  value={`${!isEmpty(data?.rt) ? data?.rt : '-'} / ${!isEmpty(data?.rw) ? data?.rw : '-'}`}
-                />
+              <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
+                <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ti ti-map-2"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Alamat / Nama Jalan"
+                    value={!isEmpty(data?.alamat) ? data?.alamat : '-'}
+                  />
 
-                <DetailItem
-                  icon={
-                    <i
-                      className="ti ti-layout-distribute-horizontal"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="Kecamatan"
-                  value={!isEmpty(data?.kecamatan) ? data?.kecamatan : '-'}
-                />
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ti ti-home-link"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="RT / RW"
+                    value={`${!isEmpty(data?.rt) ? data?.rt : '-'} / ${!isEmpty(data?.rw) ? data?.rw : '-'}`}
+                  />
 
-                <DetailItem
-                  icon={
-                    <i
-                      className="ti ti-layout-distribute-horizontal"
-                      style={{ fontSize: 22 }}
-                    />
-                  }
-                  title="Kelurahan"
-                  value={!isEmpty(data?.kelurahan) ? data?.kelurahan : '-'}
-                />
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ti ti-layout-distribute-horizontal"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Kecamatan"
+                    value={!isEmpty(data?.kecamatan) ? data?.kecamatan : '-'}
+                  />
+
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ti ti-layout-distribute-horizontal"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Kelurahan"
+                    value={!isEmpty(data?.kelurahan) ? data?.kelurahan : '-'}
+                  />
+                </div>
               </div>
             </>
           )}
