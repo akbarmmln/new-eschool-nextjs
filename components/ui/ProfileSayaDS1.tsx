@@ -578,13 +578,16 @@ export default function ProfileSayaDS1() {
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Tanggal Lahir
                   </label>
-
-                  <CustomDatePicker
-                    name="tanggal_lahir"
-                    value={tanggalLahir}
-                    onChange={setTanggalLahir}
-                    yearLength={60}
-                  />
+                  
+                  <div className="relative mt-2">
+                    <CustomDatePicker
+                      name="tanggal_lahir"
+                      value={tanggalLahir}
+                      onChange={setTanggalLahir}
+                      yearLength={60}
+                    />
+                    <i className="ri-calendar-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-400" />
+                  </div>
                 </div>
 
                 <div>

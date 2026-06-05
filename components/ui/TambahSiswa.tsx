@@ -318,37 +318,43 @@ export default function TambahSiswa() {
                           Jenis Kelamin
                         </label>
 
-                        <div className="input-icon mt-2">
-                          <select value={jenisKelamin || ""}
-                            onChange={(e) =>
-                            setJenisKelamin(e.target.value)
-                          } >
+                        <div className="relative mt-2">
+                          <select
+                            value={jenisKelamin || ""}
+                            onChange={(e) => setJenisKelamin(e.target.value)}
+                            className="h-12 w-full rounded-xl border border-slate-300 px-4 pr-12 outline-none transition appearance-none focus:border-blue-500 dark:bg-slate-800 dark:border-slate-700 dark:text-white">
                             <option value="">
                               Pilih Jenis Kelamin
                             </option>
+
                             <option value="L">
                               Laki-Laki
                             </option>
+
                             <option value="P">
                               Perempuan
                             </option>
                           </select>
-                          <i className="ri-arrow-down-s-line" />
+
+                          <i className="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-400" />
                         </div>
                       </div>
 
-                      <div className="form-group">
-                        <label className="block text-sm font-semibold text-slate-700 dark:text-white">
+                      <div className="form-group dark:text-white">
+                        <label>
                           Tanggal Lahir
                         </label>
 
-                        <div className="input-icon mt-3">
+                        <div className="relative mt-2">
                           <CustomDatePicker
                             name="tanggal_lahir"
                             value={tanggalLahir}
                             onChange={setTanggalLahir}
                             yearLength={60}
+                            isDarkModeAllowed={true}
                           />
+
+                          <i className="ri-calendar-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-400" />
                         </div>
                       </div>
                     </div>
@@ -359,8 +365,8 @@ export default function TambahSiswa() {
 
             {/* DATA Ruang Kelas */}
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
-                <h2 className="text-xl font-bold text-slate-800">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                   Ruang Kelas
                 </h2>
               </div>
@@ -573,7 +579,7 @@ export default function TambahSiswa() {
 
             {/* ACTION */}
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button className="h-12 rounded-xl border border-slate-300 px-6 font-medium text-slate-700 hover:bg-slate-50"
+              <button className="h-12 rounded-xl border border-slate-300 px-6 font-medium text-slate-700 hover:bg-slate-50 dark:text-white"
                 onClick={() => router.push("/akademik/siswa")} >
                 Batal
               </button>

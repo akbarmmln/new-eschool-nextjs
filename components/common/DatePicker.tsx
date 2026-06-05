@@ -12,6 +12,7 @@ type Props = {
     date: Date | null
   ) => void,
   yearLength?: number
+  isDarkModeAllowed?: boolean | false
 }
 
 const CustomInput = React.forwardRef<
@@ -21,7 +22,15 @@ const CustomInput = React.forwardRef<
   <>
     <button
       type="button"
-      className="input-icon"
+      className={`
+      relative w-full h-12 rounded-xl
+      border border-slate-300
+      bg-white text-left
+      ${props.isDarkModeAllowed
+        ? "dark:bg-slate-800 dark:border-slate-700"
+        : ""
+      }
+    `}
       onClick={props.onClick}
       ref={ref} >
 
@@ -29,11 +38,16 @@ const CustomInput = React.forwardRef<
         type="text"
         readOnly
         name={props.name}
-        value={props.value || ''}
-        placeholder={format(new Date(), 'dd MMMM yyyy', { locale: id })}
+        value={props.value || ""}
+        placeholder={format(
+          new Date(),
+          "dd MMMM yyyy",
+          { locale: id }
+        )}
+        className={`flex h-full items-center pl-6 pr-14 text-slate-700 bg-transparent text-slate-700 placeholder:text-slate-400 outline-none
+          ${props.isDarkModeAllowed ? "dark:text-white" : ""}
+        `}
       />
-
-      <i className="ri-calendar-line" />
 
     </button>
   </>
@@ -41,7 +55,7 @@ const CustomInput = React.forwardRef<
 
 CustomInput.displayName = 'CustomInput'
 
-export default function CustomDatePicker({ name, value, onChange, yearLength = 10, }: Props) {
+export default function CustomDatePicker({ name, value, onChange, yearLength = 10, isDarkModeAllowed = false }: Props) {
   const currentYear = new Date().getFullYear()
 
   return (
@@ -56,7 +70,7 @@ export default function CustomDatePicker({ name, value, onChange, yearLength = 1
         onChange={onChange}
         locale={id}
         dateFormat="dd MMMM yyyy"
-        customInput={<CustomInput name={name}/>}
+        customInput={<CustomInput name={name} isDarkModeAllowed={isDarkModeAllowed}/>}
         // portalId="root"
         withPortal
         renderCustomHeader={({
