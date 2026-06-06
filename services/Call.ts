@@ -273,6 +273,15 @@ export async function createKelas(body: any) {
   );
 }
 
+export async function detailKelas(id: any) {
+  return await request(
+    "get",
+    `/api/v1/class-room/detail/${id}`,
+    {},
+    10000
+  );
+}
+
 export async function guruList(page: string, search: string) {
   let url = `/api/v1/teacher/list/${page}`;
   if (!isEmpty(search)) {

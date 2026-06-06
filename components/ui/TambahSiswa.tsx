@@ -8,6 +8,7 @@ import { useSearchEmailWalMur } from "@/hooks/querySiswa";
 import { useAccessContext } from '@/context/AccessContext'
 import { allowPage } from "@/utils/utils";
 import { compressImage, fileToBase64 } from "@/utils/utils";
+import { useDropdownKelas, useSearchKelas } from "@/hooks/queryKelas";
 
 export default function TambahSiswa() {
   const router = useRouter();
@@ -18,7 +19,15 @@ export default function TambahSiswa() {
   const tipe_account = dataAccess?.access?.tipe_account || '';
   const role = dataAccess?.access?.role || '';
   const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
-  
+
+  const {
+    data: dataKelas,
+    isLoading: isLoadingKelas,
+    isFetching: isFetchingKelas
+  } = useDropdownKelas({
+    enabled: true,
+  });
+
   const [fotoSiswa, setFotoSiswa] = useState("");
   const [fotoPreview, setFotoPreview] = useState("");
   const [isCompressing, setIsCompressing] = useState(false);
@@ -42,9 +51,17 @@ export default function TambahSiswa() {
   const [namaIbu, setNamaIbu] = useState('');
   const [emailValid, setEmailValid] = useState('')
 
+  const [kelasIdChoose, setKelasIdChoose] = useState('')
+  const [kelasChoose, setKelasChoose] = useState('')
+  const [wakiKelasChoose, setWakiKelasChoose] = useState('')
+  const [ruangkelasChoose, setRuangkelasChoose] = useState('')
+  const [jumlahsiswaChoose, setJumlahsiswaChoose] = useState('')
+  const [tingkatKelasChoose, setTingkatKelasChoose] = useState('')
+
   const isPencarianFormValid = !isEmpty(emailPencarian);
 
   const isFormValid =
+    !isEmpty(kelasIdChoose) &&
     !isEmpty(nik) &&
     !isEmpty(namaLengkap) &&
     !isEmpty(jenisKelamin) &&
@@ -59,6 +76,7 @@ export default function TambahSiswa() {
     !isEmpty(emailValid);
 
   const searchEmailWalMur = useSearchEmailWalMur();
+  const searchKelas = useSearchKelas();
 
   const handlePencarianWalMur = async () => {
     try {
@@ -135,13 +153,12 @@ export default function TambahSiswa() {
       setIsCompressing(true);
       setCompressProgress(0);
 
-      const compressedFile =
-        await compressImage(
-          file,
-          (progress) => {
-            setCompressProgress(progress);
-          }
-        );
+      const compressedFile = await compressImage(
+        file,
+        (progress) => {
+          setCompressProgress(progress);
+        }
+      );
 
       const base64 = await fileToBase64(compressedFile);
 
@@ -154,6 +171,37 @@ export default function TambahSiswa() {
         setIsCompressing(false);
         setCompressProgress(0);
       }, 500);
+    }
+  };
+
+  const handleChangeKelas = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const kelasChoose = e.target.value;
+    const selected = dataKelas?.find(
+      (item) => item.nama_kelas === kelasChoose
+    );
+    const kelasId = selected?.id || "";
+
+    setKelasChoose(kelasChoose);
+    setKelasIdChoose(kelasId);
+
+    if (!isEmpty(kelasId)) {
+      const data = await searchKelas.mutateAsync({ id: kelasId });
+      if (data) {
+        setWakiKelasChoose(data?.wali_kelas?.nama)
+        setRuangkelasChoose(data?.ruang_kelas?.nama_kelas)
+        setJumlahsiswaChoose(data?.dataSiswa.length)
+        setTingkatKelasChoose(data?.tingkat_kelas?.nama)
+      } else {
+        setWakiKelasChoose("")
+        setRuangkelasChoose("")
+        setJumlahsiswaChoose("")
+        setTingkatKelasChoose("")
+      }
+    } else {
+      setWakiKelasChoose("")
+      setRuangkelasChoose("")
+      setJumlahsiswaChoose("")
+      setTingkatKelasChoose("")
     }
   };
 
@@ -182,6 +230,135 @@ export default function TambahSiswa() {
 
         <div className="min-h-screen bg-slate-50 md-6 dark:border-slate-800 dark:bg-slate-900">
           <div className="mx-auto max-w-7xl space-y-6">
+
+            {/* DATA Ruang Kelas */}
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                  Informasi Kelas
+                </h2>
+              </div>
+              
+              <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {/* PILIH KELAS */}
+                    <div>
+                      <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Pilih Kelas
+                      </label>
+
+                      {isLoadingKelas || isFetchingKelas ? (
+                        <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+                      ) : (
+                        <>
+                          <div className="relative">
+                            <select 
+                              value={kelasChoose}
+                              onChange={handleChangeKelas}
+                              className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-5 pr-12 text-base text-slate-700 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white appearance-none">
+                              <option value="">
+                                Pilih kelas siswa...
+                              </option>
+
+                              {
+                                dataKelas?.map((item) => (
+                                  <option key={item.id} value={item.nama_kelas} >
+                                    {item.nama_kelas}
+                                  </option>
+                                ))
+                              }
+                            </select>
+
+                            <i className="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-500" />
+                          </div>
+                        </>
+                      )}
+
+                      <p className="mt-3 text-sm italic text-slate-500 dark:text-slate-400">
+                        Pilih kelas untuk melihat detail informasi kelas.
+                      </p>
+                      <p className="mt-3 text-sm italic text-slate-500 dark:text-slate-400">
+                        Pastikan kelas yang dipilih sesuai dengan siswa yang bersangkutan. Perubahan informasi kelas dapat dilakukan di menu perubahan data siswa
+                      </p>
+                    </div>
+
+                    {/* DETAIL KELAS */}
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
+                      <h3 className="mb-5 text-lg font-bold text-slate-500 dark:text-white">
+                        DETAIL KELAS
+                      </h3>
+
+                      <div className="grid grid-cols-2 gap-y-5">
+                        <div>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Wali Kelas
+                          </p>
+
+                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
+                            {searchKelas.isPending ? (
+                              <>Menunggu data...</>
+                            ) : (
+                              <>
+                                {wakiKelasChoose || '-'}
+                              </>
+                            )}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Jumlah Siswa
+                          </p>
+
+                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
+                            {searchKelas.isPending ? (
+                              <>Menunggu data...</>
+                            ) : (
+                              <>
+                                {jumlahsiswaChoose || 0} Siswa
+                              </>
+                            )}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Ruang
+                          </p>
+
+                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
+                            {searchKelas.isPending ? (
+                              <>Menunggu data...</>
+                            ) : (
+                              <>
+                                {ruangkelasChoose || '-'}
+                              </>
+                            )}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Tinhkat Kelas
+                          </p>
+
+                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
+                            {searchKelas.isPending ? (
+                              <>Menunggu data...</>
+                            ) : (
+                              <>
+                                {tingkatKelasChoose || '-'}
+                              </>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* DATA PRIBADI SISWA */}
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
@@ -363,214 +540,191 @@ export default function TambahSiswa() {
               </div>
             </div>
 
-            {/* DATA Ruang Kelas */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
-                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                  Ruang Kelas
-                </h2>
-              </div>
-
-              <div className="p-6">
-                  <div className="space-y-6">
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                        -
-                      </label>
-
-                      <input
-                        type="text"
-                        placeholder="Masukkan 16 digit NIK"
-                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-              </div>
-            </div>
-
             {/* ALAMAT + ORANG TUA */}
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
-                  <h2 className="text-xl font-bold text-slate-800">
+                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                     Alamat Domisili
                   </h2>
                 </div>
+                <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
+                  <div className="space-y-6">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                        Alamat/Nama Jalan
+                      </label>
 
-                <div className="space-y-6 p-6">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700">
-                      Alamat/Nama Jalan
-                    </label>
+                      <input
+                        type="text"
+                        value={alamatLengkap}
+                        onChange={(e) => setAlamatLengkap(e.target.value)}
+                        placeholder="Jl. Contoh No. 123"
+                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                      />
+                    </div>
 
-                    <input
-                      type="text"
-                      value={alamatLengkap}
-                      onChange={(e) => setAlamatLengkap(e.target.value)}
-                      placeholder="Jl. Contoh No. 123"
-                      className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-blue-500"
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          RT
+                        </label>
+
+                        <input
+                          type="text"
+                          value={noRT}
+                          onChange={(e) => setNoRT(e.target.value)}
+                          placeholder="000"
+                          className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          RW
+                        </label>
+
+                        <input
+                          type="text"
+                          value={noRW}
+                          onChange={(e) => setNoRW(e.target.value)}
+                          placeholder="000"
+                          className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          Kelurahan
+                        </label>
+
+                        <input
+                          type="text"
+                          value={kelurahan}
+                          onChange={(e) => setKelurahan(e.target.value)}
+                          placeholder="Nama Kelurahan"
+                          className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          Kecamatan
+                        </label>
+
+                        <input
+                          type="text"
+                          value={kecamatan}
+                          onChange={(e) => setKecamatan(e.target.value)}
+                          placeholder="Nama Kecamatan"
+                          className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                        />
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                        RT
-                      </label>
-
-                      <input
-                        type="text"
-                        value={noRT}
-                        onChange={(e) => setNoRT(e.target.value)}
-                        placeholder="000"
-                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                        RW
-                      </label>
-
-                      <input
-                        type="text"
-                        value={noRW}
-                        onChange={(e) => setNoRW(e.target.value)}
-                        placeholder="000"
-                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                        Kelurahan
-                      </label>
-
-                      <input
-                        type="text"
-                        value={kelurahan}
-                        onChange={(e) => setKelurahan(e.target.value)}
-                        placeholder="Nama Kelurahan"
-                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-blue-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                        Kecamatan
-                      </label>
-
-                      <input
-                        type="text"
-                        value={kecamatan}
-                        onChange={(e) => setKecamatan(e.target.value)}
-                        placeholder="Nama Kecamatan"
-                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
 
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4">
-                  <h2 className="text-xl font-bold text-slate-800">
+                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                     Data Orang Tua
                   </h2>
                 </div>
+                
+                <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
+                  <div className="space-y-6">
+                    <label className="mb-2 block text-sm font-semibold text-slate-70 dark:text-white">
+                      Email Aktif
+                    </label>
 
-                <div className="space-y-6 p-6">
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    Email Aktif
-                  </label>
+                    <div className="flex gap-3">
+                      <div className="relative flex-1">
+                        <i className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
 
-                  <div className="flex gap-3">
-                    <div className="relative flex-1">
-                      <i className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                          type="email"
+                          value={emailPencarian}
+                          onChange={(e) => setEmailPencarian(e.target.value)}
+                          placeholder="example@mail.com"
+                          className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500 outline-none transition text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                        />
+                      </div>
 
-                      <input
-                        type="email"
-                        value={emailPencarian}
-                        onChange={(e) => setEmailPencarian(e.target.value)}
-                        placeholder="example@mail.com"
-                        className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500"
-                      />
-                    </div>
-
-                    <button
-                      disabled={!isPencarianFormValid || searchEmailWalMur.isPending}
-                      className={`h-12 rounded-xl bg-blue-600 px-6 text-white hover:bg-blue-700 disabled:opacity-50
+                      <button
+                        disabled={!isPencarianFormValid || searchEmailWalMur.isPending}
+                        className={`h-12 rounded-xl bg-blue-600 px-6 text-white hover:bg-blue-700 disabled:opacity-50
                         ${!isPencarianFormValid || searchEmailWalMur.isPending
-                          ? "cursor-not-allowed bg-slate-400 shadow-none"
-                          : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
-                        }`}
-                      onClick={handlePencarianWalMur}
-                      type="button">
+                            ? "cursor-not-allowed bg-slate-400 shadow-none"
+                            : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                          }`}
+                        onClick={handlePencarianWalMur}
+                        type="button">
 
-                      {searchEmailWalMur.isPending
-                        ? "Mencari..."
-                        : "Cari"}
-                    </button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                        Nama Ayah
-                      </label>
-
-                      <div className="relative">
-                        <i className="ti ti-man absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-
-                        <input
-                          type="text"
-                          placeholder="Nama Lengkap Ayah"
-                          readOnly={isWalMurFound}
-                          value={namaAyah}
-                          onChange={(e) => setNamaAyah(e.target.value)}
-                          className={`h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500
-                            ${
-                            isWalMurFound
-                              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
-                              : "border-slate-300 focus:border-blue-500"
-                            }`}
-                        />
-                      </div>
+                        {searchEmailWalMur.isPending
+                          ? "Mencari..."
+                          : "Cari"}
+                      </button>
                     </div>
 
-                    <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-700">
-                       Nama Ibu
-                      </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          Nama Ayah
+                        </label>
 
-                      <div className="relative">
-                        <i className="ti ti-woman absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <div className="relative">
+                          <i className="ti ti-man absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
 
-                        <input
-                          type="text"
-                          placeholder="Nama Lengkap Ibu"
-                          readOnly={isWalMurFound}
-                          value={namaIbu}
-                          onChange={(e) => setNamaIbu(e.target.value)}
-                          className={`h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500
-                            ${
-                            isWalMurFound
-                              ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
-                              : "border-slate-300 focus:border-blue-500"
-                            }`}
-                        />
+                          <input
+                            type="text"
+                            placeholder="Nama Lengkap Ayah"
+                            readOnly={isWalMurFound}
+                            value={namaAyah}
+                            onChange={(e) => setNamaAyah(e.target.value)}
+                            className={`h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500 outline-none transition text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400
+                            ${isWalMurFound
+                                ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
+                                : "border-slate-300 focus:border-blue-500"
+                              }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          Nama Ibu
+                        </label>
+
+                        <div className="relative">
+                          <i className="ti ti-woman absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+                          <input
+                            type="text"
+                            placeholder="Nama Lengkap Ibu"
+                            readOnly={isWalMurFound}
+                            value={namaIbu}
+                            onChange={(e) => setNamaIbu(e.target.value)}
+                            className={`h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500 outline-none transition text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400
+                            ${isWalMurFound
+                                ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
+                                : "border-slate-300 focus:border-blue-500"
+                              }`}
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <i className="ri-information-line text-lg text-emerald-600" />
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                      <div className="flex items-start gap-3">
+                        <i className="ri-information-line text-lg text-emerald-600" />
 
-                      <p className="text-sm text-emerald-700">
-                        Pastikan alamat email yang dimasukkan masih aktif karena akan digunakan untuk proses login ke sistem aplikasi
-                      </p>
+                        <p className="text-sm text-emerald-700">
+                          Pastikan alamat email yang dimasukkan masih aktif karena akan digunakan untuk proses login ke sistem aplikasi
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>

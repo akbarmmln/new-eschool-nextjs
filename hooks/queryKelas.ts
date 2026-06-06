@@ -4,7 +4,8 @@ import {
   kelasList,
   updateKelas,
   deleteKelas,
-  createKelas
+  createKelas,
+  detailKelas
 } from '@/services/Call'
 
 // DROPDOWN KELAS \\
@@ -19,7 +20,9 @@ const fetchListAllKelas =
     }
     return hasil.data.data
   }
-export function useDropdownKelas() {
+export function useDropdownKelas(
+  options?: Partial<UseQueryOptions<listDropDownKelas>>
+) {
   return useQuery<listDropDownKelas>({
     queryKey: ['dropdown-kelas'],
     queryFn: fetchListAllKelas,
@@ -28,6 +31,7 @@ export function useDropdownKelas() {
     retry: 1,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
+    ...options,
   })
 }
 
@@ -88,3 +92,23 @@ export const useDelete = () => {
     },
   });
 };
+
+// SEARCH DAN DETAIL KELAS \\
+export function useSearchKelas() {
+  return useMutation({
+    mutationFn: async (
+      payload: {
+        id: string;
+      }
+    ) => {
+      const hasil: any =
+        await detailKelas(payload.id);
+
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      return hasil.data.data;
+    },
+  });
+}
