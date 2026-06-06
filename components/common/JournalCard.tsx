@@ -1,12 +1,11 @@
 import { format } from 'date-fns'
 import Link from "next/link"
 import {id} from 'date-fns/locale'
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 type Props = {
   item: any
 }
-
 
 export default function JournalCard({ item } : Props) {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -48,7 +47,6 @@ export default function JournalCard({ item } : Props) {
 
     // jika HTML dari editor
     if (value.includes('<')) {
-
       return (
         <div
           dangerouslySetInnerHTML={{
@@ -174,6 +172,22 @@ export default function JournalCard({ item } : Props) {
 
       <style jsx>
         {`
+          .journal-text :global(ol) {
+            list-style: decimal;
+            margin-left: 20px;
+            padding-left: 10px;
+          }
+
+          .journal-text :global(ul) {
+            list-style: disc;
+            margin-left: 20px;
+            padding-left: 10px;
+          }
+
+          .journal-text :global(li) {
+            display: list-item;
+          }
+
           .spin {
               display: inline-block;
               animation: spin 1s linear infinite;

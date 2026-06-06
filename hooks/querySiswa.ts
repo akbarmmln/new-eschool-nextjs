@@ -2,7 +2,8 @@ import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
   searchEmailWalMur,
   siswaList,
-  deleteSiswa
+  deleteSiswa,
+  createSiswa
 } from '@/services/Call'
 
 // SEARCH EMAIL WALMUR \\
@@ -52,6 +53,16 @@ export function useListSiswa(page: String, search: any) {
     refetchOnMount: true,
   })
 }
+
+// ADD \\
+export const useCreate = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = createSiswa(payload)
+      return results;
+    },
+  });
+};
 
 // DELETE \\
 export const useDelete = () => {

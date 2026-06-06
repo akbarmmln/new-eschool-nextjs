@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from "react";
 import { useListAllKelas, useCreate, useUpdate, useDelete } from "@/hooks/queryKelas";
 import { useDropdownTingkatKelas } from "@/hooks/QueryTingkatKelas";
@@ -14,6 +15,7 @@ import { allowPage } from "@/utils/utils";
 export default function Kelas() {
   const allow_tipe = ['DS1'];
   const allow_role = ['0', '1'];
+  const queryClient = useQueryClient();
 
   const dataAccess = useAccessContext()
   const tipe_account = dataAccess?.access?.tipe_account || '';
@@ -143,7 +145,9 @@ export default function Kelas() {
 
       handleCloseModalEdit();
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: ['all-kelas'],
+      });
     } catch (e: any) {
       await showAlert(
         "error",
@@ -185,7 +189,9 @@ export default function Kelas() {
 
       handleCloseModalDelete();
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: ['all-kelas'],
+      });
     } catch (e: any) {
       await showAlert(
         "error",
@@ -247,7 +253,9 @@ export default function Kelas() {
 
       handleCloseModalAdd();
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: ['all-kelas'],
+      });
     } catch (e: any) {
       await showAlert(
         "error",

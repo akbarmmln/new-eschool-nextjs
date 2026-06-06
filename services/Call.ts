@@ -352,3 +352,12 @@ export async function searchEmailWalMur(body: any) {
     10000
   );
 }
+
+export async function createSiswa(body: any) {
+  return await request(
+    "post",
+    `/api/v1/siswa/create`,
+    body,
+    10000
+  );
+}

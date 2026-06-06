@@ -27,7 +27,7 @@ export default function TingkatKelas() {
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setSearch] = useState("");
   const [keyword, setKeyword] = useState("");
-  const { data, isLoading, error, isFetching, refetch } = useListAllTingkatKelas(currentPage.toString(), keyword);
+  const { data, isLoading, error, isFetching, invalidate } = useListAllTingkatKelas(currentPage.toString(), keyword);
 
   const [id, setId] = useState('')
   const [nama, setNama] = useState('')
@@ -81,7 +81,7 @@ export default function TingkatKelas() {
 
       handleCloseModalAdd();
 
-      await refetch();
+      await invalidate();
     } catch (e: any) {
       await showAlert(
         "error",
@@ -127,7 +127,7 @@ export default function TingkatKelas() {
 
       handleCloseModalEdit();
 
-      await refetch();
+      await invalidate();
     } catch (e: any) {
       await showAlert(
         "error",
@@ -169,7 +169,7 @@ export default function TingkatKelas() {
 
       handleCloseModalDelete();
 
-      await refetch();
+      await invalidate();
     } catch (e: any) {
       await showAlert(
         "error",

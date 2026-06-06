@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
+import { useQuery, UseQueryOptions, useQueryClient, useMutation } from '@tanstack/react-query'
 import {
   tingkatanKelasList,
   updateTingkatKelas,
@@ -51,7 +51,8 @@ const fetcListTingkatanKelas =
     return hasil.data.data
   }
 export function useListAllTingkatKelas(page: String, search: any) {
-  return useQuery<ListAllTingkatKelasResponse>({
+  const queryClient = useQueryClient();
+  const query = useQuery<ListAllTingkatKelasResponse>({
     queryKey: ['all-tingkat-kelas', page, search],
     queryFn: fetcListTingkatanKelas,
     staleTime: 1000 * 60 * 1,
@@ -59,7 +60,18 @@ export function useListAllTingkatKelas(page: String, search: any) {
     retry: 1,
     refetchOnWindowFocus: false,
     refetchOnMount: true,
-  })
+  });
+
+  const invalidate = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ['all-tingkat-kelas'],
+    });
+  };
+
+  return {
+    ...query,
+    invalidate,
+  };
 }
 
 // ADD \\

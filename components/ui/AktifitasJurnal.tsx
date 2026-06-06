@@ -736,6 +736,7 @@ export default function AktifitasJurnal({ id }: Props) {
               }
               title="Materi"
               value={data?.jurnal?.materi || "-"}
+              isHtml={true}
             />
 
             <DetailItem
@@ -758,6 +759,7 @@ export default function AktifitasJurnal({ id }: Props) {
               }
               title="Refleksi"
               value={data?.jurnal?.refleksi || "-"}
+              isHtml={true}
             />
 
             <DetailItem
@@ -1718,7 +1720,7 @@ function AbsensiTableSkeleton() {
   );
 }
 
-type DetailItemProps = { icon: React.ReactNode; title: string; value: string };
+type DetailItemProps = { icon: React.ReactNode; title: string; value: string, isHtml?: boolean; };
 
 function DetailSkeleton() {
   return (
@@ -1734,7 +1736,7 @@ function DetailSkeleton() {
   );
 }
 
-function DetailItem({ icon, title, value }: DetailItemProps) {
+function DetailItem({ icon, title, value, isHtml = false }: DetailItemProps) {
   return (
     <div className="flex items-center gap-4 rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/50">
       <div className="flex h-15 w-15 shrink-0 items-center justify-center rounded-xl bg-blue-100 text-blue-500">
@@ -1746,13 +1748,38 @@ function DetailItem({ icon, title, value }: DetailItemProps) {
           {title}
         </h3>
 
-        <div
-          className="prose prose-sm mt-1 max-w-none text-slate-500 dark:prose-invert dark:text-slate-400"
-          dangerouslySetInnerHTML={{
-            __html: value || "-",
-          }}
-        />
+        {isHtml ? (
+          <div
+            className="journal-text prose prose-sm mt-1 max-w-none text-slate-500 dark:prose-invert dark:text-slate-400"
+            dangerouslySetInnerHTML={{
+              __html: value || "-",
+            }}
+          />
+        ) : (
+          <p className="mt-1 whitespace-pre-wrap text-slate-500 dark:text-slate-400">
+            {value || "-"}
+          </p>
+        )}
       </div>
+      <style jsx>
+        {`
+          .journal-text :global(ol) {
+            list-style: decimal;
+            margin-left: 20px;
+            padding-left: 10px;
+          }
+
+          .journal-text :global(ul) {
+            list-style: disc;
+            margin-left: 20px;
+            padding-left: 10px;
+          }
+
+          .journal-text :global(li) {
+            display: list-item;
+          }
+      `}
+      </style>
     </div>
   );
 }

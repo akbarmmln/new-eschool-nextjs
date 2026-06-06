@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useQueryClient } from '@tanstack/react-query';
 import { useAccessContext } from '@/context/AccessContext'
 import Link from "next/link";
 import Tooltip from "@/components/form/Tooltip";
@@ -12,6 +13,7 @@ import { useListSiswa, useDelete } from "@/hooks/querySiswa";
 export default function Kelas() {
   const allow_tipe = ['DS1'];
   const allow_role = ['0', '1'];
+  const queryClient = useQueryClient();
 
   const dataAccess = useAccessContext()
   const tipe_account = dataAccess?.access?.tipe_account || '';
@@ -78,7 +80,9 @@ export default function Kelas() {
 
       handleCloseModalDelete();
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: ['all-siswa'],
+      });
     } catch (e: any) {
       await showAlert(
         "error",

@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from "react";
 import { useAccessContext } from '@/context/AccessContext'
 import { allowPage } from "@/utils/utils";
@@ -12,6 +13,7 @@ import { showAlert } from "@/utils/swal";
 export default function Kelas() {
   const allow_tipe = ['DS1'];
   const allow_role = ['0', '1'];
+  const queryClient = useQueryClient();
 
   const dataAccess = useAccessContext()
   const id_account = dataAccess?.access?.id_account || '';
@@ -103,7 +105,9 @@ export default function Kelas() {
 
       handleCloseModalAdd();
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: ['all-guru'],
+      });
     } catch (e: any) {
       await showAlert(
         "error",
@@ -151,7 +155,9 @@ export default function Kelas() {
 
       handleCloseModalEdit();
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: ['all-guru'],
+      });
     } catch (e: any) {
       await showAlert(
         "error",
@@ -193,7 +199,9 @@ export default function Kelas() {
 
       handleCloseModalDelete();
 
-      await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: ['all-guru'],
+      });
     } catch (e: any) {
       await showAlert(
         "error",

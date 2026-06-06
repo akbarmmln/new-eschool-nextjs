@@ -4,17 +4,20 @@ import { useState } from "react";
 import CustomDatePicker from '@/components/common/DatePicker'
 import { useRouter } from "next/navigation";
 import isEmpty from "@/utils/isEmpty";
-import { useSearchEmailWalMur } from "@/hooks/querySiswa";
+import { useSearchEmailWalMur, useCreate } from "@/hooks/querySiswa";
 import { useAccessContext } from '@/context/AccessContext'
 import { allowPage } from "@/utils/utils";
 import { compressImage, fileToBase64 } from "@/utils/utils";
 import { useDropdownKelas, useSearchKelas } from "@/hooks/queryKelas";
 import dayjs from 'dayjs'
+import { showAlert } from "@/utils/swal";
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function TambahSiswa() {
   const router = useRouter();
   const allow_tipe = ['DS1'];
   const allow_role = ['0', '1'];
+  const queryClient = useQueryClient();
 
   const dataAccess = useAccessContext()
   const tipe_account = dataAccess?.access?.tipe_account || '';
@@ -78,6 +81,7 @@ export default function TambahSiswa() {
 
   const searchEmailWalMur = useSearchEmailWalMur();
   const searchKelas = useSearchKelas();
+  const create = useCreate();
 
   const handlePencarianWalMur = async () => {
     try {
@@ -124,9 +128,28 @@ export default function TambahSiswa() {
         image: fotoSiswa,
       }
 
-      console.log('handleSaveCreate', JSON.stringify(payload))
-    } catch (e) {
+      const hasil = await create.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
 
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data siswa baru berhasil ditambahkan"
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: ['all-siswa'],
+      });
+
+      router.push('/akademik/siswa');
+    } catch (e) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal menampahkan data siswa baru`,
+      );
     }
   }
 
@@ -338,7 +361,7 @@ export default function TambahSiswa() {
                       </label>
 
                       <input
-                        type="text"
+                        type="number"
                         value={nik}
                         onChange={(e) => setNik(e.target.value)}
                         placeholder="Masukkan 16 digit NIK"
