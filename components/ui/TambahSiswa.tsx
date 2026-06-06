@@ -9,6 +9,7 @@ import { useAccessContext } from '@/context/AccessContext'
 import { allowPage } from "@/utils/utils";
 import { compressImage, fileToBase64 } from "@/utils/utils";
 import { useDropdownKelas, useSearchKelas } from "@/hooks/queryKelas";
+import dayjs from 'dayjs'
 
 export default function TambahSiswa() {
   const router = useRouter();
@@ -108,13 +109,13 @@ export default function TambahSiswa() {
         nik: nik,
         nama_lengkap: namaLengkap,
         jenis_kelamin: jenisKelamin,
-        tanggal_lahir: tanggalLahir,
+        tanggal_lahir: dayjs(tanggalLahir).format('YYYY-MM-DD'),
         alamat: alamatLengkap,
         no_rt: noRT,
         no_rw: noRW,
         kelurahan: kelurahan,
         kecamatan: kecamatan,
-        id_kelas: '',
+        id_kelas: kelasIdChoose,
         nama_ayah: namaAyah,
         nama_ibu: namaIbu,
         email_aktif: emailValid,
@@ -230,136 +231,6 @@ export default function TambahSiswa() {
 
         <div className="min-h-screen bg-slate-50 md-6 dark:border-slate-800 dark:bg-slate-900">
           <div className="mx-auto max-w-7xl space-y-6">
-
-            {/* DATA Ruang Kelas */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
-                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                  Informasi Kelas
-                </h2>
-              </div>
-              
-              <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    {/* PILIH KELAS */}
-                    <div>
-                      <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Pilih Kelas
-                      </label>
-
-                      {isLoadingKelas || isFetchingKelas ? (
-                        <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
-                      ) : (
-                        <>
-                          <div className="relative">
-                            <select 
-                              value={kelasChoose}
-                              onChange={handleChangeKelas}
-                              className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-5 pr-12 text-base text-slate-700 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white appearance-none">
-                              <option value="">
-                                Pilih kelas siswa...
-                              </option>
-
-                              {
-                                dataKelas?.map((item) => (
-                                  <option key={item.id} value={item.nama_kelas} >
-                                    {item.nama_kelas}
-                                  </option>
-                                ))
-                              }
-                            </select>
-
-                            <i className="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-500" />
-                          </div>
-                        </>
-                      )}
-
-                      <p className="mt-3 text-sm italic text-slate-500 dark:text-slate-400">
-                        Pilih kelas untuk melihat detail informasi kelas.
-                      </p>
-                      <p className="mt-3 text-sm italic text-slate-500 dark:text-slate-400">
-                        Pastikan kelas yang dipilih sesuai dengan siswa yang bersangkutan. Perubahan informasi kelas dapat dilakukan di menu perubahan data siswa
-                      </p>
-                    </div>
-
-                    {/* DETAIL KELAS */}
-                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
-                      <h3 className="mb-5 text-lg font-bold text-slate-500 dark:text-white">
-                        DETAIL KELAS
-                      </h3>
-
-                      <div className="grid grid-cols-2 gap-y-5">
-                        <div>
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Wali Kelas
-                          </p>
-
-                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
-                            {searchKelas.isPending ? (
-                              <>Menunggu data...</>
-                            ) : (
-                              <>
-                                {wakiKelasChoose || '-'}
-                              </>
-                            )}
-                          </p>
-                        </div>
-
-                        <div className="text-right">
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Jumlah Siswa
-                          </p>
-
-                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
-                            {searchKelas.isPending ? (
-                              <>Menunggu data...</>
-                            ) : (
-                              <>
-                                {jumlahsiswaChoose || 0} Siswa
-                              </>
-                            )}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Ruang
-                          </p>
-
-                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
-                            {searchKelas.isPending ? (
-                              <>Menunggu data...</>
-                            ) : (
-                              <>
-                                {ruangkelasChoose || '-'}
-                              </>
-                            )}
-                          </p>
-                        </div>
-
-                        <div className="text-right">
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Tinhkat Kelas
-                          </p>
-
-                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
-                            {searchKelas.isPending ? (
-                              <>Menunggu data...</>
-                            ) : (
-                              <>
-                                {tingkatKelasChoose || '-'}
-                              </>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* DATA PRIBADI SISWA */}
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
@@ -532,6 +403,135 @@ export default function TambahSiswa() {
                           />
 
                           <i className="ri-calendar-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-400" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* DATA Ruang Kelas */}
+            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                  Informasi Kelas
+                </h2>
+              </div>
+              
+              <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {/* PILIH KELAS */}
+                    <div>
+                      <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Pilih Kelas
+                      </label>
+
+                      {isLoadingKelas || isFetchingKelas ? (
+                        <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+                      ) : (
+                        <>
+                          <div className="relative">
+                            <select 
+                              value={kelasChoose}
+                              onChange={handleChangeKelas}
+                              className="h-14 w-full rounded-2xl border border-slate-300 bg-white px-5 pr-12 text-base text-slate-700 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white appearance-none">
+                              <option value="">
+                                Pilih kelas siswa...
+                              </option>
+
+                              {
+                                dataKelas?.map((item) => (
+                                  <option key={item.id} value={item.nama_kelas} >
+                                    {item.nama_kelas}
+                                  </option>
+                                ))
+                              }
+                            </select>
+
+                            <i className="ri-arrow-down-s-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-500" />
+                          </div>
+                        </>
+                      )}
+
+                      <p className="mt-3 text-sm italic text-slate-500 dark:text-slate-400">
+                        Pilih kelas untuk melihat detail informasi kelas.
+                      </p>
+                      <p className="mt-3 text-sm italic text-slate-500 dark:text-slate-400">
+                        Pastikan kelas yang dipilih sesuai dengan siswa yang bersangkutan. Perubahan informasi kelas dapat dilakukan di menu perubahan data siswa
+                      </p>
+                    </div>
+
+                    {/* DETAIL KELAS */}
+                    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-800">
+                      <h3 className="mb-5 text-lg font-bold text-slate-500 dark:text-white">
+                        DETAIL KELAS
+                      </h3>
+
+                      <div className="grid grid-cols-2 gap-y-5">
+                        <div>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Wali Kelas
+                          </p>
+
+                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
+                            {searchKelas.isPending ? (
+                              <>Menunggu data...</>
+                            ) : (
+                              <>
+                                {wakiKelasChoose || '-'}
+                              </>
+                            )}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Jumlah Siswa
+                          </p>
+
+                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
+                            {searchKelas.isPending ? (
+                              <>Menunggu data...</>
+                            ) : (
+                              <>
+                                {jumlahsiswaChoose || 0} Siswa
+                              </>
+                            )}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Ruang
+                          </p>
+
+                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
+                            {searchKelas.isPending ? (
+                              <>Menunggu data...</>
+                            ) : (
+                              <>
+                                {ruangkelasChoose || '-'}
+                              </>
+                            )}
+                          </p>
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
+                            Tinhkat Kelas
+                          </p>
+
+                          <p className="mt-1 text-base font-semibold text-slate-800 dark:text-white">
+                            {searchKelas.isPending ? (
+                              <>Menunggu data...</>
+                            ) : (
+                              <>
+                                {tingkatKelasChoose || '-'}
+                              </>
+                            )}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -740,9 +740,9 @@ export default function TambahSiswa() {
 
               <button 
                 onClick={handleSaveCreate}
-                disabled={!isFormValid || isCompressing}
+                disabled={!isFormValid || isCompressing || searchKelas.isPending}
                 className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${!isFormValid || isCompressing
+                  ${!isFormValid || isCompressing || searchKelas.isPending
                     ? "cursor-not-allowed bg-slate-400 shadow-none"
                     : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                   }`}>
