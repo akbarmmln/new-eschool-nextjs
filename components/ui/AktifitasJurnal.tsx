@@ -483,51 +483,48 @@ export default function AktifitasJurnal({ id }: Props) {
     // proses async satu per satu
     files.forEach(async (rawFile, index) => {
       const tempId = tempAttachments[index].id;
-      let fakeProgress = 0;
 
-      const interval = setInterval(() => {
-        fakeProgress = Math.min(
-          fakeProgress + 10,
-          95
-        );
-        setAttachments((prev) =>
-          prev.map((item) => {
-            if (item.id === tempId) {
-              return {
-                ...item,
-                progress: fakeProgress,
-              };
-            }
-            return item;
-          })
-        );
-
-      }, 150);
-
-      const compressedFile = await compressImage(rawFile);
-
-      clearInterval(interval);
-
-      const preview = URL.createObjectURL(compressedFile);
-
-      // selesai
-      setAttachments((prev) =>
-        prev.map((item) => {
-          if (item.id === tempId) {
-            return {
-              ...item,
-              file: compressedFile,
-              preview,
-              loading: false,
-              progress: 100,
-            };
+      try {
+        const compressedFile = await compressImage(
+          rawFile,
+          (progress) => {
+            setAttachments((prev) =>
+              prev.map((item) =>
+                item.id === tempId
+                  ? {
+                    ...item,
+                    progress,
+                  }
+                  : item
+              )
+            );
           }
+        );
 
-          return item;
-        })
-      );
-    }
-    );
+        const preview = URL.createObjectURL(compressedFile);
+
+        setAttachments((prev) =>
+          prev.map((item) =>
+            item.id === tempId
+              ? {
+                ...item,
+                file: compressedFile,
+                preview,
+                loading: false,
+                progress: 100,
+              }
+              : item
+          )
+        );
+      } catch (error) {
+        console.log('sistem error - compressing file upload: ', error)
+        setAttachments((prev) =>
+          prev.filter(
+            (item) => item.id !== tempId
+          )
+        );
+      }
+    });
     e.target.value = "";
   };
 
@@ -607,8 +604,6 @@ export default function AktifitasJurnal({ id }: Props) {
       // const sizeInMB = sizeInBytes / 1024 / 1024;
 
       // console.log(sizeInMB.toFixed(2),"MB");
-
-      // console.log('asdasdsaasd', payload);
 
       const hasil = await submitNilai.mutateAsync(payload);
       if (!hasil.ok) {
