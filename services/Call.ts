@@ -361,3 +361,13 @@ export async function createSiswa(body: any) {
     10000
   );
 }
+
+export async function roleList(page: string) {
+  let url = `/api/v1/auth/role/list/${page}`;
+  return await request(
+    "get",
+    url,
+    {},
+    10000
+  );
+}
