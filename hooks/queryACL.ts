@@ -1,7 +1,26 @@
 import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
-	roleList
+	roleList,
+	roleDropdown,
+	updateAccess
 } from '@/services/Call'
+
+// DROPDOWN ROLE \\
+export function useDropdownRole() {
+  return useMutation({
+	mutationFn: async (
+	) => {
+	  const hasil: any =
+		await roleDropdown();
+
+	  if (!hasil.ok) {
+		throw hasil;
+	  }
+
+	  return hasil.data.data;
+	},
+  });
+}
 
 // LIST ALL ROLE ACL \\
 type ListAllRoleAclResponse = {
@@ -30,3 +49,13 @@ export function useListRoleAcl(page: String) {
 		refetchOnMount: true,
 	})
 }
+
+// UPDATE \\
+export const useUpdate = () => {
+  return useMutation({
+	mutationFn: async (payload: any) => {
+	  const results = updateAccess(payload)
+	  return results;
+	},
+  });
+};

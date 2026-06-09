@@ -3,14 +3,31 @@
 import { useAccessContext } from '@/context/AccessContext'
 import { allowPage } from "@/utils/utils";
 import { useState, useEffect } from "react";
-import { useListRoleAcl } from "@/hooks/queryACL";
+import { useListRoleAcl, useUpdate } from "@/hooks/queryACL";
 import Tooltip from "@/components/form/Tooltip";
+import { useDropdownRole } from "@/hooks/queryACL";
+import isEmpty from "@/utils/isEmpty";
+import { showAlert } from "@/utils/swal";
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function RoleAkses() {
   const allow_tipe = ['DS1'];
   const allow_role = ['0'];
+  const queryClient = useQueryClient();
+
+  const [selectedId, setSelectedId] = useState('');
+  const [selectedAccountId, setSelectedAccountId] = useState('');
+  const [niy, setNiy] = useState('');
+  const [nama, setNama] = useState('');
+  const [roleNow, setRoleNow] = useState('');
+  const [roleNew, setRoleNew] = useState('');
+
+  const [fillDropdownRole, setFillDropdownRole] = useState<any[]>([]);
+
+  const [openModalEdit, setOpenModalEdit] = useState(false);
 
   const dataAccess = useAccessContext()
+  const id_account = dataAccess?.access?.id_account || '';
   const tipe_account = dataAccess?.access?.tipe_account || '';
   const role = dataAccess?.access?.role || '';
   const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
@@ -18,6 +35,97 @@ export default function RoleAkses() {
   const [currentPage, setCurrentPage] = useState(1)
 
   const { data, isLoading, error, isFetching } = useListRoleAcl(currentPage.toString());
+  
+  const isEditFormValid = 
+    !isEmpty(selectedId) &&
+    !isEmpty(niy) &&
+    !isEmpty(nama) &&
+    !isEmpty(roleNow) &&
+    !isEmpty(roleNew);
+
+  const dropDown = useDropdownRole();
+  const update = useUpdate();
+  const handleOpenModalEdit = async (id: string, niy: string, nama: string, roleNow: string, accountId: string) => {
+    setOpenModalEdit(true);
+
+    const data = await dropDown.mutateAsync();
+
+    let tempRoleNow;
+    if (roleNow == '0') {
+      tempRoleNow = 'Admin'
+    } else if (roleNow == '1') {
+      tempRoleNow = 'User'
+    } else {
+      tempRoleNow = ''
+    }
+
+    setSelectedId(id);
+    setSelectedAccountId(accountId);
+    setNiy(niy);
+    setNama(nama);
+    setRoleNow(tempRoleNow);
+    setFillDropdownRole(data);
+  }
+  const handleCloseModalEdit = () => {
+    setSelectedId('');
+    setNiy('');
+    setNama('');
+    setRoleNow('');
+    setRoleNew('')
+    setFillDropdownRole([])
+
+    setOpenModalEdit(false);
+  }
+  const handleSaveUpdate = async () => {
+    try {
+      const selected = fillDropdownRole.find(
+        (item) => item.nama === roleNew
+      );
+
+      const payload = {
+        niy: niy,
+        role_code: selected?.code
+      }
+
+      const hasil = await update.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Role akses berhasil diperbaharui"
+      );
+
+      handleCloseModalEdit();
+
+      await queryClient.invalidateQueries({
+        queryKey: ['all-role-acl'],
+      });
+
+      console.log('asdasdasasd', id_account, selectedAccountId)
+      if (id_account === selectedAccountId) {
+        await showAlert(
+          "warning",
+          "Sesi Berakhir",
+          "Terlah terjadi perubahan role akses pada data Anda. Demi keamanan, Anda akan ter-logout otomatis. Login kembali untuk melanjutkan."
+        );
+        sessionStorage.removeItem("access-token");
+        localStorage.clear();
+
+        window.location.replace("/akademik/login");
+
+        return;
+      }
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui role akses: ${e.err_msg}`,
+      );
+    }
+  }
 
   function getPaginationItems(current: number, total: number) {
     const items: (number | string)[] = []
@@ -227,7 +335,7 @@ export default function RoleAkses() {
                           <div className="flex items-center justify-center gap-4">
                             <Tooltip text={`Ubah Akses ${item.adr_teacher.nama}`}>
                               <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
-                                >
+                                onClick={() => handleOpenModalEdit(item.id, item.adr_teacher.niy, item.adr_teacher.nama, item.role, item.adr_teacher.id)}>
                                 <i className="ri-lock-unlock-line"></i>
                               </button>
                             </Tooltip>
@@ -278,6 +386,124 @@ export default function RoleAkses() {
           )}
         </div>
       </div>
+
+      {openModalEdit && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+                <h2 className="text-2xl font-bold tracking-tight text-white">
+                  Ubah Role Akses
+                </h2>
+
+                <button
+                  onClick={handleCloseModalEdit}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                  <i
+                    className="ri-close-line"
+                    style={{ fontSize: 30 }}
+                  />
+                </button>
+              </div>
+
+              <div className="space-y-6 p-6">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    NIY
+                  </label>
+
+                  <input
+                    type="text"
+                    value={niy}
+                    disabled
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Nama
+                  </label>
+
+                  <input
+                    type="text"
+                    value={nama}
+                    disabled
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Role Akses Saat ini
+                  </label>
+
+                  <input
+                    type="text"
+                    value={roleNow}
+                    disabled
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>
+                    Role Akses Baru
+                  </label>
+                  <div className="input-icon mt-2">
+                    {dropDown.isPending ? (
+                      <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+                    ) : (
+                    <>
+                      <select value={roleNew || ''}
+                        onChange={(e) =>
+                          setRoleNew(e.target.value)
+                        } >
+                        <option value="">
+                          Pilih
+                        </option>
+
+                        {
+                          fillDropdownRole?.map((item) => (
+                            <option key={item.id} value={item.nama} >
+                              {item.nama}
+                            </option>
+                          ))
+                        }
+                      </select>
+                      <i className="ri-arrow-down-s-line" />
+                    </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+            <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
+              <button
+                onClick={() => handleCloseModalEdit()}
+                className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                Batalkan
+              </button>
+
+              <button
+                disabled={!isEditFormValid || update.isPending}
+                className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                  ${!isEditFormValid || update.isPending
+                    ? "cursor-not-allowed bg-slate-400 shadow-none"
+                    : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                  }`}
+                onClick={() => handleSaveUpdate()}>
+
+                {update.isPending
+                  ? "Menyimpan..."
+                  : "Simpan Data"}
+              </button>
+            </div>
+
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }

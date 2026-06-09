@@ -371,3 +371,21 @@ export async function roleList(page: string) {
     10000
   );
 }
+
+export async function roleDropdown() {
+  return await request(
+    "get",
+    '/api/v1/auth/role/acl/list',
+    {},
+    10000
+  );
+}
+
+export async function updateAccess(body: any) {
+  return await request(
+    "post",
+    '/api/v1/auth/role/acl/update',
+    body,
+    10000
+  );
+}
