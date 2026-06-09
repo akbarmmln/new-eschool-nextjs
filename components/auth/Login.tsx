@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import Swal from 'sweetalert2'
 import { useRouter } from "next/navigation";
 import {
@@ -181,9 +182,9 @@ export default function Login() {
 
             {/* FORGOT PASSWORD */}
             <div className="mt-3">
-              <a href="#" className="forgot-password" >
+              <Link href="/akademik/lupa-password" className="forgot-password" >
                 Lupa Password ?
-              </a>
+              </Link>
             </div>
           </div>
         </div>

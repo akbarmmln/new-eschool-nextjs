@@ -58,10 +58,6 @@ export default function RoleAkses() {
   const dropDown = useDropdownRole();
   const update = useUpdate();
   const handleOpenModalEdit = async (id: string, niy: string, nama: string, roleNow: string, accountId: string) => {
-    setOpenModalEdit(true);
-
-    const data = await dropDown.mutateAsync();
-
     let tempRoleNow;
     if (roleNow == '0') {
       tempRoleNow = 'Admin'
@@ -76,6 +72,10 @@ export default function RoleAkses() {
     setNiy(niy);
     setNama(nama);
     setRoleNow(tempRoleNow);
+    setOpenModalEdit(true);
+    
+    const data = await dropDown.mutateAsync();
+
     setFillDropdownRole(data);
   }
   const handleCloseModalEdit = () => {
