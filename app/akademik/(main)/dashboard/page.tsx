@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Dashboard from '@/components/ui/Dashboard'
 
 export const metadata: Metadata = {
-  title: "Dashboard",
+  title: "Beranda",
   icons: {
     icon: "/assets/img/icons/education.svg"
   },

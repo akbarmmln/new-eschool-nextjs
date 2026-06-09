@@ -151,6 +151,17 @@ export default function AktifitasJurnal({ id }: Props) {
       document.body.style.overflow = "auto";
     };
   }, [openModalEditItemPenilaian]);
+  useEffect(() => {
+    if (openInputNilai) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openInputNilai]);
 
   const isEditFormValid =
     !isEmpty(data?.jurnal?.id) &&
@@ -1111,7 +1122,6 @@ export default function AktifitasJurnal({ id }: Props) {
         )}
 
         {openModalEdit && (
-          <>
           <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
             <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
 
@@ -1261,57 +1271,55 @@ export default function AktifitasJurnal({ id }: Props) {
               </div>
             </div>
           </div>
-          </>
         )}
 
         {openModalEditItemPenilaian && (
-          <>
-            <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-              <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
-                {/* HEADER */}
-                <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
-                  <h2 className="text-2xl font-bold tracking-tight text-white">
-                    Ubah Item Penilaian
-                  </h2>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+              {/* HEADER */}
+              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+                <h2 className="text-2xl font-bold tracking-tight text-white">
+                  Ubah Item Penilaian
+                </h2>
 
-                  <button
-                    onClick={() => setOpenModalEditItemPenilaian(false)}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
-                    <i
-                      className="ri-close-line"
-                      style={{ fontSize: 30 }}
-                    />
-                  </button>
-                </div>
+                <button
+                  onClick={() => setOpenModalEditItemPenilaian(false)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                  <i
+                    className="ri-close-line"
+                    style={{ fontSize: 30 }}
+                  />
+                </button>
+              </div>
 
-                {/* BODY */}
-                {isLoadingItemPenilaian || isFetchingItemPenilaian ? (
-                  <>
-                    <div className="space-y-6 p-8">
+              {/* BODY */}
+              {isLoadingItemPenilaian || isFetchingItemPenilaian ? (
+                <>
+                  <div className="space-y-6 p-8">
 
-                      <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200" />
+                    <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200" />
 
-                      <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200" />
+                    <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200" />
 
-                      {[1, 2].map((item) => (
-                        <div key={item} className="rounded-2xl border border-slate-200 p-4" >
-                          <div className="flex items-center gap-4">
+                    {[1, 2].map((item) => (
+                      <div key={item} className="rounded-2xl border border-slate-200 p-4" >
+                        <div className="flex items-center gap-4">
 
-                            <div className="h-12 flex-1 animate-pulse rounded-xl bg-slate-200" />
+                          <div className="h-12 flex-1 animate-pulse rounded-xl bg-slate-200" />
 
-                            <div className="h-12 w-12 animate-pulse rounded-xl bg-slate-200" />
-                          </div>
+                          <div className="h-12 w-12 animate-pulse rounded-xl bg-slate-200" />
                         </div>
-                      ))}
-
-                      <div className="flex gap-3">
-                        <div className="h-12 w-40 animate-pulse rounded-xl bg-slate-200" />
-
-                        <div className="h-12 w-40 animate-pulse rounded-xl bg-slate-200" />
                       </div>
+                    ))}
+
+                    <div className="flex gap-3">
+                      <div className="h-12 w-40 animate-pulse rounded-xl bg-slate-200" />
+
+                      <div className="h-12 w-40 animate-pulse rounded-xl bg-slate-200" />
                     </div>
-                  </>
-                ) : (
+                  </div>
+                </>
+              ) : (
                 <>
                   <div className="space-y-6 p-8">
                     {/* ID */}
@@ -1389,8 +1397,8 @@ export default function AktifitasJurnal({ id }: Props) {
 
                       <button className={`inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
                         ${editItemPenilaian.isPending || isFetching
-                            ? "cursor-not-allowed bg-slate-400 shadow-none"
-                            : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                          ? "cursor-not-allowed bg-slate-400 shadow-none"
+                          : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                         }`}
                         disabled={
                           editItemPenilaian.isPending || isFetching
@@ -1407,15 +1415,14 @@ export default function AktifitasJurnal({ id }: Props) {
                     </div>
                   </div>
                 </>
-                ) }
-              </div>
+              )}
             </div>
-          </>
+          </div>
         )}
 
         {openInputNilai && selectedSiswa && (
-          <>
           <div className="fixed inset-0 z-[999999] bg-white">
+            <div className="flex h-screen flex-col">
               {/* HEADER */}
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
                 <h1 className="text-[20px] font-bold text-slate-800">
@@ -1429,7 +1436,7 @@ export default function AktifitasJurnal({ id }: Props) {
               </div>
 
               {/* CONTENT */}
-              <div className="h-[calc(100vh-88px)] overflow-y-auto p-4 pb-32 md:p-6 md:pb-30">
+              <div className="h-[calc(100vh-88px)] overflow-y-auto hide-scrollbar p-4 pb-32 md:p-6 md:pb-30">
                 <div className="overflow-x-auto rounded-3xl border border-slate-200">
                   {isLoadingInisiasiPenilaian || isFetchingInisiasiPenilaian ? (
                     <>
@@ -1672,11 +1679,11 @@ export default function AktifitasJurnal({ id }: Props) {
                   </>
                 )}
               </div>
+            </div>
           </div>
-          </>
         )}
       </div>
-      
+
       <style jsx global>
         {`
           .hide-scrollbar {
