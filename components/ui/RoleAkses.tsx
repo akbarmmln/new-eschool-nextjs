@@ -17,8 +17,7 @@ export default function RoleAkses() {
 
   const [currentPage, setCurrentPage] = useState(1)
 
-  const { data, isLoading, error, isFetching, refetch } = useListRoleAcl(currentPage.toString());
-  console.log('asdasdasd', data);
+  const { data, isLoading, error, isFetching } = useListRoleAcl(currentPage.toString());
 
   function getPaginationItems(current: number, total: number) {
     const items: (number | string)[] = []

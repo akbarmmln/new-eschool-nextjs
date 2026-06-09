@@ -8,8 +8,12 @@ import {
 } from "react";
 import ModalTambahJurnal from '@/components/modals/ModalTambahJurnal'
 import JournalList from '@/components/common/JournalList'
+import { useAccessContext } from '@/context/AccessContext'
 
 export default function DashboardAdmin() {
+  const dataAccess = useAccessContext()
+  const role = dataAccess?.access?.role || '';
+
   const [currentPage, setCurrentPage] = useState(1)
   const [openModalTambahJurnal, setOpenModalTambahJurnal] = useState(false)
 
@@ -57,9 +61,9 @@ export default function DashboardAdmin() {
             <div className="role-box">
               <i className="ri-team-line" />
               <span>
-                Admin & Guru wali kelas {data?.nama_kelas}
+                {role == '0' ? 'Admin & Guru wali kelas ' : 'Guru wali kelas '}
+                 {data?.nama_kelas}
               </span>
-
             </div>
           )}
         </div>

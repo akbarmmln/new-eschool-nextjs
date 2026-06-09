@@ -1,6 +1,6 @@
 "use client";
 
-import DashboardAdmin from '@/components/ui/DashboardAdmin'
+import DashboardAdminAndGuru from '@/components/ui/DashboardAdminAndGuru'
 import DashboardWalMur from '@/components/ui/DashboardWalMur'
 import { useAccessContext } from '@/context/AccessContext'
 
@@ -8,9 +8,9 @@ export default function Dashboard() {
   const dataAccess = useAccessContext()
 
   if (dataAccess?.access?.role == '0') {
-    return <DashboardAdmin />
+    return <DashboardAdminAndGuru />
   } else if (dataAccess?.access?.role == '1') {
-    return <div>sabar belum ada</div>
+    return <DashboardAdminAndGuru />
   } else {
     return <DashboardWalMur />
   }
