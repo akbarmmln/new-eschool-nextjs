@@ -425,7 +425,7 @@ export default function Kelas() {
           ) : data?.rows?.length > 0 ? (
             <>
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full mb-5">
                   <thead>
                     <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
                       <th className="px-8 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">

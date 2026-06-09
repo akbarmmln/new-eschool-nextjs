@@ -763,14 +763,14 @@ export default function TambahSiswa() {
 
               <button 
                 onClick={handleSaveCreate}
-                disabled={!isFormValid || isCompressing || searchKelas.isPending}
+                disabled={!isFormValid || isCompressing || searchKelas.isPending || create.isPending}
                 className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${!isFormValid || isCompressing || searchKelas.isPending
+                  ${!isFormValid || isCompressing || searchKelas.isPending || create.isPending
                     ? "cursor-not-allowed bg-slate-400 shadow-none"
                     : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                   }`}>
                     
-                Simpan Data
+                {create.isPending ? "Menyimpan..." : "Simpan"}
               </button>
             </div>
           </div>
