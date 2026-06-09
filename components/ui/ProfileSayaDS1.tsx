@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useProfile, useUpdateIpAndIa, useUpdateEmail, useUpdatePassword } from '@/hooks/query'
 import { formatTanggalIndonesia } from "@/utils/utils";
 import CustomDatePicker from '@/components/common/DatePicker'
@@ -35,6 +35,51 @@ export default function ProfileSayaDS1() {
   const [showPasswordLama, setShowPasswordLama] = useState(false);
   const [showPasswordBaru, setShowPasswordBaru] = useState(false);
   const [showPasswordKonfBaru, setShowPasswordKonfBaru] = useState(false);
+
+  useEffect(() => {
+    if (openModalEditIP) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEditIP]);
+  useEffect(() => {
+    if (openModalEditIA) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEditIA]);
+  useEffect(() => {
+    if (openModalEditEmail) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEditEmail]);
+  useEffect(() => {
+    if (openModalEditPassword) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEditPassword]);
 
   const isEditFormIPValid =
     !isEmpty(namaLengkap) &&
@@ -503,6 +548,22 @@ export default function ProfileSayaDS1() {
             </div>
           )}
         </div>
+        
+        <style jsx global>
+          {`
+            .hide-scrollbar {
+              overflow-y: auto;
+              -ms-overflow-style: none;
+              scrollbar-width: none;
+            }
+
+            .hide-scrollbar::-webkit-scrollbar {
+              width: 0;
+              height: 0;
+              display: none;
+            }
+          `}
+        </style>
       </div>
 
       {openModalEditIP && (

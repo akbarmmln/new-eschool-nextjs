@@ -21,6 +21,7 @@ export default function TingkatKelas() {
   const [openModalAdd, setOpenModalAdd] = useState(false);
   const [openModalEdit, setOpenModalEdit] = useState(false);
   const [openModalDelete, setOpenModalDelete] = useState(false);
+
   const [selectedId, setSelectedId] = useState<any>(null);
   const [selectedNama, setSelectedNama] = useState<any>(null);
 
@@ -38,6 +39,40 @@ export default function TingkatKelas() {
 
   const isEditFormValid = !isEmpty(nama)
   const isAddFormValid = !isEmpty(namaAdd)
+
+  useEffect(() => {
+    if (openModalAdd) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalAdd]);
+  useEffect(() => {
+    if (openModalEdit) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEdit]);
+  useEffect(() => {
+    if (openModalDelete) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalDelete]);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {

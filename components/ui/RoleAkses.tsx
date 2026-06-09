@@ -35,13 +35,25 @@ export default function RoleAkses() {
   const [currentPage, setCurrentPage] = useState(1)
 
   const { data, isLoading, error, isFetching } = useListRoleAcl(currentPage.toString());
-  
+
   const isEditFormValid = 
     !isEmpty(selectedId) &&
     !isEmpty(niy) &&
     !isEmpty(nama) &&
     !isEmpty(roleNow) &&
     !isEmpty(roleNew);
+
+  useEffect(() => {
+    if (openModalEdit) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEdit]);
 
   const dropDown = useDropdownRole();
   const update = useUpdate();
