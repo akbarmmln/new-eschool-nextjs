@@ -8,40 +8,49 @@ type Props = {
 
 import { useEffect } from "react";
 import { useValidateTokenForgotPassword, useValidateOTP } from "@/hooks/query";
+import dayjs from 'dayjs'
 
 export default function InvalidatePassword({ jwt }: Props) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isExpired, setIsExpired] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [hasilVerify, setHasilVerify] = useState('');
   const [otpError, setOtpError] = useState("");
   const [remainingAttempt, setRemainingAttempt] = useState(3);
+  const [isOtpDisabled, setIsOtpDisabled] = useState(false);
 
   const validate = useValidateOTP();
   const { data, isLoading, error } = useValidateTokenForgotPassword(jwt);
 
-useEffect(() => {
-  if (!data) return;
+  useEffect(() => {
+    if (!data) return;
 
-  setRemainingAttempt(data.counter);
-  setTimeLeft(data.inSecond);
-}, [data]);
+    if (data.counter < 3) {
+      setOtpError(`kode OTP tidak valid. Batas percobaan ${data.counter} kali tersedia`);
+    }
+    if (data.counter == 0) {
+      setIsOtpDisabled(true);
+      setOtpError(`kode OTP tidak valid. Batas percobaan ${data.counter} kali tersedia. Anda bisa mencoba kembali pada ${dayjs(data.next_sent).format('DD-MM-YYYY HH:mm:ss')}`);
+    }
 
-useEffect(() => {
-  if (timeLeft === null) return;
+    setRemainingAttempt(data.counter);
+    setTimeLeft(data.inSecond);
+  }, [data]);
 
-  if (timeLeft <= 0) {
-    setIsExpired(true);
-    return;
-  }
+  useEffect(() => {
+    if (timeLeft === null) return;
 
-  const timer = setInterval(() => {
-    setTimeLeft(prev => (prev ?? 0) - 1);
-  }, 1000);
+    if (timeLeft <= 0) {
+      setIsExpired(true);
+      return;
+    }
 
-  return () => clearInterval(timer);
-}, [timeLeft]);
+    const timer = setInterval(() => {
+      setTimeLeft(prev => (prev ?? 0) - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
 
   useEffect(() => {
     const otpValue = otp.join("");
@@ -50,7 +59,7 @@ useEffect(() => {
       return;
     }
 
-    validateOtp(otpValue);
+    validateHandleOtp(otpValue);
   }, [otp]);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -74,7 +83,7 @@ useEffect(() => {
     }
   };
 
-  const validateOtp = async (otpCode: string) => {
+  const validateHandleOtp = async (otpCode: string) => {
     try {
       setIsVerifyingOtp(true);
       const payload = {
@@ -88,7 +97,7 @@ useEffect(() => {
       if (!hasil.ok) {
         throw hasil;
       }
-      setHasilVerify(hasil);
+      setOtpError('');
     } catch (e: any) {
       const err_code = e.err_code;
       if (err_code == '70023') {
@@ -102,7 +111,6 @@ useEffect(() => {
 
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-      setHasilVerify(e);
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -123,7 +131,8 @@ useEffect(() => {
 
             <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-slate-500">
               Link reset password yang Anda gunakan tidak valid,
-              sudah kadaluarsa, atau telah digunakan sebelumnya.
+              sudah kadaluarsa, telah digunakan sebelumnya atau
+              telah mengalami percobaan beberapa kali.
             </p>
 
             <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-4">
@@ -142,9 +151,9 @@ useEffect(() => {
                 className="rounded-xl bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700"
                 onClick={() =>
                 (window.location.href =
-                  "/akademik/login")
+                  "/akademik/lupa-password")
                 } >
-                Kembali ke Login
+                Minta Link Baru
               </button>
             </div>
           </div>
@@ -203,6 +212,11 @@ useEffect(() => {
     );
   }
 
+  const displayTime =
+    timeLeft === null
+      ? "--:--"
+      : `${String(Math.floor(timeLeft / 60)).padStart(2, "0")}:${String(timeLeft % 60).padStart(2, "0")}`;
+
   return (
     <>
       <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
@@ -219,6 +233,7 @@ useEffect(() => {
             {otp.map((digit, index) => (
               <input
                 key={index}
+                disabled={isOtpDisabled}
                 ref={(el) => {
                   inputRefs.current[index] = el;
                 }}
@@ -237,10 +252,15 @@ useEffect(() => {
                     index
                   )
                 }
-                className="aspect-square w-12 sm:w-15 md:w-15 rounded-xl border border-slate-300 text-center text-base sm:text-lg md:text-lg font-bold"
+                className={`aspect-square w-12 sm:w-15 md:w-15 rounded-xl border border-slate-300 text-center text-base sm:text-lg md:text-lg font-bold
+                  ${
+                  isOtpDisabled ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400" : "border-slate-300"
+                  }
+                `}
               />
             ))}
           </div>
+
           {otpError && (
             <div className="mb-5 text-center">
               <div className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2">
@@ -261,13 +281,8 @@ useEffect(() => {
               </button>
             </p> */}
             
-            <p className="mt-2 text-base text-slate-500">
-              Sisa waktu : 
-              {`
-                ${String(Math.floor((timeLeft ?? 0) / 60)).padStart(2, "0")}
-                :
-                ${String((timeLeft ?? 0) % 60).padStart(2, "0")}
-              `}
+            <p className="mt-5 text-base text-slate-500">
+              Sisa waktu {displayTime}
             </p>
           </div>
         </div>

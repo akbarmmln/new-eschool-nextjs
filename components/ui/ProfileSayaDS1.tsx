@@ -746,8 +746,9 @@ export default function ProfileSayaDS1() {
 
                     <div className="input-icon">
                       <input
-                        type="text"
+                        type="number"
                         value={noRT}
+                        maxLength={3}
                         onChange={(e) =>
                           setNoRT(e.target.value)
                         }
@@ -762,8 +763,9 @@ export default function ProfileSayaDS1() {
 
                     <div className="input-icon">
                       <input
-                        type="text"
+                        type="number"
                         value={noRW}
+                        maxLength={3}
                         onChange={(e) =>
                           setNoRW(e.target.value)
                         }
