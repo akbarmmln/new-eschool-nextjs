@@ -262,13 +262,12 @@ useEffect(() => {
             </p> */}
             
             <p className="mt-2 text-base text-slate-500">
-              Sisa waktu {
-                `${String(
-                  Math.floor((timeLeft ?? 0) / 60)
-                ).padStart(2, "0")}:${String(
-                  (timeLeft ?? 0) % 60
-                ).padStart(2, "0")}`
-              }
+              Sisa waktu : 
+              {`
+                ${String(Math.floor((timeLeft ?? 0) / 60)).padStart(2, "0")}
+                :
+                ${String((timeLeft ?? 0) % 60).padStart(2, "0")}
+              `}
             </p>
           </div>
         </div>
