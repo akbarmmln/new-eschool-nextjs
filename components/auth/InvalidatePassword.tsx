@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { useValidateTokenForgotPassword, useValidateOTP } from "@/hooks/query";
 
 export default function InvalidatePassword({ jwt }: Props) {
-  const [timeLeft, setTimeLeft] = useState('');
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isExpired, setIsExpired] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -21,44 +21,27 @@ export default function InvalidatePassword({ jwt }: Props) {
   const validate = useValidateOTP();
   const { data, isLoading, error } = useValidateTokenForgotPassword(jwt);
 
-  useEffect(() => {
-    if (!data?.inSecond) return;
+useEffect(() => {
+  if (!data) return;
 
-    const minutes = Math.floor(data.inSecond / 60);
-    const seconds = data.inSecond % 60;
+  setRemainingAttempt(data.counter);
+  setTimeLeft(data.inSecond);
+}, [data]);
 
-    setRemainingAttempt(data.counter);
-    setTimeLeft(`${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
-  }, [data]);
+useEffect(() => {
+  if (timeLeft === null) return;
 
-  useEffect(() => {
-    if (!timeLeft) return;
+  if (timeLeft <= 0) {
+    setIsExpired(true);
+    return;
+  }
 
-    const timer = setInterval(() => {
-      const [minutes, seconds] = timeLeft.split(":").map(Number);
+  const timer = setInterval(() => {
+    setTimeLeft(prev => (prev ?? 0) - 1);
+  }, 1000);
 
-      const totalSeconds = minutes * 60 + seconds;
-
-      if (totalSeconds <= 1) {
-        clearInterval(timer);
-
-        setTimeLeft("00:00");
-        setIsExpired(true);
-
-        return;
-      }
-
-      const nextSeconds = totalSeconds - 1;
-
-      const nextMinutes = Math.floor(nextSeconds / 60);
-
-      const remainSeconds = nextSeconds % 60;
-
-      setTimeLeft(`${String(nextMinutes).padStart(2, "0")}:${String(remainSeconds).padStart(2, "0")}`);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft]);
+  return () => clearInterval(timer);
+}, [timeLeft]);
 
   useEffect(() => {
     const otpValue = otp.join("");
@@ -277,9 +260,15 @@ export default function InvalidatePassword({ jwt }: Props) {
                 Kirim ulang
               </button>
             </p> */}
-
+            
             <p className="mt-2 text-base text-slate-500">
-              Sisa waktu {timeLeft}
+              Sisa waktu {
+                `${String(
+                  Math.floor((timeLeft ?? 0) / 60)
+                ).padStart(2, "0")}:${String(
+                  (timeLeft ?? 0) % 60
+                ).padStart(2, "0")}`
+              }
             </p>
           </div>
         </div>
