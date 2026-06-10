@@ -30,7 +30,7 @@ export default function InvalidatePassword({ jwt }: Props) {
     }
     if (data.counter == 0) {
       setIsOtpDisabled(true);
-      setOtpError(`kode OTP tidak valid. Batas percobaan ${data.counter} kali tersedia. Anda bisa mencoba kembali pada ${dayjs(data.next_sent).format('DD-MM-YYYY HH:mm:ss')}`);
+      setOtpError(`Anda telah melakukan 3 kali percobaan memasukkan kode OTP. Anda bisa mencoba kembali pada ${dayjs(data.next_sent).format('DD-MM-YYYY HH:mm:ss')}`);
     }
 
     setRemainingAttempt(data.counter);

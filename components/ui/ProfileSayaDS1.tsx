@@ -746,12 +746,14 @@ export default function ProfileSayaDS1() {
 
                     <div className="input-icon">
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         value={noRT}
                         maxLength={3}
-                        onChange={(e) =>
-                          setNoRT(e.target.value)
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          setNoRT(value);
+                        }}
                       />
                     </div>
                   </div>
@@ -763,12 +765,14 @@ export default function ProfileSayaDS1() {
 
                     <div className="input-icon">
                       <input
-                        type="number"
+                        type="text"
+                        inputMode="numeric"
                         value={noRW}
                         maxLength={3}
-                        onChange={(e) =>
-                          setNoRW(e.target.value)
-                        }
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          setNoRW(value);
+                        }}
                       />
                     </div>
                   </div>
