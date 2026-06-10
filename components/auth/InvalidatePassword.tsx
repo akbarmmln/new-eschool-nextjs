@@ -19,6 +19,15 @@ export default function InvalidatePassword({ jwt }: Props) {
   const [remainingAttempt, setRemainingAttempt] = useState(3);
   const [isOtpDisabled, setIsOtpDisabled] = useState(false);
 
+  const [sessionForUpdate, setSessionForUpdate] = useState('')
+  const [showFormVerifyOTP, setShowFormVerifyOTP] = useState(true);
+  const [showFormResetPassword, setShowFormResetPassword] = useState(false);
+
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const validate = useValidateOTP();
   const { data, isLoading, error } = useValidateTokenForgotPassword(jwt);
 
@@ -97,6 +106,10 @@ export default function InvalidatePassword({ jwt }: Props) {
       if (!hasil.ok) {
         throw hasil;
       }
+      const session = hasil.data.data
+      setSessionForUpdate(session)
+      setShowFormResetPassword(true)
+      setShowFormVerifyOTP(false)
       setOtpError('');
     } catch (e: any) {
       const err_code = e.err_code;
@@ -110,6 +123,9 @@ export default function InvalidatePassword({ jwt }: Props) {
       }
 
       setOtp(["", "", "", "", "", ""]);
+      setSessionForUpdate('')
+      setShowFormVerifyOTP(true)
+      setShowFormResetPassword(false)
       inputRefs.current[0]?.focus();
     } finally {
       setIsVerifyingOtp(false);
@@ -219,74 +235,157 @@ export default function InvalidatePassword({ jwt }: Props) {
 
   return (
     <>
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-        <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-          <h1 className="mb-3 text-2xl font-bold text-slate-800">
-            Verifikasi OTP
-          </h1>
-          <p className="mb-8 text-base leading-relaxed text-slate-500">
-            Masukkan 6 digit kode OTP yang
-            dikirim ke email Anda.
-          </p>
+      {showFormVerifyOTP && (
+        <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+          <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+            <h1 className="mb-3 text-2xl font-bold text-slate-800">
+              Verifikasi OTP
+            </h1>
+            <p className="mb-8 text-base leading-relaxed text-slate-500">
+              Masukkan 6 digit kode OTP yang
+              dikirim ke email Anda.
+            </p>
 
-          <div className="flex justify-center gap-2 sm:gap-3 md:gap-4 mb-5">
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                disabled={isOtpDisabled}
-                ref={(el) => {
-                  inputRefs.current[index] = el;
-                }}
-                type="text"
-                maxLength={1}
-                value={digit}
-                onChange={(e) =>
-                  handleChange(
-                    e.target.value,
-                    index
-                  )
-                }
-                onKeyDown={(e) =>
-                  handleKeyDown(
-                    e,
-                    index
-                  )
-                }
-                className={`aspect-square w-12 sm:w-15 md:w-15 rounded-xl border border-slate-300 text-center text-base sm:text-lg md:text-lg font-bold
-                  ${
-                  isOtpDisabled ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400" : "border-slate-300"
+            <div className="flex justify-center gap-2 sm:gap-3 md:gap-4 mb-5">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  disabled={isOtpDisabled}
+                  ref={(el) => {
+                    inputRefs.current[index] = el;
+                  }}
+                  type="text"
+                  maxLength={1}
+                  value={digit}
+                  onChange={(e) =>
+                    handleChange(
+                      e.target.value,
+                      index
+                    )
                   }
+                  onKeyDown={(e) =>
+                    handleKeyDown(
+                      e,
+                      index
+                    )
+                  }
+                  className={`aspect-square w-12 sm:w-15 md:w-15 rounded-xl border border-slate-300 text-center text-base sm:text-lg md:text-lg font-bold
+                  ${isOtpDisabled ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400" : "border-slate-300"
+                    }
                 `}
-              />
-            ))}
-          </div>
-
-          {otpError && (
-            <div className="mb-5 text-center">
-              <div className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2">
-                <i className="ri-error-warning-line text-red-500" />
-
-                <span className="text-sm font-medium text-red-600">
-                  {otpError}
-                </span>
-              </div>
+                />
+              ))}
             </div>
-          )}
 
-          <div className="text-center">
-            {/* <p className="text-base text-slate-500">
+            {otpError && (
+              <div className="mb-5 text-center">
+                <div className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2">
+                  <i className="ri-error-warning-line text-red-500" />
+
+                  <span className="text-sm font-medium text-red-600">
+                    {otpError}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <div className="text-center">
+              {/* <p className="text-base text-slate-500">
               Tidak menerima kode?{" "}
               <button type="button" className="font-medium text-blue-400 hover:text-blue-500">
                 Kirim ulang
               </button>
             </p> */}
-            
-            <p className="mt-5 text-base text-slate-500">
-              Sisa waktu {displayTime}
-            </p>
+
+              <p className="mt-5 text-base text-slate-500">
+                Sisa waktu {displayTime}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {showFormResetPassword && (
+        <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+          <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
+            <h1 className="mb-2 text-2xl font-bold text-slate-800">
+              Password Baru
+            </h1>
+
+            <p className="mb-8 text-base text-slate-500">
+              Silakan masukkan kata sandi baru Anda.
+            </p>
+
+            {/* Password */}
+            <div className="mb-5">
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Password
+              </label>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(
+                      e.target.value
+                    )
+                  }
+                  className="h-12 w-full rounded-md border border-slate-200 px-4 pr-12 outline-none transition focus:border-blue-500"
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword(
+                      !showPassword
+                    )
+                  }
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
+                  <i className={showPassword ? "ri-eye-line" : "ri-eye-off-line"} />
+                </button>
+              </div>
+            </div>
+
+            {/* Konfirmasi Password */}
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-semibold text-slate-700">
+                Konfirmasi password
+              </label>
+
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) =>
+                    setConfirmPassword(
+                      e.target.value
+                    )
+                  }
+                  className="h-12 w-full rounded-md border border-slate-200 px-4 pr-12 outline-none transition focus:border-blue-500"
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowConfirmPassword(
+                      !showConfirmPassword
+                    )
+                  }
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
+                  <i className={showConfirmPassword ? "ri-eye-line" : "ri-eye-off-line"} />
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className=" h-12 w-full rounded-md bg-indigo-500 text-white font-medium transition hover:bg-indigo-600">
+              Simpan
+            </button>
+          </div>
+        </div>
+      )}
 
       {isVerifyingOtp && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
