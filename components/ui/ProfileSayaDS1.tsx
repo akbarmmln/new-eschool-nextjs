@@ -277,7 +277,7 @@ export default function ProfileSayaDS1() {
       if (passwordBaru != passwordKonfBaru) {
         await showAlert(
           "warning",
-          "Gagal",
+          "Peringatan",
           `Password baru tidak sama dengan konfirmasi password baru`,
         );
         return

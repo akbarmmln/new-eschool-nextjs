@@ -7,9 +7,10 @@ type Props = {
 };
 
 import { useEffect } from "react";
-import { useValidateTokenForgotPassword, useValidateOTP } from "@/hooks/query";
+import { useValidateTokenForgotPassword, useValidateOTP, useInvalidatePassword } from "@/hooks/query";
 import dayjs from 'dayjs'
 import { showAlert } from "@/utils/swal";
+import isEmpty from "@/utils/isEmpty";
 
 export default function InvalidatePassword({ jwt }: Props) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -133,6 +134,7 @@ export default function InvalidatePassword({ jwt }: Props) {
     }
   }
 
+  const reset = useInvalidatePassword();
   const handleSaveData = async () => {
     try {
       const payload = {
@@ -143,13 +145,23 @@ export default function InvalidatePassword({ jwt }: Props) {
       if (password != confirmPassword) {
         await showAlert(
           "warning",
-          "Gagal",
+          "Peringatan",
           `Password baru tidak sama dengan konfirmasi password baru`,
         );
         return
       }
 
-      console.log('asdasdasdsa', payload)
+      const hasil: any = await reset.mutateAsync(payload)
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Password berhasil direset. Silahkan ulangi login kembali"
+      );
+      window.location.href = `/akademik/login`;
     } catch (e) {
       await showAlert(
         "error",
@@ -254,6 +266,10 @@ export default function InvalidatePassword({ jwt }: Props) {
       </div>
     );
   }
+
+  const iFormPasswordValid =
+    !isEmpty(password) &&
+    !isEmpty(confirmPassword);
 
   const displayTime =
     timeLeft === null
@@ -407,9 +423,16 @@ export default function InvalidatePassword({ jwt }: Props) {
 
             <button
               type="button"
+              disabled={!iFormPasswordValid || reset.isPending}
               onClick={handleSaveData}
-              className=" h-12 w-full rounded-md bg-indigo-500 text-white font-medium transition hover:bg-indigo-600">
-              Simpan
+              className={`h-12 w-full rounded-md bg-indigo-500 text-white font-medium transition hover:bg-indigo-600
+                  ${!iFormPasswordValid || reset.isPending
+                  ? "cursor-not-allowed bg-slate-400 shadow-none"
+                  : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                    }
+              `}>
+
+              {reset.isPending ? "Menyimpan..." : "Simpan"}
             </button>
           </div>
         </div>

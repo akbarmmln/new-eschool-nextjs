@@ -416,3 +416,12 @@ export async function validateOTP(body: any) {
     10000
   );
 }
+
+export async function requestResetPassword(body: any) {
+  return await request(
+    "post",
+    `/api/v1/auth/invalidate/password`,
+    body,
+    10000
+  );
+}
