@@ -3,11 +3,34 @@
 import Link from "next/link";
 import { useState } from "react";
 import isEmpty from "@/utils/isEmpty";
+import { useReqForgotPassword } from "@/hooks/query";
+import { showAlert } from "@/utils/swal";
 
 export default function LupaPassword() {
   const [email, setEmail] = useState("");
 
   const isFormValid = !isEmpty(email);
+
+  const requestForgotPassword = useReqForgotPassword();
+  const handleRequest = async () => {
+    try {
+      const payload = {
+        email: email
+      }
+      const hasil: any = await requestForgotPassword.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+      const jwt = hasil?.data?.data?.jwt
+      window.location.href = `/akademik/invalidate-password/${jwt}`;
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal saat memproses request. Harap coba kembali beberapa saat lagi`,
+      );
+    }
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
@@ -44,13 +67,18 @@ export default function LupaPassword() {
         </div>
 
         <button 
-          disabled={!isFormValid}
+          onClick={handleRequest}
+          disabled={!isFormValid || requestForgotPassword.isPending}
           className={`h-12 w-full rounded-lg bg-indigo-400 text-base font-medium text-white transition 
-          ${!isFormValid 
-            ?  'cursor-not-allowed bg-slate-400 shadow-none'
+          ${!isFormValid || requestForgotPassword.isPending
+            ? 'cursor-not-allowed bg-slate-400 shadow-none'
             : 'bg-blue-600 shadow-blue-500/20 hover:bg-blue-700'
           }`}>
-          Lanjutkan
+          
+          {requestForgotPassword.isPending
+            ? "Memproses..."
+            : "Lanjutkan"}
+
         </button>
 
         <div className="mt-6 text-center">

@@ -5,6 +5,7 @@ import Providers from './providers'
 import '@tabler/icons-webfont/dist/tabler-icons.min.css'
 import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
+import "remixicon/fonts/remixicon.css";
 
 const outfit = Outfit({
   subsets: ["latin"],

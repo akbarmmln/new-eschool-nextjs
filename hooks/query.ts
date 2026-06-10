@@ -5,7 +5,9 @@ import {
   getAccess,
   updateIpAndIa,
   updateEmail,
-  updatePassword
+  updatePassword,
+  requestForgotPassword,
+  validateTokenForgotPassword
 } from '@/services/Call'
 
 // PROFILE \\
@@ -115,3 +117,43 @@ export const useUpdatePassword = () => {
     },
   });
 };
+
+// REQUEST TOKEN FORGET PASSWORD \\
+export const useReqForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = requestForgotPassword(payload)
+      return results;
+    },
+  });
+};
+
+// VALIDATE TOKEN FORGET PASSWORD \\
+type validateTokenForgetPasswordResponse = any
+const fetchValidateTokenForgotPassword =
+  async ({
+    queryKey,
+  }: any): Promise<validateTokenForgetPasswordResponse> => {
+    const [_, jwt] = queryKey
+
+    const hasil: any = await validateTokenForgotPassword(jwt)
+    if (!hasil.ok) {
+      throw hasil
+    }
+    return hasil.data.data
+  }
+export function useValidateTokenForgotPassword(
+  jwt: string,
+  options?: Partial<UseQueryOptions<validateTokenForgetPasswordResponse>>
+) {
+  return useQuery<validateTokenForgetPasswordResponse>({
+    queryKey: ['validate-token-forgot-password', jwt],
+    queryFn: fetchValidateTokenForgotPassword,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    ...options,
+  })
+}

@@ -389,3 +389,21 @@ export async function updateAccess(body: any) {
     10000
   );
 }
+
+export async function requestForgotPassword(body: any) {
+  return await request(
+    "post",
+    '/api/v1/auth/invalidate-forgot-password',
+    body,
+    10000
+  );
+}
+
+export async function validateTokenForgotPassword(jwt: string) {
+  return await request(
+    "get",
+    `/api/v1/auth/invalidate-page/${jwt}`,
+    {},
+    10000
+  );
+}
