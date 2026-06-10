@@ -9,6 +9,7 @@ type Props = {
 import { useEffect } from "react";
 import { useValidateTokenForgotPassword, useValidateOTP } from "@/hooks/query";
 import dayjs from 'dayjs'
+import { showAlert } from "@/utils/swal";
 
 export default function InvalidatePassword({ jwt }: Props) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -129,6 +130,32 @@ export default function InvalidatePassword({ jwt }: Props) {
       inputRefs.current[0]?.focus();
     } finally {
       setIsVerifyingOtp(false);
+    }
+  }
+
+  const handleSaveData = async () => {
+    try {
+      const payload = {
+        password: password,
+        session: sessionForUpdate
+      }
+
+      if (password != confirmPassword) {
+        await showAlert(
+          "warning",
+          "Gagal",
+          `Password baru tidak sama dengan konfirmasi password baru`,
+        );
+        return
+      }
+
+      console.log('asdasdasdsa', payload)
+    } catch (e) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal saat memproses permintaan. Harap coba kembali beberapa saat lagi.`,
+      );
     }
   }
 
@@ -380,6 +407,7 @@ export default function InvalidatePassword({ jwt }: Props) {
 
             <button
               type="button"
+              onClick={handleSaveData}
               className=" h-12 w-full rounded-md bg-indigo-500 text-white font-medium transition hover:bg-indigo-600">
               Simpan
             </button>
