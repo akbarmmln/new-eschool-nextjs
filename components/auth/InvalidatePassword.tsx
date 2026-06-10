@@ -7,13 +7,18 @@ type Props = {
 };
 
 import { useEffect } from "react";
-import { useValidateTokenForgotPassword } from "@/hooks/query";
+import { useValidateTokenForgotPassword, useValidateOTP } from "@/hooks/query";
 
 export default function InvalidatePassword({ jwt }: Props) {
   const [timeLeft, setTimeLeft] = useState('');
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isExpired, setIsExpired] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [hasilVerify, setHasilVerify] = useState('');
+  const [otpError, setOtpError] = useState("");
+  const [remainingAttempt, setRemainingAttempt] = useState(3);
 
+  const validate = useValidateOTP();
   const { data, isLoading, error } = useValidateTokenForgotPassword(jwt);
 
   useEffect(() => {
@@ -22,6 +27,7 @@ export default function InvalidatePassword({ jwt }: Props) {
     const minutes = Math.floor(data.inSecond / 60);
     const seconds = data.inSecond % 60;
 
+    setRemainingAttempt(data.counter);
     setTimeLeft(`${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`);
   }, [data]);
 
@@ -87,9 +93,35 @@ export default function InvalidatePassword({ jwt }: Props) {
 
   const validateOtp = async (otpCode: string) => {
     try {
-      
-    } catch (e) {
+      setIsVerifyingOtp(true);
+      const payload = {
+        type: 'reset-password',
+        otp: otpCode,
+        jwt: jwt
+      }
 
+      const hasil: any = await validate.mutateAsync(payload)
+      
+      if (!hasil.ok) {
+        throw hasil;
+      }
+      setHasilVerify(hasil);
+    } catch (e: any) {
+      const err_code = e.err_code;
+      if (err_code == '70023') {
+        setRemainingAttempt(0);
+        setIsExpired(true);
+      } else if (err_code == '70022') {
+        const nextAttempt = remainingAttempt - 1;
+        setRemainingAttempt(nextAttempt);
+        setOtpError(`kode OTP tidak valid. Batas percobaan ${nextAttempt} kali tersedia`);
+      }
+
+      setOtp(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+      setHasilVerify(e);
+    } finally {
+      setIsVerifyingOtp(false);
     }
   }
 
@@ -226,6 +258,17 @@ export default function InvalidatePassword({ jwt }: Props) {
               />
             ))}
           </div>
+          {otpError && (
+            <div className="mb-5 text-center">
+              <div className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2">
+                <i className="ri-error-warning-line text-red-500" />
+
+                <span className="text-sm font-medium text-red-600">
+                  {otpError}
+                </span>
+              </div>
+            </div>
+          )}
 
           <div className="text-center">
             {/* <p className="text-base text-slate-500">
@@ -241,6 +284,30 @@ export default function InvalidatePassword({ jwt }: Props) {
           </div>
         </div>
       </div>
+
+      {isVerifyingOtp && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+            <div className="text-center">
+
+              <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-blue-100">
+                <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
+              </div>
+
+              <h2 className="text-2xl font-bold text-slate-800">
+                Memverifikasi OTP
+              </h2>
+
+              <p className="mt-3 text-slate-500">
+                Mohon tunggu beberapa saat.
+                <br />
+                Sistem sedang memvalidasi kode OTP Anda.
+              </p>
+
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

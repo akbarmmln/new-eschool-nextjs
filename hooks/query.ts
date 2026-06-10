@@ -7,7 +7,8 @@ import {
   updateEmail,
   updatePassword,
   requestForgotPassword,
-  validateTokenForgotPassword
+  validateTokenForgotPassword,
+  validateOTP
 } from '@/services/Call'
 
 // PROFILE \\
@@ -123,6 +124,16 @@ export const useReqForgotPassword = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
       const results = requestForgotPassword(payload)
+      return results;
+    },
+  });
+};
+
+// VALIDATE OTP \\
+export const useValidateOTP = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = validateOTP(payload)
       return results;
     },
   });

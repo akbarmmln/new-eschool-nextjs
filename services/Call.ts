@@ -407,3 +407,12 @@ export async function validateTokenForgotPassword(jwt: string) {
     10000
   );
 }
+
+export async function validateOTP(body: any) {
+  return await request(
+    "post",
+    `/api/v1/auth/verify-otp`,
+    body,
+    10000
+  );
+}
