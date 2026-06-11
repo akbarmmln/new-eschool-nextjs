@@ -81,9 +81,9 @@ export default function UserDropdown() {
                 : tipe_account == 'DS1' && role == '1' ? 'Guru'
                   : (
                     <>
-                      Nama Ayah: {profileData?.nama_ayah}
+                      Nama Ayah: {profileData?.nama_ayah || '-'}
                       <br />
-                      Nama Ibu: {profileData?.nama_ibu}
+                      Nama Ibu: {profileData?.nama_ibu || '-'}
                     </>
                   )
               }

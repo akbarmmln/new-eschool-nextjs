@@ -10,7 +10,8 @@ import {
   validateTokenForgotPassword,
   validateOTP,
   requestResetPassword,
-  getProfileD2
+  getProfileD2,
+  updadateInformasiWalMur
 } from '@/services/Call'
 
 // PROFILE \\
@@ -200,3 +201,13 @@ export function useValidateTokenForgotPassword(
     ...options,
   })
 }
+
+// UPDATE WALMUR DATA \\
+export const useWalMurDataUpdate = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updadateInformasiWalMur(payload)
+      return results;
+    },
+  });
+};
