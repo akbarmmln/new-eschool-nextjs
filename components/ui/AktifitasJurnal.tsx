@@ -12,11 +12,10 @@ import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian,
   useGetItemPenilaian, useSubmitNilai, useDownloadSingleNilaiHarian } from "@/hooks/queryJurnal";
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
-import { allowPage } from "@/utils/utils";
+import { allowPage, downloadPdfFromBase64, runNanoID } from "@/utils/utils";
 import { useQueryClient } from '@tanstack/react-query'
 import { compressImage, fileToBase64, formatTanggalIndonesia } from "@/utils/utils";
 import { useAccessContext } from '@/context/AccessContext'
-import { downloadPdfFromBase64 } from "@/utils/utils"
 import dayjs from "dayjs";
 
 type Student = {
@@ -242,13 +241,13 @@ export default function AktifitasJurnal({ id }: Props) {
         id_detail_diajar: idDiajar,
         nama_siswa: namaSiswa
       }
-
+      const nanoId = await runNanoID(10);
       const hasil: any = await downloadSingle.mutateAsync(payload)
       if (!hasil.ok) {
         throw hasil;
       }
       const data = hasil.data.data
-      const filename = `${dayjs().format('DDMMYYYYHHmmssSSS')}.pdf`;
+      const filename = `${namaSiswa}_${nanoId}.pdf`;
       downloadPdfFromBase64(data, filename);
     } catch (e) {
       await showAlert(

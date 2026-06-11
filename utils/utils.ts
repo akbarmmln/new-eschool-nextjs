@@ -78,25 +78,32 @@ export const allowPage = (allow_tipe: any, allow_role: any, tipe_account: string
 }
 
 export const downloadPdfFromBase64 = (base64: string, filename: string) => {
-		const byteCharacters = atob(base64);
-		const byteNumbers = new Array(byteCharacters.length)
-			.fill(0)
-			.map((_, i) => byteCharacters.charCodeAt(i));
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length)
+    .fill(0)
+    .map((_, i) => byteCharacters.charCodeAt(i));
 
-		const byteArray = new Uint8Array(byteNumbers);
+  const byteArray = new Uint8Array(byteNumbers);
 
-		const blob = new Blob([byteArray], { type: "application/pdf" });
+  const blob = new Blob([byteArray], { type: "application/pdf" });
 
-		const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
 
-		// 🔥 buat link download
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = filename;
-		document.body.appendChild(a);
-		a.click();
+  // 🔥 buat link download
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
 
-		// cleanup
-		a.remove();
-		URL.revokeObjectURL(url);
-	}
+  // cleanup
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export const  runNanoID = async (n: any) => {
+  const { customAlphabet } = await import('nanoid');
+  const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const id = customAlphabet(alphabet, n);
+  return id();
+}
