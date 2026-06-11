@@ -425,3 +425,12 @@ export async function requestResetPassword(body: any) {
     10000
   );
 }
+
+export async function doDownloadSingleNilaiHarian(body: any) {
+  return await request(
+    "post",
+    `/api/v1/jurnal/download-single-penilaian-harian`,
+    body,
+    30000
+  );
+}

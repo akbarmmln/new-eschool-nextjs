@@ -9,7 +9,8 @@ import {
   editItemPenilaian,
   inisiasiPenilaian,
   updateJurnal,
-  submitNilai
+  submitNilai,
+  doDownloadSingleNilaiHarian
 } from '@/services/Call'
 
 // LIST JURNAL \\
@@ -190,6 +191,16 @@ export const useSubmitNilai = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
       const results = submitNilai(payload)
+      return results;
+    },
+  });
+};
+
+// INVALIDATE PASSWORD \\
+export const useDownloadSingleNilaiHarian = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = doDownloadSingleNilaiHarian(payload)
       return results;
     },
   });

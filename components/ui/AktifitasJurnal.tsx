@@ -9,13 +9,15 @@ import {
 import JournalEditor from '@/components/common/Editor'
 import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian, 
   useSubmitItemPenilaian, useEditItemPenilaian, useUpdateJurnal, 
-  useGetItemPenilaian, useSubmitNilai } from "@/hooks/queryJurnal";
+  useGetItemPenilaian, useSubmitNilai, useDownloadSingleNilaiHarian } from "@/hooks/queryJurnal";
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
 import { allowPage } from "@/utils/utils";
 import { useQueryClient } from '@tanstack/react-query'
 import { compressImage, fileToBase64, formatTanggalIndonesia } from "@/utils/utils";
 import { useAccessContext } from '@/context/AccessContext'
+import { downloadPdfFromBase64 } from "@/utils/utils"
+import dayjs from "dayjs";
 
 type Student = {
   id: string;
@@ -97,8 +99,10 @@ export default function AktifitasJurnal({ id }: Props) {
     }[]
   >([]);
   const [filesDeleted, setFilesDeleted] = useState<string[]>([]);
+  const [downloadingIds, setDownloadingIds] = useState<string[]>([]);
 
   const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
+
   const {
     data: dataItemPenilaian,
     isLoading: isLoadingItemPenilaian,
@@ -107,6 +111,7 @@ export default function AktifitasJurnal({ id }: Props) {
   } = useGetItemPenilaian(id, {
     enabled: false,
   });
+
   const {
     data: dataInisiasiPenilaian,
     isLoading: isLoadingInisiasiPenilaian,
@@ -123,6 +128,7 @@ export default function AktifitasJurnal({ id }: Props) {
     }
   );
 
+  const downloadSingle = useDownloadSingleNilaiHarian()
   const saveAbsensiMutation = useUpdateAbsensi();
   const submitItemPenilaian = useSubmitItemPenilaian();
   const editItemPenilaian = useEditItemPenilaian();
@@ -162,14 +168,6 @@ export default function AktifitasJurnal({ id }: Props) {
       document.body.style.overflow = "auto";
     };
   }, [openInputNilai]);
-
-  const isEditFormValid =
-    !isEmpty(data?.jurnal?.id) &&
-    !isEmpty(jamMulai) &&
-    !isEmpty(jamSelesai) &&
-    !isEditorEmpty(materiPembelajaran) &&
-    !isEditorEmpty(refleksiPembelajaran);
-
   useEffect(() => {
     if (data?.jurnal) {
       setJamMulai(data.jurnal.jam_mulai || "");
@@ -197,7 +195,6 @@ export default function AktifitasJurnal({ id }: Props) {
       setStudents(mappedStudents);
     }
   }, [data]);
-
   useEffect(() => {
     if (dataInisiasiPenilaian?.silabus?.[0]?.items) {
       const mapped =
@@ -227,6 +224,44 @@ export default function AktifitasJurnal({ id }: Props) {
     }
 
   }, [dataInisiasiPenilaian]);
+
+  const isEditFormValid =
+    !isEmpty(data?.jurnal?.id) &&
+    !isEmpty(jamMulai) &&
+    !isEmpty(jamSelesai) &&
+    !isEditorEmpty(materiPembelajaran) &&
+    !isEditorEmpty(refleksiPembelajaran);
+
+  const handleDownload = async (idJurnal: string, idDiajar: string, idSiswa: string, namaSiswa: string) => {
+    try {
+      setDownloadingIds(prev => [...prev, idSiswa]);
+      console.log('handleDownload', idJurnal, idDiajar, idSiswa, namaSiswa)
+      const payload = {
+        id_jurnal: idJurnal,
+        id_siswa: idSiswa,
+        id_detail_diajar: idDiajar,
+        nama_siswa: namaSiswa
+      }
+
+      const hasil: any = await downloadSingle.mutateAsync(payload)
+      if (!hasil.ok) {
+        throw hasil;
+      }
+      const data = hasil.data.data
+      const filename = `${dayjs().format('DDMMYYYYHHmmssSSS')}.pdf`;
+      downloadPdfFromBase64(data, filename);
+    } catch (e) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal mendownload file`
+      );
+    } finally {
+      setDownloadingIds(prev =>
+        prev.filter(id => id !== idSiswa)
+      );
+    }
+  };
 
   const handleOpenModalEdit = () => {
     setJamMulai(data?.jurnal?.jam_mulai || "");
@@ -1082,35 +1117,55 @@ export default function AktifitasJurnal({ id }: Props) {
 
                       <tbody>
                         {data?.siswa?.map(
-                          (siswa: any, index: number) => (
-                            <tr key={siswa.id} className="border-b border-slate-100 dark:border-slate-800">
-                              <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
-                                {index + 1}.
-                              </td>
+                          (siswa: any, index: number) => {
+                            const isDownloading = downloadingIds.includes(siswa.id_siswa);
+                            return (
+                              <tr key={siswa.id} className="border-b border-slate-100 dark:border-slate-800">
+                                <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
+                                  {index + 1}.
+                                </td>
 
-                              <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                                {siswa.nama_siswa}
-                              </td>
+                                <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                  {siswa.nama_siswa}
+                                </td>
 
-                              <td className="px-6 py-5">
-                                <div className="flex justify-center gap-3">
-                                  <button
-                                    className="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700">
-                                    <i className="ri-download-line" />
-                                    Download
-                                  </button>
+                                <td className="px-6 py-5">
+                                  <div className="flex justify-center gap-3">
+                                    <button
+                                      disabled={isDownloading}
+                                      onClick={() => handleDownload(id, siswa.id, siswa.id_siswa, siswa.nama_siswa)}
+                                      className={`inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700
+                                      ${isDownloading
+                                          ? "cursor-not-allowed bg-green-500"
+                                          : "bg-green-600 hover:bg-green-700"
+                                        }
+                                    `}>
 
-                                  <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-                                    onClick={() =>
-                                      handleOpenInputNilai(id, siswa.id_siswa, siswa.id, siswa.nama_siswa)
-                                    } >
-                                    <i className="ri-edit-line" />
-                                    Input Nilai
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          )
+                                      {isDownloading ? (
+                                        <>
+                                          <i className="ri-loader-4-line animate-spin" />
+                                          Sedang Download...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <i className="ri-download-line" />
+                                          Download
+                                        </>
+                                      )}
+                                    </button>
+
+                                    <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                                      onClick={() =>
+                                        handleOpenInputNilai(id, siswa.id_siswa, siswa.id, siswa.nama_siswa)
+                                      } >
+                                      <i className="ri-edit-line" />
+                                      Input Nilai
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            )
+                          }
                         )}
                       </tbody>
                     </table>
