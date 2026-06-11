@@ -741,7 +741,7 @@ export default function AktifitasJurnal({ id }: Props) {
               <>
                 <button onClick={handleOpenModalEdit}
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                  <PencilLine size={18} />
+                  <i className="ti ti-contract text-[18px]"></i>
                   Ubah Detail
                 </button>
 
@@ -749,7 +749,7 @@ export default function AktifitasJurnal({ id }: Props) {
                   <>
                     <button onClick={handleOpenModalEditItemPenilaian}
                       className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
-                      <FilePenLine size={18} />
+                      <i className="ti ti-list-details text-[18px]"></i>
                       Ubah Item Nilai
                     </button>
                   </>
