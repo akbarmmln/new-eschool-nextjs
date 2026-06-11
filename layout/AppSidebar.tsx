@@ -358,10 +358,14 @@ const AppSidebar: React.FC = () => {
                     <div className=" mt-2 w-[100px] h-[14px] rounded-lg bg-gray-300 dark:bg-gray-700 animate-pulse" />
                   ) : (
                     <div
-                      className=" mt-1 text-[13px] text-gray-500 dark:text-gray-400" >
+                      className="mt-1 text-[13px] text-gray-500 dark:text-gray-400" >
                       { tipe_account == 'DS1' && role == '0' ?  'Admin & Guru' 
                         : tipe_account == 'DS1' && role == '1'  ? 'Guru' 
-                        : 'Wali Murid'
+                        : (
+                          <span className="text-[15px] font-semibold text-gray-700 dark:text-gray-300">
+                            Wali Murid
+                          </span>
+                        )
                       }
                     </div>
                   )}

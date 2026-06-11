@@ -9,7 +9,8 @@ import {
   requestForgotPassword,
   validateTokenForgotPassword,
   validateOTP,
-  requestResetPassword
+  requestResetPassword,
+  getProfileD2
 } from '@/services/Call'
 
 // PROFILE \\
@@ -28,6 +29,26 @@ export function useProfile() {
   return useQuery<GreetingResponse>({
     queryKey: ['profile'],
     queryFn: fetchProfile,
+    staleTime: 1000 * 60 * 1,
+    gcTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  })
+}
+
+const fetchProfileD2 =
+  async (): Promise<GreetingResponse> => {
+    const hasil: any = await getProfileD2()
+    if (!hasil.ok) {
+      throw hasil
+    }
+    return hasil.data.data
+  }
+export function useProfileD2() {
+  return useQuery<GreetingResponse>({
+    queryKey: ['profiled2'],
+    queryFn: fetchProfileD2,
     staleTime: 1000 * 60 * 1,
     gcTime: 1000 * 60 * 5,
     retry: 1,

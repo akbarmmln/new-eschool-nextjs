@@ -4,15 +4,20 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Dropdown } from "../ui/Dropdown";
 import { DropdownItem } from "../ui/DropdownItem";
-import { useProfile } from '@/hooks/query'
+import { useProfile, useProfileD2 } from '@/hooks/query'
 import { useAccessContext } from '@/context/AccessContext'
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const { data, isLoading: loadingCardProfile } = useProfile()
   const dataAccess = useAccessContext();
   const role = dataAccess?.access?.role
   const tipe_account = dataAccess?.access?.tipe_account
+
+  const profileDS1 = useProfile();
+  const profileD2 = useProfileD2();
+
+  const profileData = tipe_account === "DS1" ? profileDS1.data : profileD2.data;
+  const loadingProfile = tipe_account === "DS1" ? profileDS1.isLoading : profileD2.isLoading;
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
     e.stopPropagation();
@@ -25,7 +30,7 @@ export default function UserDropdown() {
   return (
     <>
       <div className="relative">
-        {loadingCardProfile ? (
+        {loadingProfile ? (
           <>
             <div className=" flex items-center animate-pulse">
               <div className="mr-3 h-11 w-11 rounded-full bg-slate-200" />
@@ -47,7 +52,9 @@ export default function UserDropdown() {
                   />
                 </span>
 
-                <span className="block mr-1 font-medium text-theme-sm">{data?.nama}</span>
+                <span className="block mr-1 font-medium text-theme-sm">
+                  {tipe_account == 'DS1' ? profileData?.nama : 'Wali Murid'}
+                </span>
 
                 <svg
                   className={`stroke-gray-500 dark:stroke-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
@@ -72,11 +79,17 @@ export default function UserDropdown() {
             <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
               {tipe_account == 'DS1' && role == '0' ? 'Admin & Guru'
                 : tipe_account == 'DS1' && role == '1' ? 'Guru'
-                  : 'Wali Murid'
+                  : (
+                    <>
+                      Nama Ayah: {profileData?.nama_ayah}
+                      <br />
+                      Nama Ibu: {profileData?.nama_ibu}
+                    </>
+                  )
               }
             </span>
             <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-              {data?.email}
+              {profileData?.email}
             </span>
           </div>
 

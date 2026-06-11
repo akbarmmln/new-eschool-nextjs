@@ -107,3 +107,8 @@ export const  runNanoID = async (n: any) => {
   const id = customAlphabet(alphabet, n);
   return id();
 }
+
+export const scramble = (a: any) => {
+  let d;
+  a = a.split(""); for (var b = a.length - 1; 0 < b; b--) { var c = Math.floor(Math.random() * (b + 1)); d = a[b]; a[b] = a[c]; a[c] = d } return a.join("")
+}
