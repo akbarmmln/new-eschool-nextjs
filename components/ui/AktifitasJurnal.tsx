@@ -16,7 +16,6 @@ import { allowPage, downloadPdfFromBase64, runNanoID } from "@/utils/utils";
 import { useQueryClient } from '@tanstack/react-query'
 import { compressImage, fileToBase64, formatTanggalIndonesia } from "@/utils/utils";
 import { useAccessContext } from '@/context/AccessContext'
-import dayjs from "dayjs";
 
 type Student = {
   id: string;

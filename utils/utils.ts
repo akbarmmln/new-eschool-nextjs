@@ -112,3 +112,21 @@ export const scramble = (a: any) => {
   let d;
   a = a.split(""); for (var b = a.length - 1; 0 < b; b--) { var c = Math.floor(Math.random() * (b + 1)); d = a[b]; a[b] = a[c]; a[c] = d } return a.join("")
 }
+
+export const hitungUsiaDetail = (tanggalLahir: string) => {
+		if (!isEmpty(tanggalLahir)) {
+			const today = new Date();
+			const birthDate = new Date(tanggalLahir);
+			let tahun = today.getFullYear() - birthDate.getFullYear();
+			let bulan = today.getMonth() - (birthDate.getMonth() + 1);		
+
+			if (bulan < 0) {
+				tahun--;
+				bulan += 12;
+			}
+
+			return `${tahun} tahun ${bulan} bulan`;
+		} else {
+			return `- tahun`;
+		}
+	}
