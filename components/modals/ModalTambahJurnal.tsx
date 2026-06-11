@@ -8,6 +8,7 @@ import dayjs from 'dayjs'
 import { useAccessContext } from '@/context/AccessContext'
 import { useNewJurnal } from "@/hooks/queryJurnal";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from '@tanstack/react-query';
 
 type Props = {
   kelas: any[]
@@ -15,11 +16,8 @@ type Props = {
   onClose: () => void
 }
 
-export default function ModalTambahJurnal({
-  kelas,
-  isLoadingKelas,
-  onClose,
-}: Props) {
+export default function ModalTambahJurnal({ kelas, isLoadingKelas, onClose }: Props) {
+  const queryClient = useQueryClient();
   const [materiPembelajaran, setMateriPembelajaran] = useState('')
   const [refleksiPembelajaran, setRefleksiPembelajaran] = useState('')
   const [selectedKelas, setSelectedKelas] = useState('')
@@ -66,6 +64,10 @@ export default function ModalTambahJurnal({
         confirmButtonColor: "#2563eb",
         scrollbarPadding: false,
         heightAuto: false,
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['jurnal-list'],
       });
 
       router.push(`/akademik/aktifitas-jurnal/${result?.data?.data?.id}`);

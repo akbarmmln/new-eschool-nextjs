@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import Link from "next/link"
 import {id} from 'date-fns/locale'
 import { useState } from "react";
+import { formatTanggalIndonesia } from "@/utils/utils";
 
 type Props = {
   item: any
@@ -75,15 +76,7 @@ export default function JournalCard({ item } : Props) {
       <div className="journal-header">
         <div>
           <h2>
-            {
-              format(
-                new Date(
-                  item.tanggal_jurnal
-                ),
-                'EEEE, dd MMMM yyyy',
-                { locale: id }
-              )
-            }
+            {formatTanggalIndonesia(item.tanggal_jurnal)}
           </h2>
 
           <p>

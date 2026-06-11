@@ -10,7 +10,8 @@ import {
   inisiasiPenilaian,
   updateJurnal,
   submitNilai,
-  doDownloadSingleNilaiHarian
+  doDownloadSingleNilaiHarian,
+  detailAnakCard
 } from '@/services/Call'
 
 // LIST JURNAL \\
@@ -196,7 +197,7 @@ export const useSubmitNilai = () => {
   });
 };
 
-// INVALIDATE PASSWORD \\
+// DOWNLOAD SINGLE NILAI HARIAN \\
 export const useDownloadSingleNilaiHarian = () => {
   return useMutation({
     mutationFn: async (payload: any) => {
@@ -205,3 +206,13 @@ export const useDownloadSingleNilaiHarian = () => {
     },
   });
 };
+
+// RENDER DETAIL CARD ANAK \\
+export const useRenderDetailCardAnak = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = detailAnakCard(payload.page, payload.body)
+      return results;
+    },
+  });
+}

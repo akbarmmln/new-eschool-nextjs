@@ -84,9 +84,7 @@ export async function newjurnal(body: any) {
   return await request(
     "post",
     `/api/v1/jurnal/create-new`,
-    {
-      ...body
-    },
+    body,
     10000
   );
 }
@@ -448,6 +446,15 @@ export async function updadateInformasiWalMur(body: any) {
   return await request(
     "post",
     `/api/v1/profile/ds2/update-personal`,
+    body,
+    10000
+  );
+}
+
+export async function detailAnakCard(page: string, body: any) {
+  return await request(
+    "post",
+    `/api/v1/siswa/jurnal/${page}`,
     body,
     10000
   );
