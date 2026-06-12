@@ -11,7 +11,8 @@ import {
   validateOTP,
   requestResetPassword,
   getProfileD2,
-  updadateInformasiWalMur
+  updadateInformasiWalMur,
+  requestJurnalSiswaDetails
 } from '@/services/Call'
 
 // PROFILE \\
@@ -211,3 +212,29 @@ export const useWalMurDataUpdate = () => {
     },
   });
 };
+
+// WALI JURNAL SISWA DETAILS \\
+type waliJurnalSiswaDetailsResponse = any;
+const fetchWaliJurnalSiswaDetails =
+  async ({
+    queryKey,
+  }: any): Promise<waliJurnalSiswaDetailsResponse> => {
+    const [_, idjurnal, idsiswa] = queryKey
+
+    const hasil: any = await requestJurnalSiswaDetails(idjurnal, idsiswa)
+    if (!hasil.ok) {
+      throw hasil
+    }
+    return hasil.data.data
+  }
+export function useWaliJurnalSiswaDetails(idjurnal: string, idsiswa: string) {
+  return useQuery<waliJurnalSiswaDetailsResponse>({
+    queryKey: ['wali-jurnal-siswa-details', idjurnal, idsiswa],
+    queryFn: fetchWaliJurnalSiswaDetails,
+    staleTime: 1000 * 60 * 1,
+    gcTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  })
+}

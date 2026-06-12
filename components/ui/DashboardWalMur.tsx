@@ -133,9 +133,9 @@ export default function DashboardWalMur() {
 
               return (
                 <button key={anak.id}
-                  disabled={loadingDetail} 
+                  disabled={loadingDetail}
                   onClick={() => handleSelectAnak(anak)}
-                  className={`relative w-[280px] rounded-2xl border-2 p-6 text-left transition 
+                  className={`shrink-0 w-[280px] rounded-2xl border-2 p-6 text-left transition
                     ${active ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white"}
                     ${loadingDetail ? "cursor-not-allowed opacity-70" : "hover:border-blue-300"}`} >
 
@@ -259,7 +259,7 @@ export default function DashboardWalMur() {
                           {item.nama_guru || '-'}
                         </td>
                         <td className="px-8 py-3">
-                          <Link href="#" className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                          <Link href={`/akademik/wali-jurnal/${item.id}/${detailSiswa.anak.id}`} className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                             Lihat Detail  
                           </Link>
                         </td>

@@ -425,7 +425,8 @@ const isMenuActive = (menu: any, pathname: string) => {
     string[]
   > = {
     "/akademik/dashboard": [
-      "/akademik/aktifitas-jurnal"
+      "/akademik/aktifitas-jurnal",
+      "/akademik/wali-jurnal"
     ],
 
     "/akademik/tingkat-kelas": [

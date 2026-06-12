@@ -459,3 +459,12 @@ export async function detailAnakCard(page: string, body: any) {
     10000
   );
 }
+
+export async function requestJurnalSiswaDetails(idjurnal: string, idsiswa: any) {
+  return await request(
+    "get",
+    `/api/v1/siswa/jurnal/detail/${idjurnal}/${idsiswa}`,
+    {},
+    10000
+  );
+}
