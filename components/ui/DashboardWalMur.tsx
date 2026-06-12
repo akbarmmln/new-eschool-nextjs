@@ -28,6 +28,8 @@ export default function DashboardWalMur() {
       sevenDaysAgo.setDate(today.getDate() - 20);
       const public_date_to = dayjs(today).format('DD-MM-YYYY')
       const public_date_from = dayjs(sevenDaysAgo).format('DD-MM-YYYY')
+      
+      if (loadingDetail) return;
 
       setSelectedChild(anak);
       setLoadingDetail(true);
@@ -130,10 +132,12 @@ export default function DashboardWalMur() {
               const active = selectedChild?.id === anak.id;
 
               return (
-                <button key={anak.id} onClick={() => handleSelectAnak(anak)}
-                  className={`shrink-0 w-[280px] rounded-2xl border-2 p-6 text-left transition
+                <button key={anak.id}
+                  disabled={loadingDetail} 
+                  onClick={() => handleSelectAnak(anak)}
+                  className={`relative w-[280px] rounded-2xl border-2 p-6 text-left transition 
                     ${active ? "border-blue-500 bg-blue-50" : "border-slate-200 bg-white"}
-                  `} >
+                    ${loadingDetail ? "cursor-not-allowed opacity-70" : "hover:border-blue-300"}`} >
 
                   <h3 className="mb-6 text-center text-base font-semibold text-slate-700">
                     {anak.nama}
@@ -221,9 +225,7 @@ export default function DashboardWalMur() {
                     <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
                       Pengajar
                     </th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                      Pilihan
-                    </th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -238,10 +240,8 @@ export default function DashboardWalMur() {
                   ) : (
                     detailSiswa?.rows.map((item: any, index: number) => (
                       <tr key={item.id} className={`${index % 2 === 1 ? "bg-slate-50 dark:bg-white/[0.03]" : ""} border-b border-slate-100 dark:border-slate-800`}>
-                        <td className="px-8 py-3">
-                          <Link href="#" className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
-                            {index + 1}.
-                          </Link>
+                        <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
+                          {index + 1}.
                         </td>
                         <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
                           {formatTanggalIndonesia(item.tanggal_jurnal) || '-'}
@@ -258,8 +258,10 @@ export default function DashboardWalMur() {
                         <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
                           {item.nama_guru || '-'}
                         </td>
-                        <td className="px-8 py-3 text-slate-600 dark:text-slate-300">
-                          -
+                        <td className="px-8 py-3">
+                          <Link href="#" className="font-medium text-blue-500 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                            Lihat Detail  
+                          </Link>
                         </td>
                       </tr>
                     ))
