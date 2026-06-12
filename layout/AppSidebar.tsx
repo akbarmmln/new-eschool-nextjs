@@ -329,9 +329,9 @@ const AppSidebar: React.FC = () => {
                   <div className="w-[54px] h-[54px] rounded-full bg-gray-300 dark:bg-gray-700 animate-pulse flex-shrink-0" />
                 ) : (
                   <img
-                    src="/assets/img/avatars/1.png"
+                    src="/assets/img/avatars/user.svg"
                     alt="avatar"
-                    className=" w-[52px] h-[52px] rounded-full object-cover flex-shrink-0 border-2 border-white dark:border-gray-700 shadow-md"
+                    className="w-[52px] h-[52px] rounded-full object-cover flex-shrink-0 border-2 border-white dark:border-gray-700 shadow-md"
                   />
                 )}
 
