@@ -29,7 +29,14 @@ export default function WaliJurnal({ idJurnal, idSiswa }: Props) {
   }
 
   const { data, isLoading, error, isFetching, refetch } = useWaliJurnalSiswaDetails(idJurnal, idSiswa);
-  console.log('asdasdasdasd', data);
+
+  if (error) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf terjadi kesalahan saat memproses data
+      </div>
+    );
+  }
 
   return (
     <>

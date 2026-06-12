@@ -20,6 +20,14 @@ export default function Kelas() {
   const role = dataAccess?.access?.role || '';
   const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
 
+  if (!isAllowed) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
+  
   const [openModalDelete, setOpenModalDelete] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1)
@@ -39,14 +47,6 @@ export default function Kelas() {
 
     return () => clearTimeout(debounceTimer);
   }, [search]);
-
-  if (!isAllowed) {
-    return (
-      <div className="rounded-xl bg-red-100 p-4 text-red-600">
-        Maaf Anda tidak bisa mengakses halaman ini
-      </div>
-    );
-  }
 
   const deletes = useDelete();
   const handleOpenModalDelete = (id: string, nama: string) => {

@@ -24,6 +24,14 @@ export default function TambahSiswa() {
   const role = dataAccess?.access?.role || '';
   const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
 
+  if (!isAllowed) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
+
   const {
     data: dataKelas,
     isLoading: isLoadingKelas,
@@ -228,14 +236,6 @@ export default function TambahSiswa() {
       setTingkatKelasChoose("")
     }
   };
-
-  if (!isAllowed) {
-    return (
-      <div className="rounded-xl bg-red-100 p-4 text-red-600">
-        Maaf Anda tidak bisa mengakses halaman ini
-      </div>
-    );
-  }
   
   return (
     <>

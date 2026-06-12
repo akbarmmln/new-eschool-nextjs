@@ -58,6 +58,14 @@ export default function AktifitasJurnal({ id }: Props) {
 
   const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
 
+  if (!isAllowed) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
+
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<"absensi" | "penilaian">("absensi");
   const [students, setStudents] = useState<Student[]>([]);
@@ -100,6 +108,14 @@ export default function AktifitasJurnal({ id }: Props) {
   const [downloadingIds, setDownloadingIds] = useState<string[]>([]);
 
   const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
+
+  if (error) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Gagal mengambil detail jurnal
+      </div>
+    );
+  }
 
   const {
     data: dataItemPenilaian,
@@ -233,7 +249,6 @@ export default function AktifitasJurnal({ id }: Props) {
   const handleDownload = async (idJurnal: string, idDiajar: string, idSiswa: string, namaSiswa: string) => {
     try {
       setDownloadingIds(prev => [...prev, idSiswa]);
-      console.log('handleDownload', idJurnal, idDiajar, idSiswa, namaSiswa)
       const payload = {
         id_jurnal: idJurnal,
         id_siswa: idSiswa,
@@ -696,23 +711,7 @@ export default function AktifitasJurnal({ id }: Props) {
       );
     }
   };
-
-  if (!isAllowed) {
-    return (
-      <div className="rounded-xl bg-red-100 p-4 text-red-600">
-        Maaf Anda tidak bisa mengakses halaman ini
-      </div>
-    );
-  }
   
-  if (error) {
-    return (
-      <div className="rounded-xl bg-red-100 p-4 text-red-600">
-        Gagal mengambil detail jurnal
-      </div>
-    );
-  }
-
   return (
     <>
       <div className="space-y-6">

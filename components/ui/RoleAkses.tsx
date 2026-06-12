@@ -32,6 +32,14 @@ export default function RoleAkses() {
   const role = dataAccess?.access?.role || '';
   const isAllowed = allowPage(allow_tipe, allow_role, tipe_account, role)
 
+  if (!isAllowed) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
+
   const [currentPage, setCurrentPage] = useState(1)
 
   const { data, isLoading, error, isFetching } = useListRoleAcl(currentPage.toString());
@@ -175,14 +183,6 @@ export default function RoleAkses() {
     items.push('...')
     items.push(total)
     return items
-  }
-
-  if (!isAllowed) {
-    return (
-      <div className="rounded-xl bg-red-100 p-4 text-red-600">
-        Maaf Anda tidak bisa mengakses halaman ini
-      </div>
-    );
   }
 
   return (
