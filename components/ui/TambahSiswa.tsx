@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CustomDatePicker from '@/components/common/DatePicker'
 import { useRouter } from "next/navigation";
 import isEmpty from "@/utils/isEmpty";
 import { useSearchEmailWalMur, useCreate } from "@/hooks/querySiswa";
+import { useDropdownKelas, useSearchKelas } from "@/hooks/queryKelas";
+import { useGetWilayahByKodePos } from "@/hooks/queryAlamat";
 import { useAccessContext } from '@/context/AccessContext'
 import { allowPage } from "@/utils/utils";
 import { compressImage, fileToBase64 } from "@/utils/utils";
-import { useDropdownKelas, useSearchKelas } from "@/hooks/queryKelas";
 import dayjs from 'dayjs'
 import { showAlert } from "@/utils/swal";
 import { useQueryClient } from '@tanstack/react-query';
@@ -40,6 +41,9 @@ export default function TambahSiswa() {
     enabled: true,
   });
 
+  const [kodePos, setKodePos] = useState("");
+  const [openModalAlamat, setOpenModalAlamat] = useState(false);
+
   const [fotoSiswa, setFotoSiswa] = useState("");
   const [fotoPreview, setFotoPreview] = useState("");
   const [isCompressing, setIsCompressing] = useState(false);
@@ -55,6 +59,8 @@ export default function TambahSiswa() {
   const [noRW, setNoRW] = useState('')
   const [kelurahan, setKelurahan] = useState('')
   const [kecamatan, setKecamatan] = useState('')
+  const [wilayah, setWilayah] = useState('')
+  const [wilayahTerpilih, setWilayahTerpilih] = useState('')
 
   const [emailPencarian, setEmailPencarian] = useState('')
   const [isWalMurFound, setIsWalMurFound] = useState(true);
@@ -69,8 +75,11 @@ export default function TambahSiswa() {
   const [ruangkelasChoose, setRuangkelasChoose] = useState('')
   const [jumlahsiswaChoose, setJumlahsiswaChoose] = useState('')
   const [tingkatKelasChoose, setTingkatKelasChoose] = useState('')
+  const [fillDropDownWilayah, setFillDropDownWilayah] = useState<[] | null>(null)
 
   const isPencarianFormValid = !isEmpty(emailPencarian);
+  const isPilihWilayahFormValid = !isEmpty(wilayah);
+  const isKodePosFormValid = !isEmpty(kodePos);
 
   const isFormValid =
     !isEmpty(kelasIdChoose) &&
@@ -236,7 +245,62 @@ export default function TambahSiswa() {
       setTingkatKelasChoose("")
     }
   };
-  
+
+  useEffect(() => {
+    if (openModalAlamat) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalAlamat]);
+
+  const wilayahKodePos = useGetWilayahByKodePos()
+  const handleOpenModalAlamat = () => {
+    setKodePos('')
+    setWilayah('');
+    setOpenModalAlamat(true)
+  }
+  const handleCloseModalAlamat = () => {
+    setKodePos('')
+    setWilayah('');
+    setOpenModalAlamat(false)
+    wilayahKodePos.reset();
+  }
+  const handlePencarianWilayah = async () => {
+    try {
+      setFillDropDownWilayah([])
+      const hasil: any = await wilayahKodePos.mutateAsync(kodePos)
+      if (!hasil.ok) {
+        throw hasil
+      }
+      setFillDropDownWilayah(hasil.data.data)
+    } catch (e) {
+      setFillDropDownWilayah([])
+    }
+  }
+  const handleSavePilihWilayah = () => {
+    const parts = wilayah.split(':');
+
+    const alamat = {
+      provinsi: parts[0] || '',
+      kabupaten: parts[1] || '',
+      kecamatan: parts[2] || '',
+      kelurahan: parts[3] || '',
+      kodePos: parts[4] || '',
+    };
+
+    setWilayahTerpilih(wilayah);
+
+    setKelurahan(alamat.kelurahan);
+    setKecamatan(alamat.kecamatan);
+
+    handleCloseModalAlamat();
+  };
+
   return (
     <>
       <div className="space-y-6">
@@ -564,7 +628,7 @@ export default function TambahSiswa() {
             </div>
 
             {/* ALAMAT + ORANG TUA */}
-            <div className="grid gap-6 lg:grid-cols-2">
+            {/* <div className="grid gap-6 lg:grid-cols-2">
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
                   <h2 className="text-xl font-bold text-slate-800 dark:text-white">
@@ -595,8 +659,13 @@ export default function TambahSiswa() {
 
                         <input
                           type="text"
+                          inputMode="numeric"
+                          maxLength={3}
                           value={noRT}
-                          onChange={(e) => setNoRT(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "");
+                            setNoRT(value);
+                          }}
                           placeholder="000"
                           className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                         />
@@ -610,7 +679,12 @@ export default function TambahSiswa() {
                         <input
                           type="text"
                           value={noRW}
-                          onChange={(e) => setNoRW(e.target.value)}
+                          inputMode="numeric"
+                          maxLength={3}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "");
+                            setNoRW(value);
+                          }}
                           placeholder="000"
                           className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                         />
@@ -647,7 +721,331 @@ export default function TambahSiswa() {
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
 
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                    Data Orang Tua
+                  </h2>
+                </div>
+                
+                <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
+                  <div className="space-y-6">
+                    <label className="mb-2 block text-sm font-semibold text-slate-70 dark:text-white">
+                      Email Aktif
+                    </label>
+
+                    <div className="flex gap-3">
+                      <div className="relative flex-1">
+                        <i className="ri-mail-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+                        <input
+                          type="email"
+                          value={emailPencarian}
+                          onChange={(e) => setEmailPencarian(e.target.value)}
+                          placeholder="example@mail.com"
+                          className="h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500 outline-none transition text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                        />
+                      </div>
+
+                      <button
+                        disabled={!isPencarianFormValid || searchEmailWalMur.isPending}
+                        className={`h-12 rounded-xl bg-blue-600 px-6 text-white hover:bg-blue-700 disabled:opacity-50
+                        ${!isPencarianFormValid || searchEmailWalMur.isPending
+                            ? "cursor-not-allowed bg-slate-400 shadow-none"
+                            : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                          }`}
+                        onClick={handlePencarianWalMur}
+                        type="button">
+
+                        {searchEmailWalMur.isPending
+                          ? "Mencari..."
+                          : "Cari"}
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          Nama Ayah
+                        </label>
+
+                        <div className="relative">
+                          <i className="ti ti-man absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+                          <input
+                            type="text"
+                            placeholder="Nama Lengkap Ayah"
+                            readOnly={isWalMurFound}
+                            value={namaAyah}
+                            onChange={(e) => setNamaAyah(e.target.value)}
+                            className={`h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500 outline-none transition text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400
+                            ${isWalMurFound
+                                ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
+                                : "border-slate-300 focus:border-blue-500"
+                              }`}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          Nama Ibu
+                        </label>
+
+                        <div className="relative">
+                          <i className="ti ti-woman absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+
+                          <input
+                            type="text"
+                            placeholder="Nama Lengkap Ibu"
+                            readOnly={isWalMurFound}
+                            value={namaIbu}
+                            onChange={(e) => setNamaIbu(e.target.value)}
+                            className={`h-12 w-full rounded-xl border border-slate-300 pl-11 pr-4 outline-none focus:border-blue-500 outline-none transition text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400
+                            ${isWalMurFound
+                                ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-500"
+                                : "border-slate-300 focus:border-blue-500"
+                              }`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                      <div className="flex items-start gap-3">
+                        <i className="ri-information-line text-lg text-emerald-600" />
+
+                        <p className="text-sm text-emerald-700">
+                          Pastikan alamat email yang dimasukkan masih aktif karena akan digunakan untuk proses login ke sistem aplikasi
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> */}
+
+            {/* ALAMAT + ORANG TUA NEW PART*/}
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="border-b border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-600 dark:bg-slate-900">
+                  <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                    Alamat Domisili
+                  </h2>
+                </div>
+                <div className="p-6 dark:border-slate-800 dark:bg-slate-900">
+                  <div className="space-y-6">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                        Nama Jalan, Gedung No. Rumah
+                      </label>
+
+                      <input
+                        type="text"
+                        value={alamatLengkap}
+                        onChange={(e) => setAlamatLengkap(e.target.value)}
+                        placeholder="Jl. Contoh No. 123"
+                        className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          RT
+                        </label>
+
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={3}
+                          value={noRT}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "");
+                            setNoRT(value);
+                          }}
+                          placeholder="000"
+                          className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+                          RW
+                        </label>
+
+                        <input
+                          type="text"
+                          value={noRW}
+                          inputMode="numeric"
+                          maxLength={3}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, "");
+                            setNoRW(value);
+                          }}
+                          placeholder="000"
+                          className="h-12 w-full rounded-xl border border-slate-300 px-4 outline-none transition text-slate-900 placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                        />
+                      </div>
+                    </div>
+                    
+                    <button className="mt-8 flex min-h-12 w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-5 py-3 text-left transition hover:border-blue-500 dark:border-slate-700 dark:bg-slate-800"
+                      type="button"
+                      onClick={handleOpenModalAlamat} >
+
+                      {isEmpty(wilayahTerpilih) ? (
+                        <span className="truncate text-slate-400 dark:text-slate-400">
+                          Provinsi, Kota, Kecamatan, Kelurahan
+                        </span>
+                      ) : (
+                          (() => {
+                            const parts = wilayahTerpilih.split(':');
+                            const alamat = {
+                              provinsi: parts[0] || '',
+                              kabupaten: parts[1] || '',
+                              kecamatan: parts[2] || '',
+                              kelurahan: parts[3] || '',
+                              kodePos: parts[4] || '',
+                            };
+                            return <span>
+                              <div className="flex flex-col">
+                                <span className="text-xs text-slate-400">
+                                  Provinsi, Kota, Kecamatan, Kelurahan
+                                </span>
+
+                                <div className="mt-1 flex flex-col text-sm font-medium text-slate-800 dark:text-white">
+                                  <span>{alamat.provinsi}</span>
+                                  <span>{alamat.kabupaten}</span>
+                                  <span>{alamat.kecamatan}</span>
+                                  <span>{alamat.kelurahan}</span>
+                                </div>
+                              </div>
+                            </span>;
+                          })()
+                      )}
+                      <i className="ri-arrow-right-s-line text-xl text-slate-400" />
+                    </button>
+
+                    {openModalAlamat && (
+                      <>
+                        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+                          <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+                            <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+                              <h2 className="text-2xl font-bold tracking-tight text-white">
+                                Lokasi Terpilih
+                              </h2>
+
+                              <button
+                                onClick={handleCloseModalAlamat}
+                                className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                                <i
+                                  className="ri-close-line"
+                                  style={{ fontSize: 30 }}
+                                />
+                              </button>
+                            </div>
+
+                            <div className="space-y-6 p-6">
+                              <div>
+                                <label className="mb-2 block text-sm font-semibold text-slate-70 dark:text-white">
+                                  Kode Pos
+                                </label>
+
+                                <div className="flex gap-3">
+                                  <div className="relative flex-1">
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      maxLength={10}
+                                      value={kodePos}
+                                      onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, "");
+                                        setKodePos(value);
+                                      }}
+                                      placeholder="Isi kode Pos Wilayah Anda"
+                                      className="h-12 w-full rounded-xl border border-slate-300 pl-5 pr-4 outline-none focus:border-blue-500 outline-none transition text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                    />
+                                  </div>
+
+                                  <button
+                                    disabled={!isKodePosFormValid || wilayahKodePos.isPending}
+                                    className={`h-12 rounded-xl bg-blue-600 px-6 text-white hover:bg-blue-700 disabled:opacity-50
+                                      ${!isKodePosFormValid || wilayahKodePos.isPending
+                                        ? "cursor-not-allowed bg-slate-400 shadow-none"
+                                        : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                                      }`}
+                                    onClick={handlePencarianWilayah}
+                                    type="button">
+
+                                    {wilayahKodePos.isPending
+                                      ? "Mencari..."
+                                      : "Cari"}
+                                  </button>
+                                </div>
+                              </div>
+
+                              {wilayahKodePos.isIdle ? (<></>) : (
+                                wilayahKodePos.isPending ? (
+                                  <div className="h-12 w-full animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+                                ) : (
+                                  <div className="form-group">
+                                    <div className="input-icon mt-2">
+                                      <select value={wilayah || ''}
+                                        onChange={(e) =>
+                                          setWilayah(e.target.value)
+                                        } >
+                                          {fillDropDownWilayah?.length == 0 ? (
+                                            <option value="">
+                                              Tidak ada data
+                                            </option>
+                                          ) : (
+                                            <>
+                                              <option value="">
+                                                Pilih salah satu
+                                              </option>
+                                              {
+                                                fillDropDownWilayah?.map((item: any) => (
+                                                  <option key={item.id_kelurahan} value={`${item.nama_provinsi}:${item.kota_kabupaten}:${item.kecamatan}:${item.kelurahan}:${item.kodepos}`}>
+                                                    {`${item.nama_provinsi}, ${item.kota_kabupaten}, ${item.kecamatan}, ${item.kelurahan}, ${item.kodepos}`}
+                                                  </option>
+                                                ))
+                                              }
+                                            </>
+                                          )}
+                                      </select>
+                                      <i className="ri-arrow-down-s-line" />
+                                    </div>
+                                  </div>
+                                )
+                              )}
+
+                              <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
+                                <button
+                                  onClick={() => handleCloseModalAlamat()}
+                                  className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                                  Batalkan
+                                </button>
+
+                                <button
+                                  disabled={!isPilihWilayahFormValid}
+                                  className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition bg-blue-600 shadow-blue-500/20 hover:bg-blue-700
+                                  ${!isPilihWilayahFormValid
+                                      ? "cursor-not-allowed bg-slate-400 shadow-none"
+                                      : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                                    }`} 
+                                  onClick={handleSavePilihWilayah} >
+
+                                  Simpan
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 

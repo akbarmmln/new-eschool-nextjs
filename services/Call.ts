@@ -468,3 +468,12 @@ export async function requestJurnalSiswaDetails(idjurnal: string, idsiswa: any) 
     10000
   );
 }
+
+export async function requestWilayahByKodePos(kodepos: string) {
+  return await request(
+    "get",
+    `/api/v1/settings/alamat/kodepos/${kodepos}`,
+    {},
+    10000
+  );
+}
