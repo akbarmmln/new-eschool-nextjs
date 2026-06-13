@@ -16,7 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 export default function TambahSiswa() {
   const router = useRouter();
   const allow_tipe = ['DS1'];
-  const allow_role = ['0', '1'];
+  const allow_role = ['0', '1', '9'];
   const queryClient = useQueryClient();
 
   const dataAccess = useAccessContext()

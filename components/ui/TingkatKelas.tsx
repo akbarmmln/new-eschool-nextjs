@@ -11,7 +11,7 @@ import { allowPage } from "@/utils/utils";
 
 export default function TingkatKelas() {
   const allow_tipe = ['DS1'];
-  const allow_role = ['0', '1'];
+  const allow_role = ['0', '1', '9'];
 
   const dataAccess = useAccessContext()
   const tipe_account = dataAccess?.access?.tipe_account || '';

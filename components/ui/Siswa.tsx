@@ -12,7 +12,7 @@ import { useListSiswa, useDelete } from "@/hooks/querySiswa";
 
 export default function Kelas() {
   const allow_tipe = ['DS1'];
-  const allow_role = ['0', '1'];
+  const allow_role = ['0', '1', '9'];
   const queryClient = useQueryClient();
 
   const dataAccess = useAccessContext()

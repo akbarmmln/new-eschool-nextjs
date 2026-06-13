@@ -50,7 +50,7 @@ const convertStatusToAbsensi = (
 
 export default function AktifitasJurnal({ id }: Props) {
   const allow_tipe = ['DS1'];
-  const allow_role = ['0', '1'];
+  const allow_role = ['0', '1', '9'];
 
   const dataAccess = useAccessContext()
   const tipe_account = dataAccess?.access?.tipe_account || '';

@@ -7,9 +7,7 @@ import { useAccessContext } from '@/context/AccessContext'
 export default function Dashboard() {
   const dataAccess = useAccessContext()
 
-  if (dataAccess?.access?.role == '0') {
-    return <DashboardAdminAndGuru />
-  } else if (dataAccess?.access?.role == '1') {
+  if (dataAccess?.access?.role == '0' || dataAccess?.access?.role == '1' || dataAccess?.access?.role == '9') {
     return <DashboardAdminAndGuru />
   } else {
     return <DashboardWalMur />

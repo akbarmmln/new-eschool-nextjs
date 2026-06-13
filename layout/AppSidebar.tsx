@@ -14,6 +14,7 @@ const AppSidebar: React.FC = () => {
   const dataAccess = useAccessContext();
   const role = dataAccess?.access?.role
   const tipe_account = dataAccess?.access?.tipe_account
+  const jabatan = dataAccess?.access?.jabatan
 
   const {
     isExpanded,
@@ -359,7 +360,7 @@ const AppSidebar: React.FC = () => {
                   ) : (
                     <div
                       className="mt-1 text-[13px] text-gray-500 dark:text-gray-400" >
-                      { tipe_account == 'DS1' && role == '0' ?  'Admin & Guru' 
+                      { tipe_account == 'DS1' && (role == '0' || role == '9') ?  'Admin & Guru' 
                         : tipe_account == 'DS1' && role == '1'  ? 'Guru' 
                         : (
                           <span className="text-[15px] font-semibold text-gray-700 dark:text-gray-300">

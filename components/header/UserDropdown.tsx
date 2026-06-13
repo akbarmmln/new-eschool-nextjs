@@ -77,7 +77,7 @@ export default function UserDropdown() {
           onClose={closeDropdown} >
           <div>
             <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-              {tipe_account == 'DS1' && role == '0' ? 'Admin & Guru'
+              {tipe_account == 'DS1' && (role == '0' || role == '9') ? 'Admin & Guru'
                 : tipe_account == 'DS1' && role == '1' ? 'Guru'
                   : (
                     <>

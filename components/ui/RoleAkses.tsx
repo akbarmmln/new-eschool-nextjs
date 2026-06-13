@@ -12,7 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export default function RoleAkses() {
   const allow_tipe = ['DS1'];
-  const allow_role = ['0'];
+  const allow_role = ['0', '9'];
   const queryClient = useQueryClient();
 
   const [selectedId, setSelectedId] = useState('');

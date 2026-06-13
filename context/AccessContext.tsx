@@ -6,7 +6,8 @@ type Access = {
   id_account?: string
   role?: string
   tipe_account?: string
-  sessionLogin?: string
+  sessionLogin?: string,
+  jabatan?: string
 }
 
 type AccessContextType = {

@@ -1,8 +1,22 @@
 "use client";
 
 import Image from "next/image";
+import { useAccessContext } from '@/context/AccessContext'
 
 export default function PengaturanSitus() {
+  const dataAccess = useAccessContext()
+  const tipe_account = dataAccess?.access?.tipe_account || '';
+  const role = dataAccess?.access?.role || '';
+  const jabatan = dataAccess?.access?.jabatan || '';
+
+  if (!(tipe_account == 'DS1' && (role == '9' || jabatan == 'principal'))) {
+    return (
+      <div className="rounded-xl bg-red-100 p-4 text-red-600">
+        Maaf Anda tidak bisa mengakses halaman ini
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="space-y-6">
@@ -12,8 +26,8 @@ export default function PengaturanSitus() {
               Pengaturan Situs
             </h1>
 
-            <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-              <span>Berikan informasi tentang Lembaga Anda. Atur Logo, Foto Background, Visi dan Misi, dan Latar Sejarah Pembentukan</span>
+            <div className="mt-2 flex items-center gap-2 text-sm text-slate-500 text-justify">
+              <span>Berikan informasi tentang Lembaga Anda. Atur Nama, Logo, Latar Background, Visi Misi, dan Sejarah Pembentukan.</span>
             </div>
           </div>
         </div>
@@ -88,13 +102,13 @@ export default function PengaturanSitus() {
 
         <div className="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm dark:border-slate-100 dark:bg-slate-900">
           <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 md:px-10">
-            <h2 className="text-xl font-bold text-slate-900 md:text-2xl dark:text-white">
+            <h2 className="text-xl font-semibold text-slate-700 md:text-xl dark:text-white">
               Informasi Lembaga
             </h2>
 
-            <button type="button" className="inline-flex items-center gap-2 text-base font-semibold text-teal-600 transition hover:text-teal-700">
-              <i className="ri-file-edit-line text-lg dark:text-gray-500" />
-              <span className="dark:text-gray-500">Ubah</span>
+            <button type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
+              <i className="ri-file-edit-line text-lg dark:text-blue-500" />
+              <span className="dark:text-blue-500">Ubah</span>
             </button>
           </div>
 
@@ -104,7 +118,7 @@ export default function PengaturanSitus() {
                 NAMA
               </p>
 
-              <h3 className="text-xl font-bold leading-relaxed text-slate-900 dark:text-white">
+              <h3 className="text-xl leading-relaxed text-slate-900 dark:text-white">
                 Pendidikan Indonesia
               </h3>
             </div>
@@ -144,13 +158,13 @@ export default function PengaturanSitus() {
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white xl:col-span-2 dark:border-slate-100 dark:bg-slate-900">
             <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 md:px-10">
-              <h2 className="text-xl font-bold text-slate-900 md:text-2xl dark:text-white">
+              <h2 className="text-xl font-semibold text-slate-700 md:text-xl dark:text-white">
                 Visi dan Misi
               </h2>
 
-              <button type="button" className="inline-flex items-center gap-2 text-base font-semibold text-teal-600 transition hover:text-teal-700">
-                <i className="ri-file-edit-line text-lg dark:text-gray-500" />
-                <span className="dark:text-gray-500">Ubah</span>
+              <button type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
+                <i className="ri-file-edit-line text-lg dark:text-blue-500" />
+                <span className="dark:text-blue-500">Ubah</span>
               </button>
             </div>
 
@@ -180,7 +194,7 @@ export default function PengaturanSitus() {
                   </h3>
                 </div>
 
-                <ul className="space-y-4 pl-8 text-xl leading-relaxed text-slate-600 dark:text-white">
+                <ul className="space-y-4 pl-8 text-xl leading-relaxed text-slate-600 text-justify dark:text-white">
                   <li className="list-disc">
                     Upholding the highest standards of academic honesty
                     and transparency.
@@ -207,28 +221,23 @@ export default function PengaturanSitus() {
 
           <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-100 dark:bg-slate-900">
             <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 md:px-10">
-              <h2 className="text-xl font-bold text-slate-900 md:text-2xl dark:text-white">
+              <h2 className="text-xl font-semibold text-slate-700 md:text-xl dark:text-white">
                 Latar Sejarah
               </h2>
 
-              <button type="button" className="inline-flex items-center gap-2 text-base font-semibold text-teal-600 transition hover:text-teal-700">
-                <i className="ri-file-edit-line text-lg dark:text-gray-500" />
-                <span className="dark:text-gray-500">Ubah</span>
+              <button type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
+                <i className="ri-file-edit-line text-lg dark:text-blue-500" />
+                <span className="dark:text-blue-500">Ubah</span>
               </button>
             </div>
 
-            <div className="space-y-8 p-10 text-slate-600 dark:text-white">
+            <div className="space-y-8 p-10 text-slate-600 dark:text-white text-justify">
               <p className="text-xl leading-relaxed">
-                Established in 1998, the Foundation began as a small
-                research initiative focused on improving primary
-                school pedagogy in Southeast Asia.
+                Established in 1998, the Foundation began as a small research initiative focused on improving primary school pedagogy in Southeast Asia.
               </p>
 
               <p className="text-xl leading-relaxed">
-                Over two decades, it has evolved into a nationwide
-                network of journals and educational centers,
-                currently supporting over 500 active teaching
-                professionals.
+                Over two decades, it has evolved into a nationwide network of journals and educational centers, currently supporting over 500 active teaching professionals.
               </p>
             </div>
           </div>
