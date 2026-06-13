@@ -68,7 +68,7 @@ export default function WaliJurnal({ idJurnal, idSiswa }: Props) {
         </>
       ) : (
         <>
-          <div className="space-y-6 animate-pulse">
+          <div className="space-y-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <h1 className="text-2xl text-slate-800 dark:text-white">
@@ -84,84 +84,86 @@ export default function WaliJurnal({ idJurnal, idSiswa }: Props) {
             </div>
           </div>
 
-          <div className="mt-10 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-              <DetailItem
-                icon={
-                  <i
-                    className="ri-calendar-2-line"
-                    style={{ fontSize: 22 }}
+          <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div className="dark:border-slate-800 dark:bg-slate-900">
+                <div className="p-6 grid grid-cols-1 gap-5 lg:grid-cols-2">
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ri-calendar-2-line"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Tanggal dan Jam Mengajar"
+                    value={`${formatTanggalIndonesia(data?.parent?.tanggal_jurnal)} • ${data?.parent?.jam_mulai} - ${data?.parent?.jam_selesai}`}
                   />
-                }
-                title="Tanggal dan Jam Mengajar"
-                value={`${formatTanggalIndonesia(data?.parent?.tanggal_jurnal)} • ${data?.parent?.jam_mulai} - ${data?.parent?.jam_selesai}`}
-              />
 
-              <DetailItem
-                icon={
-                  <i
-                    className="ri-building-line"
-                    style={{ fontSize: 22 }}
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ri-building-line"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Kelas"
+                    value={data?.parent?.nama_kelas || '-'}
                   />
-                }
-                title="Kelas"
-                value={data?.parent?.nama_kelas || '-'}
-              />
 
-              <DetailItem
-                icon={
-                  <i
-                    className="ri-book-open-line"
-                    style={{ fontSize: 22 }}
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ri-book-open-line"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Materi"
+                    value={data?.parent?.materi || '-'}
+                    isHtml={true}
                   />
-                }
-                title="Materi"
-                value={data?.parent?.materi || '-'}
-                isHtml={true}
-              />
 
-              <DetailItem
-                icon={
-                  <i
-                    className="ri-user-voice-line"
-                    style={{ fontSize: 22 }}
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ri-user-voice-line"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Refleksi"
+                    value={data?.parent?.refleksi || '-'}
+                    isHtml={true}
                   />
-                }
-                title="Refleksi"
-                value={data?.parent?.refleksi || '-'}
-                isHtml={true}
-              />
 
-              <DetailItem
-                icon={
-                  <i
-                    className="ri-presentation-line"
-                    style={{ fontSize: 22 }}
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ri-presentation-line"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Pengajar"
+                    value={data?.parent?.nama_guru || "-"}
                   />
-                }
-                title="Pengajar"
-                value={data?.parent?.nama_guru || "-"}
-              />
 
-              <DetailItem
-                icon={
-                  <i
-                    className="ti ti-bookmark-edit me-2"
-                    style={{ fontSize: 22 }}
+                  <DetailItem
+                    icon={
+                      <i
+                        className="ti ti-bookmark-edit me-2"
+                        style={{ fontSize: 22 }}
+                      />
+                    }
+                    title="Kehadiran"
+                      value={data?.subParent?.absensi == 1
+                        ? "Hadir"
+                        : data?.subParent?.absensi == 2
+                        ? "Ijin"
+                        : data?.subParent?.absensi == 3
+                        ? "Sakit"
+                        : data?.subParent?.absensi == 4
+                        ? "Alpha"
+                        : "-"}
                   />
-                }
-                title="Kehadiran"
-                  value={data?.subParent?.absensi == 1
-                    ? "Hadir"
-                    : data?.subParent?.absensi == 2
-                    ? "Ijin"
-                    : data?.subParent?.absensi == 3
-                    ? "Sakit"
-                    : data?.subParent?.absensi == 4
-                    ? "Alpha"
-                    : "-"}
-              />
-            </div>
+                </div>
+              </div>
           </div>
 
           <div className="mt-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
