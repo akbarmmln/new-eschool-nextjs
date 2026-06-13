@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export default function PengaturanSitus() {
   return (
     <>
@@ -11,8 +13,76 @@ export default function PengaturanSitus() {
             </h1>
 
             <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
-              <span>Akademik</span>
+              <span>Berikan informasi tentang Lembaga Anda. Atur Logo, Foto Background, Visi dan Misi, dan Latar Sejarah Pembentukan</span>
             </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <div className="relative">
+            <label className="relative flex h-[250px] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+              <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
+                <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
+              </button>
+
+              <Image
+                width={250}
+                height={250}
+                src="/images/error/broken-file.svg"
+                alt="Logo"
+                className="opacity-100"
+              />
+
+              <div className="absolute bottom-0 left-0 right-0 bg-blue-600/70 px-4 py-3 text-center" >
+                <p className="text-sm font-semibold text-white">
+                  Logo Singkat
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <div className="relative">
+            <label className="relative flex h-[250px] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+              <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
+                <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
+              </button>
+
+              <Image
+                width={250}
+                height={250}
+                src="/images/error/broken-file.svg"
+                alt="Logo"
+                className="opacity-100"
+              />
+
+              <div className="absolute bottom-0 left-0 right-0 bg-blue-600/70 px-4 py-3 text-center" >
+                <p className="text-sm font-semibold text-white">
+                  Logo Panjang
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <div className="relative">
+            <label className="relative flex h-[250px] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+              <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
+                <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
+              </button>
+
+              <Image
+                width={250}
+                height={250}
+                src="/images/error/broken-file.svg"
+                alt="Logo"
+                className="opacity-100"
+              />
+
+              <div className="absolute bottom-0 left-0 right-0 bg-blue-600/70 px-4 py-3 text-center" >
+                <p className="text-sm font-semibold text-white">
+                  Latar Background
+                </p>
+              </div>
+            </label>
           </div>
         </div>
 
