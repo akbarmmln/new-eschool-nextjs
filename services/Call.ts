@@ -477,3 +477,12 @@ export async function requestWilayahByKodePos(kodepos: string) {
     10000
   );
 }
+
+export async function requestInformasiSitus() {
+  return await request(
+    "get",
+    `/api/v1/settings`,
+    {},
+    10000
+  );
+}

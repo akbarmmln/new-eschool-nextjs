@@ -12,7 +12,8 @@ import {
   requestResetPassword,
   getProfileD2,
   updadateInformasiWalMur,
-  requestJurnalSiswaDetails
+  requestJurnalSiswaDetails,
+  requestInformasiSitus
 } from '@/services/Call'
 
 // PROFILE \\
@@ -231,6 +232,30 @@ export function useWaliJurnalSiswaDetails(idjurnal: string, idsiswa: string) {
   return useQuery<waliJurnalSiswaDetailsResponse>({
     queryKey: ['wali-jurnal-siswa-details', idjurnal, idsiswa],
     queryFn: fetchWaliJurnalSiswaDetails,
+    staleTime: 1000 * 60 * 1,
+    gcTime: 1000 * 60 * 5,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  })
+}
+
+// INFORMASI SITUS \\
+type informasiSitusResponse = any;
+const fetchInformasiSitus =
+  async ({
+    queryKey,
+  }: any): Promise<informasiSitusResponse> => {
+    const hasil: any = await requestInformasiSitus()
+    if (!hasil.ok) {
+      throw hasil
+    }
+    return hasil.data.data
+  }
+export function useGetInformasiSitus() {
+  return useQuery<informasiSitusResponse>({
+    queryKey: ['informasi-stius'],
+    queryFn: fetchInformasiSitus,
     staleTime: 1000 * 60 * 1,
     gcTime: 1000 * 60 * 5,
     retry: 1,
