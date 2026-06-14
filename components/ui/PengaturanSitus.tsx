@@ -498,42 +498,70 @@ export default function PengaturanSitus() {
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Alamat
                   </label>
-                  <button className="flex min-h-12 w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-5 py-3 text-left transition hover:border-blue-500"
+
+                  <button
+                    className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-5 py-3 text-left transition hover:border-blue-500"
                     type="button"
                     onClick={handleOpenModalAlamat} >
+                    {/* Informasi alamat */}
+                    <div className="flex-1">
+                      {isEmpty(wilayahTerpilih) ? (
+                        <span className="truncate text-slate-400">
+                          Provinsi, Kota, Kecamatan, Kelurahan
+                        </span>
+                      ) : (
+                        (() => {
+                          const parts = wilayahTerpilih.split(":");
 
-                    {isEmpty(wilayahTerpilih) ? (
-                      <span className="truncate text-slate-400 dark:text-slate-400">
-                        Provinsi, Kota, Kecamatan, Kelurahan
-                      </span>
-                    ) : (
-                      (() => {
-                        const parts = wilayahTerpilih.split(':');
-                        const alamat = {
-                          provinsi: parts[0] || '',
-                          kabupaten: parts[1] || '',
-                          kecamatan: parts[2] || '',
-                          kelurahan: parts[3] || '',
-                          kodePos: parts[4] || '',
-                        };
-                        return <span>
-                          <div className="flex flex-col">
-                            <span className="text-xs text-slate-400">
-                              Provinsi, Kota, Kecamatan, Kelurahan
-                            </span>
+                          const alamat = {
+                            provinsi: parts[0] || "",
+                            kabupaten: parts[1] || "",
+                            kecamatan: parts[2] || "",
+                            kelurahan: parts[3] || "",
+                            kodePos: parts[4] || "",
+                          };
 
-                            <div className="mt-1 flex flex-col text-sm font-medium text-slate-800">
-                              <span>{alamat.provinsi}</span>
-                              <span>{alamat.kabupaten}</span>
-                              <span>{alamat.kecamatan}</span>
-                              <span>{alamat.kelurahan}</span>
-                              <span>{alamat.kodePos}</span>
+                          return (
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-400">
+                                Provinsi, Kota, Kecamatan, Kelurahan
+                              </span>
+
+                              <div className="mt-1 flex flex-col text-sm font-medium text-slate-800">
+                                <span>{alamat.provinsi}</span>
+                                <span>{alamat.kabupaten}</span>
+                                <span>{alamat.kecamatan}</span>
+                                <span>{alamat.kelurahan}</span>
+                                <span>{alamat.kodePos}</span>
+                              </div>
                             </div>
-                          </div>
-                        </span>;
-                      })()
-                    )}
-                    <i className="ri-arrow-right-s-line text-xl text-slate-400" />
+                          );
+                        })()
+                      )}
+                    </div>
+
+                    {/* Icon kanan */}
+                    <div className="ml-4 flex w-8 shrink-0 flex-col items-center gap-2">
+                      {!isEmpty(wilayahTerpilih) && (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+
+                            setWilayahTerpilih("");
+                            setWilayah("");
+                            setKodePosPencarian("");
+                            setFillDropDownWilayah([]);
+
+                            wilayahKodePos.reset();
+                          }}
+                          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 shadow-sm transition hover:border-red-500 hover:bg-red-500 hover:text-white"
+                        >
+                          <i className="ri-close-line text-sm" />
+                        </span>
+                      )}
+
+                      <i className="ri-arrow-right-s-line text-2xl text-slate-400" />
+                    </div>
                   </button>
 
                   {openModalAlamat && (
@@ -674,7 +702,7 @@ export default function PengaturanSitus() {
                   </label>
 
                   <input
-                    type="text"
+                    type="number"
                     value={nomorTelepon}
                     onChange={(e) => setNomorTelepon(e.target.value)}
                     className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"

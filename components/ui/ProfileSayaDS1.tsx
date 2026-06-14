@@ -735,7 +735,7 @@ export default function ProfileSayaDS1() {
                   </label>
 
                   <input
-                    type="text"
+                    type="number"
                     value={nomorTelepon}
                     onChange={(e) => setNomorTelepon(e.target.value)}
                     className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"

@@ -61,7 +61,7 @@ export default function DashboardAdmin() {
             <div className="role-box">
               <i className="ri-team-line" />
               <span>
-                {role == '0' ? 'Admin & Guru wali kelas ' : 'Guru wali kelas '}
+                {role == '0' || role == '9' ? 'Admin & Guru wali kelas ' : 'Guru wali kelas '}
                  {data?.nama_kelas}
               </span>
             </div>

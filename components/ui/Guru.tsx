@@ -300,7 +300,7 @@ export default function Kelas() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {role == '0' ? (
+            {role == '0' || role == '9' ? (
               isLoading || isFetching ? (
               <>
                   <div className="h-[46px] w-[140px] animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
@@ -445,7 +445,7 @@ export default function Kelas() {
                       </th>
 
                       <th className="px-8 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        {role == '0' ? 'Aksi' : ''}
+                        {role == '0' || role == '9' ? 'Aksi' : ''}
                       </th>
                     </tr>
                   </thead>
@@ -467,7 +467,7 @@ export default function Kelas() {
                           {item.email || '-'}
                         </td>
                         <td className="px-8 py-3">
-                          {role == '0' && item.id != id_account ? (
+                          {(role == '0' || role == '9') && item.id != id_account ? (
                             <div className="flex items-center justify-center gap-4">
                               <Tooltip text={`Ubah Data ${item.nama}`}>
                                 <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"

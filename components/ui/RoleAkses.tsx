@@ -343,7 +343,7 @@ export default function RoleAkses() {
                         {item.adr_teacher.jabatan || '-'}
                       </td>
                       <td className="px-8 py-3">
-                        {role == '0' ? (
+                        {role == '0' || role == '9' ? (
                           <div className="flex items-center justify-center gap-4">
                             <Tooltip text={`Ubah Akses ${item.adr_teacher.nama}`}>
                               <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
