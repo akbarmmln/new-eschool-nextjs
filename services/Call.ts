@@ -2,7 +2,6 @@ import isEmpty from "@/utils/isEmpty";
 import { request } from "./Request";
 
 export async function login(email: string, password: string) {
-
   return await request(
     "post",
     "/api/v1/auth/login",
@@ -483,6 +482,15 @@ export async function requestInformasiSitus() {
     "get",
     `/api/v1/settings`,
     {},
+    10000
+  );
+}
+
+export async function updateInformasiSitus(body: any) {
+  return await request(
+    "post",
+    `/api/v1/settings/update/lembaga`,
+    body,
     10000
   );
 }

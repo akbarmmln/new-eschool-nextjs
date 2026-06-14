@@ -3,15 +3,18 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useAccessContext } from '@/context/AccessContext'
-import { useGetInformasiSitus } from "@/hooks/query";
+import { useGetInformasiSitus, useUpdateInformasiSitus } from "@/hooks/query";
 import isEmpty from "@/utils/isEmpty";
 import { useGetWilayahByKodePos } from "@/hooks/queryAlamat";
+import { showAlert } from "@/utils/swal";
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function PengaturanSitus() {
   const dataAccess = useAccessContext()
   const tipe_account = dataAccess?.access?.tipe_account || '';
   const role = dataAccess?.access?.role || '';
   const jabatan = dataAccess?.access?.jabatan || '';
+  const queryClient = useQueryClient();
 
   if (!(tipe_account == 'DS1' && (role == '9' || jabatan == 'principal'))) {
     return (
@@ -22,18 +25,19 @@ export default function PengaturanSitus() {
   }
 
   const { data, isLoading, error, isFetching, refetch } = useGetInformasiSitus();
-  console.log('asdasdasd', data)
+  
   const [openModalEditIL, setOpenModalEditIL] = useState(false);
   const [openModalAlamat, setOpenModalAlamat] = useState(false);
   const [namaLembaga, setNamaLembaga] = useState('');
+  const [alamat, setAlamat] = useState('');
   const [nomorTelepon, setNomorTelepon] = useState('');
   const [email, setEmail] = useState('');
   const [wilayahTerpilih, setWilayahTerpilih] = useState('')
-  const [kodePos, setKodePos] = useState("");
+  const [kodePosPencarian, setKodePosPencarian] = useState("");
   const [wilayah, setWilayah] = useState('')
   const [fillDropDownWilayah, setFillDropDownWilayah] = useState<[] | null>(null)
 
-  const isKodePosFormValid = !isEmpty(kodePos);
+  const isKodePosFormValid = !isEmpty(kodePosPencarian);
   const isPilihWilayahFormValid = !isEmpty(wilayah);
 
   useEffect(() => {
@@ -47,20 +51,21 @@ export default function PengaturanSitus() {
       document.body.style.overflow = "auto";
     };
   }, [openModalEditIL]);
-
+  
   const handleOpenEditIL = () => {
     if (data) {
       const provinsi = data.settings.provinsi || '';
       const kotakab = data.settings.kota_kab  || '';
       const kecamatan = data.settings.kecamatan  || '';
       const kelurahan = data.settings.kelurahan  || '';
-      const kodepos = data.settings.kode_pos  || '';
+      const kode_pos = data.settings.kode_pos  || '';
 
       setNamaLembaga(data?.settings?.nama_yayasan || '')
+      setAlamat(data?.settings?.alamat || '')
       setEmail(data?.settings?.alamat_email || '')
       setNomorTelepon(data?.settings?.nomor_telepon || '')
-      if (provinsi && kotakab && kecamatan && kelurahan && kodePos) {
-        setWilayahTerpilih(`${provinsi}:${kotakab}:${kecamatan}:${kelurahan}:${kodepos}`)
+      if (provinsi && kotakab && kecamatan && kelurahan && kode_pos) {
+        setWilayahTerpilih(`${provinsi}:${kotakab}:${kecamatan}:${kelurahan}:${kode_pos}`)
       } else {
         setWilayahTerpilih('')
       }
@@ -69,6 +74,7 @@ export default function PengaturanSitus() {
   }
   const handleCloseEditIL = () => {
     setNamaLembaga('')
+    setAlamat('')
     setEmail('')
     setNomorTelepon('')
     setOpenModalEditIL(false)
@@ -76,12 +82,12 @@ export default function PengaturanSitus() {
 
   const wilayahKodePos = useGetWilayahByKodePos()
   const handleOpenModalAlamat = () => {
-    setKodePos('')
+    setKodePosPencarian('')
     setWilayah('');
     setOpenModalAlamat(true)
   }
   const handleCloseModalAlamat = () => {
-    setKodePos('')
+    setKodePosPencarian('')
     setWilayah('');
     setOpenModalAlamat(false)
     wilayahKodePos.reset();
@@ -89,7 +95,7 @@ export default function PengaturanSitus() {
   const handlePencarianWilayah = async () => {
     try {
       setFillDropDownWilayah([])
-      const hasil: any = await wilayahKodePos.mutateAsync(kodePos)
+      const hasil: any = await wilayahKodePos.mutateAsync(kodePosPencarian)
       if (!hasil.ok) {
         throw hasil
       }
@@ -99,19 +105,60 @@ export default function PengaturanSitus() {
     }
   }
   const handleSavePilihWilayah = () => {
-    const parts = wilayah.split(':');
-
-    const alamat = {
-      provinsi: parts[0] || '',
-      kabupaten: parts[1] || '',
-      kecamatan: parts[2] || '',
-      kelurahan: parts[3] || '',
-      kodePos: parts[4] || '',
-    };
-
     setWilayahTerpilih(wilayah);
     handleCloseModalAlamat();
   };
+
+  const updateIL = useUpdateInformasiSitus()
+  const handleSaveIL = async () => {
+    try {
+      const parts = wilayahTerpilih.split(':');
+      const alamatParts = {
+        provinsi: parts[0] || '',
+        kabupaten: parts[1] || '',
+        kecamatan: parts[2] || '',
+        kelurahan: parts[3] || '',
+        kodePos: parts[4] || '',
+      };
+      const payload = {
+        id: data?.settings?.id,
+        objectUpdate: {
+          nama_yayasan: namaLembaga,
+          alamat: alamat,
+          provinsi: alamatParts.provinsi,
+          kota_kab: alamatParts.kabupaten,
+          kecamatan: alamatParts.kecamatan,
+          kelurahan: alamatParts.kelurahan,
+          kode_pos: alamatParts.kodePos,
+          alamat_email: email,
+          nomor_telepon: nomorTelepon
+        }
+      }
+      
+      const hasil = await updateIL.mutateAsync(payload)
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data informasi situs berhasil diperbaharui"
+      );
+
+      handleCloseEditIL()
+
+      await queryClient.invalidateQueries({
+        queryKey: ['informasi-situs'],
+      });
+    } catch (e: any) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui data informasi situs`,
+      );
+    }
+  }
 
   return (
     <>
@@ -244,7 +291,7 @@ export default function PengaturanSitus() {
                 </p>
 
                 <h3 className="text-xl leading-relaxed text-slate-900 dark:text-white">
-                  Pendidikan Indonesia
+                  {data?.settings?.nama_yayasan || '-'}
                 </h3>
               </div>
 
@@ -254,7 +301,25 @@ export default function PengaturanSitus() {
                 </p>
 
                 <p className="text-lg leading-relaxed text-slate-800 dark:text-white">
-                  Jl. Pendidikan No. 123, Jakarta
+                  {(() => {
+                    const alamat = data?.settings?.alamat;
+                    const provinsi = data?.settings?.provinsi;
+                    const kota_kab = data?.settings?.kota_kab;
+                    const kecamatan = data?.settings?.kecamatan;
+                    const kelurahan = data?.settings?.kelurahan;
+
+                    if (isEmpty(alamat) && isEmpty(provinsi) && isEmpty(kota_kab) && isEmpty(kecamatan) && isEmpty(kelurahan)) {
+                      return <>-</>;
+                    } else if (isEmpty(alamat) && !(isEmpty(provinsi) && isEmpty(kota_kab) && isEmpty(kecamatan) && isEmpty(kelurahan))) {
+                      return <>{provinsi}, {kota_kab}, {kecamatan}, {kelurahan}</>;
+                    } else if (!isEmpty(alamat) && (isEmpty(provinsi) && isEmpty(kota_kab) && isEmpty(kecamatan) && isEmpty(kelurahan))) {
+                      return <>{alamat}</>;
+                    } else if (!isEmpty(alamat) && !(isEmpty(provinsi) && isEmpty(kota_kab) && isEmpty(kecamatan) && isEmpty(kelurahan))) {
+                      return <>{alamat}, {provinsi}, {kota_kab}, {kecamatan}, {kelurahan}</>;
+                    } else {
+                      return <>-</>;
+                    }
+                  })()}
                 </p>
               </div>
 
@@ -264,7 +329,7 @@ export default function PengaturanSitus() {
                 </p>
 
                 <p className="break-all text-lg text-slate-800 dark:text-white">
-                  contact@yayasan.id
+                  {data?.settings?.alamat_email || '-'}
                 </p>
               </div>
 
@@ -274,7 +339,7 @@ export default function PengaturanSitus() {
                 </p>
 
                 <p className="text-lg text-slate-800 dark:text-white">
-                  +62 21 555 0123
+                  {data?.settings?.nomor_telepon || '-'}
                 </p>
               </div>
             </div>
@@ -418,6 +483,19 @@ export default function PengaturanSitus() {
 
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Nama Jalan, Gedung, No. Rumah
+                  </label>
+
+                  <input
+                    type="text"
+                    value={alamat}
+                    onChange={(e) => setAlamat(e.target.value)}
+                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Alamat
                   </label>
                   <button className="flex min-h-12 w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-5 py-3 text-left transition hover:border-blue-500"
@@ -449,6 +527,7 @@ export default function PengaturanSitus() {
                               <span>{alamat.kabupaten}</span>
                               <span>{alamat.kecamatan}</span>
                               <span>{alamat.kelurahan}</span>
+                              <span>{alamat.kodePos}</span>
                             </div>
                           </div>
                         </span>;
@@ -488,10 +567,10 @@ export default function PengaturanSitus() {
                                     type="text"
                                     inputMode="numeric"
                                     maxLength={10}
-                                    value={kodePos}
+                                    value={kodePosPencarian}
                                     onChange={(e) => {
                                       const value = e.target.value.replace(/\D/g, "");
-                                      setKodePos(value);
+                                      setKodePosPencarian(value);
                                     }}
                                     placeholder="Isi kode Pos Wilayah Anda"
                                     className="h-12 w-full rounded-xl border border-slate-300 pl-5 pr-4 outline-none focus:border-blue-500 outline-none transition text-slate-900 placeholder:text-slate-400"
@@ -601,6 +680,23 @@ export default function PengaturanSitus() {
                     className="h-[48px] w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-blue-500"
                   />
                 </div>
+              </div>
+
+              <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
+                <button
+                  onClick={() => handleCloseEditIL()}
+                  className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                  Batalkan
+                </button>
+
+                <button
+                  className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition bg-blue-600 shadow-blue-500/20 hover:bg-blue-700`}
+                  onClick={handleSaveIL} >
+
+                  {updateIL.isPending
+                    ? "Menyimpan..."
+                    : "Simpan Perubahan"}
+                </button>
               </div>
             </div>
           </div>

@@ -13,7 +13,8 @@ import {
   getProfileD2,
   updadateInformasiWalMur,
   requestJurnalSiswaDetails,
-  requestInformasiSitus
+  requestInformasiSitus,
+  updateInformasiSitus
 } from '@/services/Call'
 
 // PROFILE \\
@@ -254,7 +255,7 @@ const fetchInformasiSitus =
   }
 export function useGetInformasiSitus() {
   return useQuery<informasiSitusResponse>({
-    queryKey: ['informasi-stius'],
+    queryKey: ['informasi-situs'],
     queryFn: fetchInformasiSitus,
     staleTime: 1000 * 60 * 1,
     gcTime: 1000 * 60 * 5,
@@ -263,3 +264,13 @@ export function useGetInformasiSitus() {
     refetchOnMount: false,
   })
 }
+
+// UPDATE INFORMASI SITUS \\
+export const useUpdateInformasiSitus = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      const results = updateInformasiSitus(payload)
+      return results;
+    },
+  });
+};
