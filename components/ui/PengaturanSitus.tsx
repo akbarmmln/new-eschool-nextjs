@@ -216,7 +216,7 @@ export default function PengaturanSitus() {
     try {
       const id = data?.settings?.id;
       const visiInput = visi;
-      const misiInput = misi.map(item => item.title);
+      const misiInput = misi.filter(item => item.title?.trim()).map(item => item.title);
 
       const payload = {
         id: id,
@@ -837,9 +837,16 @@ export default function PengaturanSitus() {
 
               <div className="space-y-6 p-6">
                 <div className="grid border-b border-slate-200 md:grid-cols-[280px_1fr]">
-                  <div className="p-6 text-lg font-medium text-slate-800">
-                    VISI
+                  <div className="space-y-6 p-6">
+                    <div className="text-lg font-medium text-slate-800">
+                      VISI
+                    </div>
+
+                    <div className="space-y-3 text-slate-700">
+                      <p>Tuliskan visi dengan jelas</p>
+                    </div>
                   </div>
+
                   <div className="p-6">
                     <textarea
                       value={visi}
@@ -857,12 +864,12 @@ export default function PengaturanSitus() {
                 <div className="grid border-b border-slate-200 md:grid-cols-[280px_1fr]">
                   <div className="space-y-6 p-6">
                     <div className="text-lg font-medium text-slate-800">
-                      Misi
+                      MISI
                     </div>
 
                     <div className="space-y-3 text-slate-700">
                       <p>
-                        Maksimum Misi yang dapat ditulis sebanyak 15 baris
+                        Maksimum yang dapat ditulis sebanyak 15 baris
                       </p>
                     </div>
                   </div>
@@ -902,7 +909,6 @@ export default function PengaturanSitus() {
                     </button>
                   </div>
                 </div>
-
               </div>
 
               <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
