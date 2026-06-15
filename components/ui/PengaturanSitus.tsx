@@ -8,6 +8,7 @@ import isEmpty from "@/utils/isEmpty";
 import { useGetWilayahByKodePos } from "@/hooks/queryAlamat";
 import { showAlert } from "@/utils/swal";
 import { useQueryClient } from '@tanstack/react-query';
+import { runNanoID } from "@/utils/utils";
 
 export default function PengaturanSitus() {
   const dataAccess = useAccessContext()
@@ -25,9 +26,11 @@ export default function PengaturanSitus() {
   }
 
   const { data, isLoading, error, isFetching, refetch } = useGetInformasiSitus();
-  
+
   const [openModalEditIL, setOpenModalEditIL] = useState(false);
   const [openModalAlamat, setOpenModalAlamat] = useState(false);
+  const [openModalEditVM, setOpenModalEditVM] = useState(false);
+
   const [namaLembaga, setNamaLembaga] = useState('');
   const [alamat, setAlamat] = useState('');
   const [nomorTelepon, setNomorTelepon] = useState('');
@@ -36,6 +39,9 @@ export default function PengaturanSitus() {
   const [kodePosPencarian, setKodePosPencarian] = useState("");
   const [wilayah, setWilayah] = useState('')
   const [fillDropDownWilayah, setFillDropDownWilayah] = useState<[] | null>(null)
+
+  const [visi, setVisi] = useState('')
+  const [misi, setMisi] = useState<any[]>([]);
 
   const isKodePosFormValid = !isEmpty(kodePosPencarian);
   const isPilihWilayahFormValid = !isEmpty(wilayah);
@@ -51,6 +57,18 @@ export default function PengaturanSitus() {
       document.body.style.overflow = "auto";
     };
   }, [openModalEditIL]);
+  useEffect(() => {
+    if (openModalEditVM) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEditVM]);
+
   
   const handleOpenEditIL = () => {
     if (data) {
@@ -156,6 +174,79 @@ export default function PengaturanSitus() {
         "error",
         "Gagal",
         `Gagal memperbaharui data informasi situs`,
+      );
+    }
+  }
+
+  const updateVM = useUpdateInformasiSitus()
+  const handleOpenModalEditVM = async () => {
+    const visi = data?.settings?.visi || ''
+    const misi = !isEmpty(data?.settings?.misi) ? JSON.parse(data?.settings?.misi) : []
+    const result = await Promise.all(
+      misi.map(async (item: any) => ({
+        id: await runNanoID(10),
+        title: item,
+      }))
+    );
+
+    setVisi(visi)
+    setMisi(result)
+    setOpenModalEditVM(true)
+  }
+  const handleCloseModalEditVM = () => {
+    setVisi('')
+    setMisi([])
+    setOpenModalEditVM(false)
+  }
+  const handleAddStep = async () => {
+    if (misi.length >= 15) return;
+
+    setMisi([
+      ...misi,
+      {
+        id: await runNanoID(10),
+        title: ''
+      },
+    ]);
+  };
+  const handleDeleteStep = (id: number) => {
+    setMisi(misi.filter((item) => item.id !== id));
+  };
+  const handleSaveVisiMisi = async () => {
+    try {
+      const id = data?.settings?.id;
+      const visiInput = visi;
+      const misiInput = misi.map(item => item.title);
+
+      const payload = {
+        id: id,
+        objectUpdate: {
+          visi: visiInput,
+          misi: JSON.stringify(misiInput)
+        }
+      }
+      
+      const hasil = await updateVM.mutateAsync(payload)
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Data informasi situs berhasil diperbaharui"
+      );
+
+      handleCloseModalEditVM()
+
+      await queryClient.invalidateQueries({
+        queryKey: ['informasi-situs'],
+      });
+    } catch (e) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui data visi misi`,
       );
     }
   }
@@ -352,7 +443,9 @@ export default function PengaturanSitus() {
                   Visi dan Misi
                 </h2>
 
-                <button type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
+                <button 
+                  onClick={handleOpenModalEditVM}
+                  type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
                   <i className="ri-file-edit-line text-lg dark:text-blue-500" />
                   <span className="dark:text-blue-500">Ubah</span>
                 </button>
@@ -368,11 +461,7 @@ export default function PengaturanSitus() {
                   </div>
 
                   <p className="text-xl italic leading-relaxed text-justify text-slate-600 dark:text-white">
-                    "To be a leading center of educational excellence
-                    that fosters innovative research and pedagogical
-                    precision, empowering the next generation of
-                    global thought leaders through academic integrity
-                    and moral character."
+                    {data?.settings?.visi || ''}
                   </p>
                 </div>
 
@@ -384,27 +473,23 @@ export default function PengaturanSitus() {
                     </h3>
                   </div>
 
-                  <ul className="space-y-4 pl-8 text-xl leading-relaxed text-slate-600 text-justify dark:text-white">
-                    <li className="list-disc">
-                      Upholding the highest standards of academic honesty
-                      and transparency.
-                    </li>
-
-                    <li className="list-disc">
-                      Integrating contemporary technology with classical
-                      educational philosophies.
-                    </li>
-
-                    <li className="list-disc">
-                      Creating an inclusive environment for reflective
-                      writing and curriculum progress.
-                    </li>
-
-                    <li className="list-disc">
-                      Promoting cross-disciplinary collaboration among
-                      teaching professionals.
-                    </li>
-                  </ul>
+                  {
+                    (() => {
+                      const misi = JSON.parse(data?.settings?.misi ?? "[]");
+                      if (misi.length > 0) {
+                        return (
+                          <ul className="space-y-4 pl-8 text-xl leading-relaxed text-slate-600 text-justify dark:text-white">
+                            {misi.map((item: string, index: number) => (
+                              <li key={index} className="list-disc">
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      }
+                      return null;
+                    })()
+                  }
                 </div>
               </div>
             </div>
@@ -722,6 +807,116 @@ export default function PengaturanSitus() {
                   onClick={handleSaveIL} >
 
                   {updateIL.isPending
+                    ? "Menyimpan..."
+                    : "Simpan Perubahan"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {openModalEditVM && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="max-h-[95vh] w-full max-w-3xl overflow-y-auto hide-scrollbar rounded-3xl bg-white shadow-2xl">
+              <div className="sticky top-0 z-10 flex items-center justify-between rounded-t-3xl bg-gradient-to-r from-blue-500 via-blue-500 to-indigo-500 px-8 py-4">
+                <h2 className="text-2xl font-bold tracking-tight text-white">
+                  Ubah Visi Misi
+                </h2>
+
+                <button
+                  onClick={handleCloseModalEditVM}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition hover:bg-red-500/90" >
+                  <i
+                    className="ri-close-line"
+                    style={{ fontSize: 30 }}
+                  />
+                </button>
+              </div>
+
+              <div className="space-y-6 p-6">
+                <div className="grid border-b border-slate-200 md:grid-cols-[280px_1fr]">
+                  <div className="p-6 text-lg font-medium text-slate-800">
+                    VISI
+                  </div>
+                  <div className="p-6">
+                    <textarea
+                      value={visi}
+                      onChange={(e) => {
+                        setVisi(e.target.value);
+                        e.target.style.height = "auto";
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
+                      rows={4}
+                      className="min-h-[120px] w-full max-w-md border-b border-slate-300 bg-slate-100 px-5 py-5 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid border-b border-slate-200 md:grid-cols-[280px_1fr]">
+                  <div className="space-y-6 p-6">
+                    <div className="text-lg font-medium text-slate-800">
+                      Misi
+                    </div>
+
+                    <div className="space-y-3 text-slate-700">
+                      <p>
+                        Maksimum Misi yang dapat ditulis sebanyak 15 baris
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    {misi.map((item, index) => (
+                      <div key={item.id} className="border-b border-slate-200 py-4" >
+                        <div className="flex items-start gap-4">
+
+                          <input
+                            value={item.title}
+                            onChange={(e) => {
+                              const clone = [...misi];
+                              clone[index].title = e.target.value;
+                              setMisi(clone);
+                            }}
+                            className="h-14 w-full max-w-md border-b border-slate-300 bg-slate-100 px-5 outline-none"
+                          />
+
+                          <button className="mt-3 text-2xl text-slate-800 hover:text-red-500" 
+                            type="button"
+                            onClick={() => handleDeleteStep(item.id)} >
+                            <i className="ri-delete-bin-fill" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={handleAddStep}
+                      disabled={misi.length >= 15}
+                      className="mt-6 inline-flex items-center gap-3 font-bold uppercase tracking-widest text-rose-500 hover:text-rose-600 disabled:opacity-50"
+                    >
+                      <i className="ri-add-line text-xl" />
+                      Tambahkan Misi/Nilai Inti Baru
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="sticky bottom-0 flex justify-end gap-3 border-t border-slate-200 bg-white px-6 py-5">
+                <button
+                  onClick={() => handleCloseModalEditVM()}
+                  className="rounded-xl bg-slate-200 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-200" >
+                  Batalkan
+                </button>
+
+                <button
+                  className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition bg-blue-600 shadow-blue-500/20 hover:bg-blue-700`}
+                  onClick={handleSaveVisiMisi}>
+
+                  {updateVM.isPending
                     ? "Menyimpan..."
                     : "Simpan Perubahan"}
                 </button>
