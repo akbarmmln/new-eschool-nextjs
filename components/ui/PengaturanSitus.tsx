@@ -251,6 +251,37 @@ export default function PengaturanSitus() {
     }
   }
 
+  const historyData = [
+    {
+      year: "1998",
+      title: "Yayasan Didirikan",
+      description:
+        "Berawal dari inisiatif riset kecil yang fokus pada peningkatan pedagogi sekolah dasar di Asia Tenggara.",
+      icon: "ri-government-line",
+    },
+    {
+      year: "2005",
+      title: "Ekspansi Nasional",
+      description:
+        "Menjadi jaringan jurnal dan pusat pendidikan nasional di seluruh Indonesia.",
+      icon: "ri-global-line",
+    },
+    {
+      year: "2015",
+      title: "Digitalisasi Sistem",
+      description:
+        "Meluncurkan platform EduJournal untuk mendukung pengajaran berbasis data.",
+      icon: "ri-computer-line",
+    },
+    {
+      year: "2024",
+      title: "Masa Kini",
+      description:
+        "Mendukung lebih dari 500 tenaga pengajar profesional aktif dengan teknologi pendidikan terkini.",
+      icon: "ri-graduation-cap-line",
+    },
+  ];
+
   return (
     <>
       {isLoading || isFetching ? (
@@ -362,14 +393,14 @@ export default function PengaturanSitus() {
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-sm dark:border-slate-100 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 md:px-10">
+            <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-8 py-3 dark:border-slate-700 dark:bg-slate-800">
               <h2 className="text-xl font-semibold text-slate-700 md:text-xl dark:text-white">
                 Informasi Lembaga
               </h2>
 
-              <button 
+              <button
                 onClick={handleOpenEditIL}
-                type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
+                type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900 dark:hover:text-blue-400">
                 <i className="ri-file-edit-line text-lg dark:text-blue-500" />
                 <span className="dark:text-blue-500">Ubah</span>
               </button>
@@ -438,14 +469,14 @@ export default function PengaturanSitus() {
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white xl:col-span-2 dark:border-slate-100 dark:bg-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 md:px-10">
+              <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-8 py-3 dark:border-slate-700 dark:bg-slate-800">
                 <h2 className="text-xl font-semibold text-slate-700 md:text-xl dark:text-white">
                   Visi dan Misi
                 </h2>
 
                 <button 
                   onClick={handleOpenModalEditVM}
-                  type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
+                  type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900 dark:hover:text-blue-400">
                   <i className="ri-file-edit-line text-lg dark:text-blue-500" />
                   <span className="dark:text-blue-500">Ubah</span>
                 </button>
@@ -495,25 +526,45 @@ export default function PengaturanSitus() {
             </div>
 
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-100 dark:bg-slate-900">
-              <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 md:px-10">
+              <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-8 py-3 dark:border-slate-700 dark:bg-slate-800">
                 <h2 className="text-xl font-semibold text-slate-700 md:text-xl dark:text-white">
                   Sejarah
                 </h2>
 
-                <button type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
-                  <i className="ri-file-edit-line text-lg dark:text-blue-500" />
+                <button type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900 dark:hover:text-blue-400">
+                  <i className="ri-history-line text-lg dark:text-blue-500" />
                   <span className="dark:text-blue-500">Ubah</span>
                 </button>
               </div>
 
-              <div className="space-y-8 p-10 text-slate-600 dark:text-white text-justify">
-                <p className="text-xl leading-relaxed">
-                  Established in 1998, the Foundation began as a small research initiative focused on improving primary school pedagogy in Southeast Asia.
-                </p>
+              <div className="max-h-[700px] overflow-y-auto p-8">
+                <div className="relative">
+                  <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-slate-200 dark:bg-slate-700" />
 
-                <p className="text-xl leading-relaxed">
-                  Over two decades, it has evolved into a nationwide network of journals and educational centers, currently supporting over 500 active teaching professionals.
-                </p>
+                  <div className="space-y-12">
+                    {historyData.map((item: any, index: number) => (
+                      <div key={item.year} className="relative flex gap-6">
+                        <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-md">
+                          <i className={`${item.icon} text-xl`} />
+                        </div>
+
+                        <div className="flex-1 pb-2">
+                          <div className="text-base font-bold text-teal-600">
+                            {item.year}
+                          </div>
+
+                          <h3 className="mt-1 text-base font-bold text-slate-800 dark:text-white">
+                            {item.title}
+                          </h3>
+
+                          <p className="mt-3 text-base leading-relaxed text-justify text-slate-600 dark:text-slate-300">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
