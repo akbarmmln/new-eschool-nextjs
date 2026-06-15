@@ -588,7 +588,7 @@ export default function PengaturanSitus() {
                     className="flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-5 py-3 text-left transition hover:border-blue-500"
                     type="button"
                     onClick={handleOpenModalAlamat} >
-                    {/* Informasi alamat */}
+
                     <div className="flex-1">
                       {isEmpty(wilayahTerpilih) ? (
                         <span className="truncate text-slate-400">
@@ -625,7 +625,6 @@ export default function PengaturanSitus() {
                       )}
                     </div>
 
-                    {/* Icon kanan */}
                     <div className="ml-4 flex w-8 shrink-0 flex-col items-center gap-2">
                       {!isEmpty(wilayahTerpilih) && (
                         <span
@@ -639,13 +638,14 @@ export default function PengaturanSitus() {
 
                             wilayahKodePos.reset();
                           }}
-                          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-white text-slate-400 shadow-sm transition hover:border-red-500 hover:bg-red-500 hover:text-white"
-                        >
+                          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-blue-500 text-white shadow-sm transition hover:border-red-500 hover:bg-red-500 hover:text-white">
                           <i className="ri-close-line text-sm" />
                         </span>
                       )}
 
-                      <i className="ri-arrow-right-s-line text-2xl text-slate-400" />
+                      {isEmpty(wilayahTerpilih) && (
+                        <i className="ri-arrow-right-s-line text-2xl text-slate-400" />
+                      )}
                     </div>
                   </button>
 
@@ -843,7 +843,7 @@ export default function PengaturanSitus() {
                     </div>
 
                     <div className="space-y-3 text-slate-700">
-                      <p>Tuliskan visi dengan jelas</p>
+                      <p>Deskripsikan visi dengan jelas.</p>
                     </div>
                   </div>
 
@@ -869,7 +869,7 @@ export default function PengaturanSitus() {
 
                     <div className="space-y-3 text-slate-700">
                       <p>
-                        Maksimum yang dapat ditulis sebanyak 15 baris
+                        Deskripsikan misi dengan jelas. Maksimum yang dapat ditulis sebanyak 15 baris.
                       </p>
                     </div>
                   </div>
