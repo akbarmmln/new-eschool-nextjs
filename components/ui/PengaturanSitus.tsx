@@ -497,7 +497,7 @@ export default function PengaturanSitus() {
             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-100 dark:bg-slate-900">
               <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 md:px-10">
                 <h2 className="text-xl font-semibold text-slate-700 md:text-xl dark:text-white">
-                  Latar Sejarah
+                  Sejarah
                 </h2>
 
                 <button type="button" className="inline-flex items-center gap-2 rounded-lg px-3 py-1 text-base font-semibold text-teal-600 transition-all duration-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-900/100 dark:hover:text-blue-400">
@@ -517,6 +517,22 @@ export default function PengaturanSitus() {
               </div>
             </div>
           </div>
+
+          <style jsx global>
+            {`
+              .hide-scrollbar {
+                overflow-y: auto;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+              }
+
+              .hide-scrollbar::-webkit-scrollbar {
+                width: 0;
+                height: 0;
+                display: none;
+              }
+            `}
+          </style>
         </div>
       )}
 
