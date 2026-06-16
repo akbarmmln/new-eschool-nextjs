@@ -38,7 +38,7 @@ export function useJurnal(page: string) {
     gcTime: 1000 * 60 * 5,
     retry: 1,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
   })
 }
 

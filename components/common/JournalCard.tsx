@@ -182,8 +182,8 @@ export default function JournalCard({ item } : Props) {
           }
 
           .spin {
-              display: inline-block;
-              animation: spin 1s linear infinite;
+            display: inline-block;
+            animation: spin 1s linear infinite;
           }
 
           @keyframes spin {

@@ -3,9 +3,7 @@
 import { useProfile } from '@/hooks/query'
 import { useJurnal } from '@/hooks/queryJurnal'
 import { useDropdownKelas } from '@/hooks/queryKelas'
-import {
-  useState,
-} from "react";
+import { useState } from "react";
 import ModalTambahJurnal from '@/components/modals/ModalTambahJurnal'
 import JournalList from '@/components/common/JournalList'
 import { useAccessContext } from '@/context/AccessContext'
@@ -40,7 +38,7 @@ export default function DashboardAdmin() {
             <div className="skeletonTitle" />
           ) : (
             <h1>
-              Selamat Sore, {data?.nama}
+              Selamat Sore, {data?.nama || ''}
             </h1>
 
           )}
@@ -62,7 +60,7 @@ export default function DashboardAdmin() {
               <i className="ri-team-line" />
               <span>
                 {role == '0' || role == '9' ? 'Admin & Guru wali kelas ' : 'Guru wali kelas '}
-                 {data?.nama_kelas}
+                 {data?.nama_kelas || ''}
               </span>
             </div>
           )}
@@ -133,35 +131,50 @@ export default function DashboardAdmin() {
       {
         isLoadingJurnal ? (
           <div className="journal-grid">
-            {
-              Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="journal-skeleton" />
-              ))
-            }
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="journal-skeleton"
+              />
+            ))}
           </div>
         ) : errorJurnal ? (
-            <div className="journal-error">
-              <div className="journal-error-card">
-                <div className="journal-error-icon">
-                  <i className="ri-error-warning-line" />
-                </div>
-
-                <h2>
-                  Gagal Memuat Jurnal
-                </h2>
-
-                <p>
-                  Terjadi kesalahan saat mengambil data jurnal.
-                </p>
-
-                <button onClick={() => refetchJurnal()} >
-                  <i className="ri-refresh-line" />
-                  <span>
-                    Coba Lagi
-                  </span>
-                </button>
+          <div className="journal-error">
+            <div className="journal-error-card">
+              <div className="journal-error-icon">
+                <i className="ri-error-warning-line" />
               </div>
+
+              <h2>Gagal Memuat Jurnal</h2>
+
+              <p>
+                Terjadi kesalahan saat mengambil data jurnal.
+              </p>
+
+              <button onClick={() => refetchJurnal()}>
+                <i className="ri-refresh-line" />
+                <span>Coba Lagi</span>
+              </button>
             </div>
+          </div>
+        ) : (dataJurnal?.rows?.length ?? 0) === 0 ? (
+              <div className="flex min-h-[450px] items-center justify-center">
+                <div className="max-w-md text-center">
+                  <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
+                    <i className="ri-book-open-line text-5xl text-white" />
+                  </div>
+
+                  <h2 className="mb-3 text-3xl font-bold text-slate-800">
+                    Belum Ada Jurnal
+                  </h2>
+
+                  <p className="mb-8 text-slate-500">
+                    Tidak ditemukan riwayat jurnal pembelajaran.
+                    Mulailah mencatat aktivitas pembelajaran
+                    harian untuk memantau perkembangan siswa.
+                  </p>
+                </div>
+              </div>
         ) : (
           <JournalList
             data={dataJurnal?.rows || []}

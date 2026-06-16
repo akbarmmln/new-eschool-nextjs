@@ -55,7 +55,7 @@ export async function getProfileD2() {
 export async function jurnalList(page: string) {
   return await request(
     "get",
-    `/api/v1/jurnal/list/${page}`,
+    `/api/v1/jurnal/list-new/${page}`,
     {},
     10000
   );

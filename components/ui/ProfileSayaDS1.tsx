@@ -25,6 +25,8 @@ export default function ProfileSayaDS1() {
   const [alamat, setAlamat] = useState('')
   const [noRT, setNoRT] = useState('')
   const [noRW, setNoRW] = useState('')
+  const [kecamatanLama, setKecamatanLama] = useState('')
+  const [kelurahanLama, setKelurahanLama] = useState('')
   const [kecamatan, setKecamatan] = useState('')
   const [kelurahan, setKelurahan] = useState('')
 
@@ -189,6 +191,8 @@ export default function ProfileSayaDS1() {
     setNoRW(data?.rw || '');
     setKecamatan(data?.kecamatan || '');
     setKelurahan(data?.kelurahan || '');
+    setKecamatanLama(data?.kecamatan || '')
+    setKelurahanLama(data?.kelurahan || '')
 
     setOpenModalEditIA(true);
   }
@@ -198,7 +202,10 @@ export default function ProfileSayaDS1() {
     setNoRW('');
     setKecamatan('');
     setKelurahan('');
+    setKecamatanLama('')
+    setKelurahanLama('')
     setWilayahTerpilih('')
+    
     setOpenModalEditIA(false);
   };
   const handleSaveInformasiAlamat = async () => {
@@ -884,37 +891,66 @@ export default function ProfileSayaDS1() {
                   type="button"
                   onClick={handleOpenModalAlamat} >
                     
-                  {isEmpty(wilayahTerpilih) ? (
-                    <span className="truncate text-slate-400 dark:text-slate-400">
-                      Provinsi, Kota, Kecamatan, Kelurahan
-                    </span>
-                  ) : (
-                      (() => {
-                        const parts = wilayahTerpilih.split(':');
-                        const alamat = {
-                          provinsi: parts[0] || '',
-                          kabupaten: parts[1] || '',
-                          kecamatan: parts[2] || '',
-                          kelurahan: parts[3] || '',
-                          kodePos: parts[4] || '',
-                        };
-                        return <span>
-                          <div className="flex flex-col">
-                            <span className="text-xs text-slate-400">
-                              Provinsi, Kota, Kecamatan, Kelurahan
-                            </span>
+                    <div className="flex-1">
+                      {isEmpty(wilayahTerpilih) ? (
+                        <span className="truncate text-slate-400">
+                          Provinsi, Kota, Kecamatan, Kelurahan
+                        </span>
+                      ) : (
+                        (() => {
+                          const parts = wilayahTerpilih.split(":");
 
-                            <div className="mt-1 flex flex-col text-sm font-medium text-slate-800">
-                              <span>{alamat.provinsi}</span>
-                              <span>{alamat.kabupaten}</span>
-                              <span>{alamat.kecamatan}</span>
-                              <span>{alamat.kelurahan}</span>
+                          const alamat = {
+                            provinsi: parts[0] || "",
+                            kabupaten: parts[1] || "",
+                            kecamatan: parts[2] || "",
+                            kelurahan: parts[3] || "",
+                            kodePos: parts[4] || "",
+                          };
+
+                          return (
+                            <div className="flex flex-col">
+                              <span className="text-xs text-slate-400">
+                                Provinsi, Kota, Kecamatan, Kelurahan
+                              </span>
+
+                              <div className="mt-1 flex flex-col text-sm font-medium text-slate-800">
+                                <span>{alamat.provinsi}</span>
+                                <span>{alamat.kabupaten}</span>
+                                <span>{alamat.kecamatan}</span>
+                                <span>{alamat.kelurahan}</span>
+                                <span>{alamat.kodePos}</span>
+                              </div>
                             </div>
-                          </div>
-                        </span>;
-                      })()
-                  )}
-                  <i className="ri-arrow-right-s-line text-xl text-slate-400" />
+                          );
+                        })()
+                      )}
+                    </div>
+
+                    <div className="ml-4 flex w-8 shrink-0 flex-col items-center gap-2">
+                      {!isEmpty(wilayahTerpilih) && (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+
+                            setWilayahTerpilih("");
+                            setWilayah("");
+                            setFillDropDownWilayah([]);
+
+                            setKecamatan(kecamatanLama);
+                            setKelurahan(kelurahanLama);
+
+                            wilayahKodePos.reset();
+                          }}
+                          className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200 bg-blue-500 text-white shadow-sm transition hover:border-red-500 hover:bg-red-500 hover:text-white">
+                          <i className="ri-close-line text-lg" />
+                        </span>
+                      )}
+
+                      {isEmpty(wilayahTerpilih) && (
+                        <i className="ri-arrow-right-s-line text-2xl text-slate-400" />
+                      )}
+                    </div>
                 </button>
 
                 {openModalAlamat && (

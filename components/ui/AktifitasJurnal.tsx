@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ClipboardCheck,
-  PencilLine,
-  FilePenLine,
-} from "lucide-react";
+import { ClipboardCheck, PencilLine, FilePenLine } from "lucide-react";
 import JournalEditor from '@/components/common/Editor'
 import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian, 
   useSubmitItemPenilaian, useEditItemPenilaian, useUpdateJurnal, 
@@ -528,6 +524,9 @@ export default function AktifitasJurnal({ id }: Props) {
       setOpenModalEdit(false);
       
       await refetch();
+      await queryClient.invalidateQueries({
+        queryKey: ['jurnal-list'],
+      });
     } catch (e: any) {
       await showAlert(
         "error",
