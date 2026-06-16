@@ -198,19 +198,54 @@ export default function PengaturanSitus() {
     setMisi([])
     setOpenModalEditVM(false)
   }
+
   const handleAddStep = async () => {
     if (misi.length >= 15) return;
+    const id = await runNanoID(10);
 
-    setMisi([
-      ...misi,
+    setMisi((prev) => [
+      ...prev,
       {
-        id: await runNanoID(10),
-        title: ''
+        id: id,
+        title: "",
       },
     ]);
   };
   const handleDeleteStep = (id: number) => {
-    setMisi(misi.filter((item) => item.id !== id));
+    setMisi(prev => prev.filter(item => item.id !== id));
+  };
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+
+    const newData = [...misi];
+
+    [newData[index - 1], newData[index]] = [
+      newData[index],
+      newData[index - 1]
+    ];
+
+    setMisi(newData);
+  };
+  const handleMoveDown = (index: number) => {
+    if (index === misi.length - 1) return;
+
+    const newData = [...misi];
+
+    [newData[index], newData[index + 1]] = [
+      newData[index + 1],
+      newData[index]
+    ];
+
+    setMisi(newData);
+  };
+  const handleChangeMisi = (id: string, value: string) => {
+    setMisi((prev: any[]) =>
+      prev.map((item) =>
+        item.id === id
+          ? { ...item, title: value }
+          : item
+      )
+    );
   };
   const handleSaveVisiMisi = async () => {
     try {
@@ -943,34 +978,40 @@ export default function PengaturanSitus() {
 
                   <div className="p-6">
                     {misi.map((item, index) => (
-                      <div key={item.id} className="border-b border-slate-200 py-4" >
-                        <div className="flex items-start gap-4">
+                    <div key={item.id} className="border-b border-slate-200 py-4">
+                      <div className="flex items-start gap-4">
 
-                          <input
-                            value={item.title}
-                            onChange={(e) => {
-                              const clone = [...misi];
-                              clone[index].title = e.target.value;
-                              setMisi(clone);
-                            }}
-                            className="h-14 w-full max-w-md border-b border-slate-300 bg-slate-100 px-5 outline-none"
-                          />
+                        <input value={item.title} onChange={(e) => handleChangeMisi(item.id, e.target.value)}
+                          className="h-14 w-full max-w-md border-b border-slate-300 bg-slate-100 px-5 outline-none"
+                          placeholder="Masukkan misi atau nilai inti..."
+                        />
 
-                          <button className="mt-3 text-2xl text-slate-800 hover:text-red-500" 
-                            type="button"
-                            onClick={() => handleDeleteStep(item.id)} >
-                            <i className="ri-delete-bin-fill" />
+                        <div className="flex flex-col items-center">
+                          <button type="button" onClick={()=> handleMoveUp(index)}
+                            className={`transition ${index === 0 ? "cursor-not-allowed text-slate-300" : "text-slate-400 hover:text-pink-500"}`}
+                            disabled={index === 0} >
+                            <i className="ri-arrow-up-s-line text-2xl" />
+                          </button>
+
+                          <button type="button" onClick={()=> handleMoveDown(index)}
+                            className={`transition ${index === misi.length - 1 ? "cursor-not-allowed text-slate-300" : "text-pink-500 hover:text-pink-600"}`}
+                            disabled={index === misi.length - 1} >
+                            <i className="ri-arrow-down-s-line text-2xl" />
                           </button>
                         </div>
+
+                        <button className="mt-3 text-2xl text-slate-800 hover:text-red-500" type="button" onClick={()=>
+                          handleDeleteStep(item.id)} >
+                          <i className="ri-delete-bin-fill" />
+                        </button>
                       </div>
+                    </div>
                     ))}
 
-                    <button
-                      type="button"
-                      onClick={handleAddStep}
-                      disabled={misi.length >= 15}
-                      className="mt-6 inline-flex items-center gap-3 font-bold uppercase tracking-widest text-rose-500 hover:text-rose-600 disabled:opacity-50"
-                    >
+                    <button type="button" onClick={handleAddStep}
+                      className="mt-6 inline-flex items-center gap-3 font-bold uppercase tracking-widest text-rose-500 hover:text-rose-600
+                      disabled:opacity-50"
+                      disabled={misi.length>= 15} >
                       <i className="ri-add-line text-xl" />
                       Tambahkan Misi/Nilai Inti Baru
                     </button>
