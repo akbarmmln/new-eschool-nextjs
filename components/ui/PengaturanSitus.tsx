@@ -68,7 +68,6 @@ export default function PengaturanSitus() {
       document.body.style.overflow = "auto";
     };
   }, [openModalEditVM]);
-
   
   const handleOpenEditIL = () => {
     if (data) {
@@ -574,10 +573,25 @@ export default function PengaturanSitus() {
 
               <div className="max-h-[700px] overflow-y-auto p-8">
                 <div className="relative">
-                  <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-slate-200 dark:bg-slate-700" />
+                  {/* <div className="absolute left-6 top-0 bottom-0 w-[2px] bg-slate-200 dark:bg-slate-700" /> */}
 
                   <div className="space-y-12">
-                    {historyData.map((item: any, index: number) => (
+                    <div className="flex min-h-[500px] flex-col items-center justify-center px-8 py-16 text-center">
+                      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                        <i className="ri-history-line text-5xl text-slate-400" />
+                      </div>
+
+                      <h3 className="text-xl font-bold text-slate-800 dark:text-white">
+                        Belum Ada Riwayat Sejarah
+                      </h3>
+
+                      <p className="mt-3 max-w-md text-sm text-slate-500 dark:text-slate-400">
+                        Tambahkan perjalanan, pencapaian, dan perkembangan lembaga Anda
+                        agar pengunjung dapat mengenal sejarah organisasi dengan lebih baik.
+                      </p>
+                    </div>
+
+                    {/* {historyData.map((item: any, index: number) => (
                       <div key={item.year} className="relative flex gap-6">
                         <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white shadow-md">
                           <i className={`${item.icon} text-xl`} />
@@ -597,7 +611,7 @@ export default function PengaturanSitus() {
                           </p>
                         </div>
                       </div>
-                    ))}
+                    ))} */}
                   </div>
                 </div>
               </div>
