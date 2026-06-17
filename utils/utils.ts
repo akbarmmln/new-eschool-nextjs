@@ -114,19 +114,46 @@ export const scramble = (a: any) => {
 }
 
 export const hitungUsiaDetail = (tanggalLahir: string) => {
-		if (!isEmpty(tanggalLahir)) {
-			const today = new Date();
-			const birthDate = new Date(tanggalLahir);
-			let tahun = today.getFullYear() - birthDate.getFullYear();
-			let bulan = today.getMonth() - (birthDate.getMonth() + 1);		
+  if (!isEmpty(tanggalLahir)) {
+    const today = new Date();
+    const birthDate = new Date(tanggalLahir);
+    let tahun = today.getFullYear() - birthDate.getFullYear();
+    let bulan = today.getMonth() - (birthDate.getMonth() + 1);
 
-			if (bulan < 0) {
-				tahun--;
-				bulan += 12;
-			}
+    if (bulan < 0) {
+      tahun--;
+      bulan += 12;
+    }
 
-			return `${tahun} tahun ${bulan} bulan`;
-		} else {
-			return `- tahun`;
-		}
-	}
+    return `${tahun} tahun ${bulan} bulan`;
+  } else {
+    return `- tahun`;
+  }
+}
+
+export const getAvatarColor = (name: string) => {
+  const colors = [
+    "bg-blue-500",
+    "bg-green-500",
+    "bg-purple-500",
+    "bg-pink-500",
+    "bg-orange-500",
+    "bg-cyan-500",
+    "bg-indigo-500",
+    "bg-emerald-500",
+  ];
+
+  const hash = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return colors[hash % colors.length];
+};
+
+export const getInitials = (name: string) => {
+  if (!name) return "--";
+
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join("");
+};

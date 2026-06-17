@@ -2,7 +2,7 @@ import { format } from 'date-fns'
 import Link from "next/link"
 import {id} from 'date-fns/locale'
 import { useState } from "react";
-import { formatTanggalIndonesia } from "@/utils/utils";
+import { formatTanggalIndonesia, getAvatarColor, getInitials } from "@/utils/utils";
 
 type Props = {
   item: any
@@ -10,36 +10,31 @@ type Props = {
 
 export default function JournalCard({ item } : Props) {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-
+  console.log('asdsadasdd', item)
   const handleDownload = async (id: string) => {
     try {
       setDownloadingId(id);
-
       // await downloadFile(id);
-
     } finally {
       // setDownloadingId(null);
     }
   };
-  const hadir =
-    item.detail_siswa.filter(
-      (x: any) => x.absensi == '1'
-    ).length
 
-  const ijin  =
-    item.detail_siswa.filter(
-      (x: any) => x.absensi == '2'
-    ).length
+  const hadir = item.detail_siswa.filter(
+    (x: any) => x.absensi == '1'
+  ).length
 
-    const sakit =
-    item.detail_siswa.filter(
-      (x: any) => x.absensi == '3'
-    ).length
+  const ijin = item.detail_siswa.filter(
+    (x: any) => x.absensi == '2'
+  ).length
 
-  const alpha =
-    item.detail_siswa.filter(
-      (x: any) => x.absensi == '4'
-    ).length
+  const sakit = item.detail_siswa.filter(
+    (x: any) => x.absensi == '3'
+  ).length
+
+  const alpha = item.detail_siswa.filter(
+    (x: any) => x.absensi == '4'
+  ).length
 
   function renderContent(value: string) {
     if (!value) {
@@ -71,8 +66,6 @@ export default function JournalCard({ item } : Props) {
 
   return (
     <div className="journal-card">
-
-      {/* HEADER */}
       <div className="journal-header">
         <div>
           <h2>
@@ -89,7 +82,6 @@ export default function JournalCard({ item } : Props) {
         </div>
       </div>
 
-      {/* CONTENT */}
       <div className="journal-content dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700">
         <div className="journal-section">
           <h3>
@@ -140,27 +132,44 @@ export default function JournalCard({ item } : Props) {
         </div>
       </div>
 
-      {/* FOOTER */}
       <div className="journal-footer dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700">
-        <button onClick={() => handleDownload(item.id)}>
-          <i
-            className={
-              downloadingId === item.id
-                ? "ti ti-loader-2 spin"
-                : "ri-download-line"
-            }
-          />
-        </button>
+        <div className="flex flex-1 items-center gap-3 min-w-0">
+          <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${getAvatarColor(item.nama_guru)}`} >
+            {getInitials(item.nama_guru)}
+          </div>
 
-        <Link href={`/akademik/aktifitas-jurnal/${item.id}`}>
-          <button>
-            <i className="ri-edit-line" />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm text-slate-800 dark:text-white" title={item.nama_guru} >
+              {item.nama_guru}
+            </div>
+
+            <div className="text-xs text-slate-500 dark:text-slate-400">
+              Guru Pengajar
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button onClick={() => handleDownload(item.id)}>
+            <i
+              className={
+                downloadingId === item.id
+                  ? "ti ti-loader-2 spin"
+                  : "ri-download-line"
+              }
+            />
           </button>
-        </Link>
-        
-        <button>
-          <i className="ri-delete-bin-line" />
-        </button>
+
+          <Link href={`/akademik/aktifitas-jurnal/${item.id}`}>
+            <button>
+              <i className="ri-edit-line" />
+            </button>
+          </Link>
+
+          <button>
+            <i className="ri-delete-bin-line" />
+          </button>
+        </div>
       </div>
 
       <style jsx>
@@ -187,34 +196,29 @@ export default function JournalCard({ item } : Props) {
           }
 
           @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
           }
 
           :global(.dark) .journal-text {
-
             color: rgba(255,255,255,.88);
           }
-          :global(.dark) .journal-section h3 {
 
+          :global(.dark) .journal-section h3 {
             color: #7c7cff;
           }
+
           :global(.dark) .journal-footer {
-
-            border-top:
-              1px solid rgba(255,255,255,.08);
+            border-top: 1px solid rgba(255,255,255,.08);
           }
+            
           :global(.dark) .journal-card {
-
             background: #162033;
           }
+
           :global(.dark) .journal-footer button {
-
-            background:
-              rgba(255,255,255,.06);
-
-            color:
-              rgba(255,255,255,.8);
+            background: rgba(255,255,255,.06);
+            color: rgba(255,255,255,.8);
           }
     
           .journal-card {
@@ -244,7 +248,6 @@ export default function JournalCard({ item } : Props) {
             padding-left: 20px;
             padding-right: 20px;
             padding-bottom: 15px;
-
             color: white;
             display: flex;
             justify-content: space-between;
@@ -327,11 +330,12 @@ export default function JournalCard({ item } : Props) {
           }
 
           .journal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
             padding: 10px 10px;
             border-top: 1px solid #eef2ff;
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
           }
 
           .journal-footer button {
