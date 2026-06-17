@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" fill="none">
+  <!-- Background with subtle corner rounding -->
+  <rect width="400" height="100" fill="#f8fafc" />
+  
+  <!-- Circular Avatar Placeholder -->
+  <circle cx="60" cy="50" r="35" fill="#e2e8f0" />
+  
+  <!-- Text Skeleton Line -->
+  <rect x="110" y="30" width="240" height="40" rx="10" fill="#e2e8f0" />
+  
+  <!-- Subtle border to define the component -->
+  <rect x="0.5" y="0.5" width="399" height="99" stroke="#cbd5e1" stroke-width="1" />
+</svg>

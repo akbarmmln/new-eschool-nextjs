@@ -374,7 +374,7 @@ body {
     position: absolute;
     inset: 0;
 
-    background: url('/assets-login/background_school.png') no-repeat center/cover;
+    background: var(--login-bg) no-repeat center/cover;
     background-size: 100% 100%;
 
     filter: blur(3px) brightness(0.75);

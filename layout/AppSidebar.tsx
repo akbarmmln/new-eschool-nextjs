@@ -10,6 +10,44 @@ import { useMenus, useProfile } from '@/hooks/query'
 import { useAccessContext } from '@/context/AccessContext'
 
 const AppSidebar: React.FC = () => {
+  const [logoExpand, setLogoExpand] = useState<any | null>('/images/logo/logo_tp_expand_skeleton.svg');
+  useEffect(() => {
+    const url = "https://s3.nevaobjects.id/bucket-sit/profile-situs/logo_expand";
+
+    const img = new window.Image();
+
+    img.onload = () => {
+      setTimeout(() => {
+        setLogoExpand(url);
+      }, 1000);
+    };
+
+    img.onerror = () => {
+      setLogoExpand("/images/logo/empty_logo_expand.svg");
+    };
+
+    img.src = url;
+  }, []);
+
+  const [logo, setLogo] = useState<any | null>('/images/logo/logo_tp_skeleton.svg');
+  useEffect(() => {
+    const url = "https://s3.nevaobjects.id/bucket-sit/profile-situs/logo";
+
+    const img = new window.Image();
+
+    img.onload = () => {
+      setTimeout(() => {
+        setLogo(url);
+      }, 1000);
+    };
+
+    img.onerror = () => {
+      setLogo("/images/logo/empty_logo.svg");
+    };
+
+    img.src = url;
+  }, []);
+
   const pathname = usePathname();
   const dataAccess = useAccessContext();
   const role = dataAccess?.access?.role
@@ -75,8 +113,9 @@ const AppSidebar: React.FC = () => {
             {isExpanded || isHovered ? (
               <>
                 <Image
+                  unoptimized
                   className="dark:hidden"
-                  src="/images/logo/logo_tp_expand.png"
+                  src={logoExpand}
                   alt="logo"
                   width={280}
                   height={80}
@@ -90,8 +129,9 @@ const AppSidebar: React.FC = () => {
                 />
 
                 <Image
+                  unoptimized
                   className="hidden dark:block"
-                  src="/images/logo/logo_tp_expand.png"
+                  src={logoExpand}
                   alt="logo"
                   width={280}
                   height={80}
@@ -106,10 +146,11 @@ const AppSidebar: React.FC = () => {
               </>
             ) : (
               <Image
-                src="/images/logo/logo_tp.png"
+                unoptimized
+                src={logo}
                 alt="Logo"
-                width={40}
-                height={40}
+                width={50}
+                height={50}
               />
             )}
           </Link>

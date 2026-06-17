@@ -3,9 +3,7 @@
 import Link from "next/link";
 import Swal from 'sweetalert2'
 import { useRouter } from "next/navigation";
-import {
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 import { login } from "@/services/Call";
 
 type ToastType =
@@ -45,6 +43,23 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const [backgroundUrl, setBackgroundUrl] = useState<any | null>(null);
+  useEffect(() => {
+    const url = "https://s3.nevaobjects.id/bucket-sit/profile-situs/background";
+
+    const img = new Image();
+
+    img.onload = () => {
+      setBackgroundUrl(url);
+    };
+
+    img.onerror = () => { 
+      setBackgroundUrl("/assets-login/not_setup_background.png");
+    };
+
+    img.src = url;
+  }, []);
 
   async function handleLogin() {
     if (!email || !password) {
@@ -92,7 +107,7 @@ export default function Login() {
         {/* RIGHT IMAGE */}
         <div className="login-right">
           <img
-            src="/assets-login/background_school.png"
+            src={backgroundUrl}
             className="bg-img loaded"
             alt="Background"
           />
@@ -100,7 +115,10 @@ export default function Login() {
 
         {/* LEFT FORM */}
         <div className="login-left">
-          <div className="login-card text-center">
+          <div className="login-card text-center"
+            style={{
+              "--login-bg": `url('${backgroundUrl}')`,
+            } as React.CSSProperties} >
             <img
               src="/assets-login/logo_tp.png"
               className="logo"

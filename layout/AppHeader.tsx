@@ -9,6 +9,7 @@ import React, { useState ,useEffect,useRef} from "react";
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+  const [logoExpand, setLogoExpand] = useState<any | null>('/images/logo/logo_tp_expand_skeleton.svg');
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -36,6 +37,24 @@ const AppHeader: React.FC = () => {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
+  }, []);
+
+  useEffect(() => {
+    const url = "https://s3.nevaobjects.id/bucket-sit/profile-situs/logo_expand";
+
+    const img = new window.Image();
+
+    img.onload = () => {
+      setTimeout(() => {
+        setLogoExpand(url);
+      }, 1000);
+    };
+
+    img.onerror = () => {
+      setLogoExpand("/images/logo/empty_logo_expand.svg");
+    };
+
+    img.src = url;
   }, []);
 
   return (
@@ -70,8 +89,9 @@ const AppHeader: React.FC = () => {
 
           <Link href="/" className="lg:hidden">
             <Image
+              unoptimized
               className="dark:hidden"
-              src="/images/logo/logo_tp_expand.png"
+              src={logoExpand}
               alt="logo"
               width={250}
               height={80}
@@ -84,8 +104,9 @@ const AppHeader: React.FC = () => {
               }}
             />
             <Image
+              unoptimized
               className="hidden dark:block"
-              src="/images/logo/logo_tp_expand.png"
+              src={logoExpand}
               alt="logo"
               width={250}
               height={80}

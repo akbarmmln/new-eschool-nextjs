@@ -2,6 +2,15 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['0.0.0.0'],
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 's3.nevaobjects.id',
+        pathname: '/bucket-sit/**',
+      },
+    ],
+  },
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,
