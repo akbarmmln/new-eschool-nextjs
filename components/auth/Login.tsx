@@ -45,6 +45,22 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const [backgroundUrl, setBackgroundUrl] = useState<any | null>(null);
+  const [logo, setLogo] = useState<any | null>('/images/logo/logo_tp_skeleton.svg');
+  useEffect(() => {
+    const url = "https://s3.nevaobjects.id/bucket-sit/profile-situs/logo";
+
+    const img = new window.Image();
+
+    img.onload = () => {
+      setLogo(url);
+    };
+
+    img.onerror = () => {
+      setLogo("/images/logo/empty_logo.svg");
+    };
+
+    img.src = url;
+  }, []);
   useEffect(() => {
     const url = "https://s3.nevaobjects.id/bucket-sit/profile-situs/background";
 
@@ -120,7 +136,7 @@ export default function Login() {
               "--login-bg": `url('${backgroundUrl}')`,
             } as React.CSSProperties} >
             <img
-              src="/assets-login/logo_tp.png"
+              src={logo}
               className="logo"
               alt="Logo"
             />
