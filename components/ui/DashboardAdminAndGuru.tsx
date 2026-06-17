@@ -5,6 +5,7 @@ import { useJurnal } from '@/hooks/queryJurnal'
 import { useDropdownKelas } from '@/hooks/queryKelas'
 import { useState } from "react";
 import ModalTambahJurnal from '@/components/modals/ModalTambahJurnal'
+import ModalPencarianJurnal from '@/components/modals/ModalPencarianJurnal'
 import JournalList from '@/components/common/JournalList'
 import { useAccessContext } from '@/context/AccessContext'
 
@@ -14,6 +15,7 @@ export default function DashboardAdmin() {
 
   const [currentPage, setCurrentPage] = useState(1)
   const [openModalTambahJurnal, setOpenModalTambahJurnal] = useState(false)
+  const [openModalPencarianJurnal, setOpenModalPencarianJurnal] = useState(false)
 
   const { data, isLoading, error } = useProfile();
   const {
@@ -107,7 +109,11 @@ export default function DashboardAdmin() {
             </span>
           </button>
 
-          <button className="btn-dashboard">
+          <button className="btn-dashboard"
+            onClick={() =>
+              setOpenModalPencarianJurnal(true)
+            }  >
+
             <i className="ri-search-line" />
             <span>
               Cari Jurnal
@@ -123,6 +129,16 @@ export default function DashboardAdmin() {
             isLoadingKelas={isLoadingListAllKelas}
             onClose={() =>
               setOpenModalTambahJurnal(false)
+            }
+          />
+        )
+      }
+
+      {
+        openModalPencarianJurnal && (
+          <ModalPencarianJurnal 
+            onClose={() =>
+              setOpenModalPencarianJurnal(false)
             }
           />
         )
