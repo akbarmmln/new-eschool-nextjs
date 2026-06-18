@@ -35,7 +35,7 @@ export default function PengaturanSitus() {
   const [openModalAlamat, setOpenModalAlamat] = useState(false);
   const [openModalEditVM, setOpenModalEditVM] = useState(false);
 
-  const [openModalEditLogoExpand, setOpenModalEditLogoExpand] = useState(false);
+  const [openModalEditLogo, setOpenModalEditLogo] = useState(false);
   const [previewLogoBaru, setPreviewLogoBaru] = useState<string>("");
   const [logoBase64, setLogoBase64] = useState("");
 
@@ -79,7 +79,7 @@ export default function PengaturanSitus() {
     };
   }, [openModalEditVM]);
   useEffect(() => {
-    if (openModalEditLogoExpand) {
+    if (openModalEditLogo) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "auto";
@@ -88,7 +88,7 @@ export default function PengaturanSitus() {
     return () => {
       document.body.style.overflow = "auto";
     };
-  }, [openModalEditLogoExpand]);
+  }, [openModalEditLogo]);
   
   useEffect(() => {
     const url = data?.settings?.logo;
@@ -316,15 +316,15 @@ export default function PengaturanSitus() {
   }
 
   const updateLogo = useUpdateLogoAndBackground();
-  const handleOpenModaEditlLogoExpand = async () => {
+  const handleOpenModaEditlLogo = async () => {
     setLogoBase64('')
     setPreviewLogoBaru('')
-    setOpenModalEditLogoExpand(true)
+    setOpenModalEditLogo(true)
   }
-  const handleCloseModalEditLogoExpand = async () => {
+  const handleCloseModalEditLogo = async () => {
     setLogoBase64('')
     setPreviewLogoBaru('')
-    setOpenModalEditLogoExpand(false)
+    setOpenModalEditLogo(false)
   }
   const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -383,7 +383,7 @@ export default function PengaturanSitus() {
         "Logo berhasil diperbaharui"
       );
 
-      handleCloseModalEditLogoExpand()
+      handleCloseModalEditLogo()
 
       await queryClient.invalidateQueries({
         queryKey: ['informasi-situs'],
@@ -477,7 +477,7 @@ export default function PengaturanSitus() {
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
             <div className="relative">
               <button
-                onClick={handleOpenModaEditlLogoExpand}
+                onClick={handleOpenModaEditlLogo}
                 type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
                 <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
               </button>
@@ -511,7 +511,8 @@ export default function PengaturanSitus() {
             </div>
 
             <div className="relative">
-              <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
+              <button 
+                type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
                 <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
               </button>
 
@@ -787,7 +788,7 @@ export default function PengaturanSitus() {
         </div>
       )}
 
-      {openModalEditLogoExpand && (
+      {openModalEditLogo && (
         <>
           <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
             <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
@@ -902,7 +903,7 @@ export default function PengaturanSitus() {
               <div className="flex items-center justify-end gap-4 border-t border-slate-200 bg-slate-50 px-8 py-5">
                 <button
                   type="button"
-                  onClick={handleCloseModalEditLogoExpand}
+                  onClick={handleCloseModalEditLogo}
                   className="rounded-xl px-5 py-3 font-medium text-slate-500 transition hover:bg-slate-200">
 
                   Batalkan
