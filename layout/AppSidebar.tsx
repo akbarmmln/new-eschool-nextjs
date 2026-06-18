@@ -28,6 +28,35 @@ const AppSidebar: React.FC = () => {
 
     img.src = url;
   }, []);
+  useEffect(() => {
+    const reloadLogo = () => {
+      const url = `https://s3.nevaobjects.id/bucket-sit/profile-situs/logo_expand?v=${Date.now()}`;
+
+      const img = new window.Image();
+
+      img.onload = () => {
+        setLogoExpand(url);
+      };
+
+      img.onerror = () => {
+        setLogoExpand("/images/error/broken-image.svg");
+      };
+
+      img.src = url;
+    };
+
+    window.addEventListener(
+      "logo-expand-updated",
+      reloadLogo
+    );
+
+    return () => {
+      window.removeEventListener(
+        "logo-expand-updated",
+        reloadLogo
+      );
+    };
+  }, []);
 
   const [logo, setLogo] = useState<any | null>('/images/logo/logo_tp_skeleton.svg');
   useEffect(() => {

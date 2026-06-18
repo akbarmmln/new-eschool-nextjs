@@ -30,14 +30,18 @@ export default function PengaturanSitus() {
 
   const [imageVersion, setImageVersion] = useState(Date.now());
   const [logoIni, setLogoIni] = useState("/images/logo/logo_tp_skeleton.svg");
+  const [logoExpandIni, setLogoExpandIni] = useState("/images/logo/logo_tp_expand_skeleton.svg");
 
   const [openModalEditIL, setOpenModalEditIL] = useState(false);
   const [openModalAlamat, setOpenModalAlamat] = useState(false);
   const [openModalEditVM, setOpenModalEditVM] = useState(false);
 
   const [openModalEditLogo, setOpenModalEditLogo] = useState(false);
+  const [openModalEditLogoExpand, setOpenModalEditLogoExpand] = useState(false);
+
   const [previewLogoBaru, setPreviewLogoBaru] = useState<string>("");
   const [logoBase64, setLogoBase64] = useState("");
+  const [logoExpandBase64, setLogoExpandBase64] = useState("");
 
   const [namaLembaga, setNamaLembaga] = useState('');
   const [alamat, setAlamat] = useState('');
@@ -55,7 +59,8 @@ export default function PengaturanSitus() {
   const isPilihWilayahFormValid = !isEmpty(wilayah);
 
   const isValidLogoUpdate = !isEmpty(logoBase64)
-
+  const isValidLogoExpandUpdate = !isEmpty(logoExpandBase64)
+  
   useEffect(() => {
     if (openModalEditIL) {
       document.body.style.overflow = "hidden";
@@ -96,6 +101,14 @@ export default function PengaturanSitus() {
     const img = new window.Image();
     img.onload = () => {setLogoIni(url);};
     img.onerror = () => {setLogoIni("/images/error/broken-image.svg");};
+    img.src = url;
+  }, [data]);
+  useEffect(() => {
+    const url = data?.settings?.logo_panjang;
+    if (!url) return;
+    const img = new window.Image();
+    img.onload = () => {setLogoExpandIni(url);};
+    img.onerror = () => {setLogoExpandIni("/images/error/broken-image.svg");};
     img.src = url;
   }, [data]);
 
@@ -326,44 +339,6 @@ export default function PengaturanSitus() {
     setPreviewLogoBaru('')
     setOpenModalEditLogo(false)
   }
-  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      const file = e.target.files?.[0];
-
-      if (!file) return;
-      // await validateImageDimension(file);
-      await processImage(file);
-
-    } catch (e: any) {
-      setLogoBase64('')
-      setPreviewLogoBaru('')
-
-      if (e === 'err-img-2001') {
-        await showAlert(
-          "warning",
-          "Gagal",
-          "Gagal memproses Logo. Silahkan ulangi kembali"
-        );
-      }
-      if (e === 'err-img-2002') {
-        await showAlert(
-          "warning",
-          "Gagal",
-          "Dimensi gambar harus 1024 x 1024"
-        );
-      }
-    }
-  };
-  const processImage = async (file: File) => {
-    try {
-      const base64 = await fileToBase64(file);
-      const dataUrl = `data:${file.type};base64,${base64}`;
-      setLogoBase64(base64);
-      setPreviewLogoBaru(dataUrl);
-    } catch(e) {
-      throw 'err-img-2001'
-    }
-  };
   const handleSavePerubahanLogo = async () => {
     try {
       const payload = {
@@ -398,8 +373,105 @@ export default function PengaturanSitus() {
         "Gagal",
         `Gagal memperbaharui logo`,
       );
+    } finally {
+      updateLogo.reset()
     }
   }
+
+  const handleOpenModaEditlLogoExpand = () => {
+    setLogoExpandBase64('')
+    setPreviewLogoBaru('')
+    setOpenModalEditLogoExpand(true)
+  }
+  const handleCloseModaEditlLogoExpand = () => {
+    setLogoExpandBase64('')
+    setPreviewLogoBaru('')
+    setOpenModalEditLogoExpand(false)
+  }
+  const handleSavePerubahanLogoExpand = async () => {
+    try {
+      const payload = {
+        id: data?.settings?.id,
+        name: 'logo_expand',
+        fileImage: logoExpandBase64
+      }
+
+      const hasil = await updateLogo.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Logo berhasil diperbaharui"
+      );
+
+      handleCloseModaEditlLogoExpand()
+
+      await queryClient.invalidateQueries({
+        queryKey: ['informasi-situs'],
+      });
+      setImageVersion(Date.now());
+      window.dispatchEvent(
+        new CustomEvent("logo-expand-updated")
+      );
+    } catch (e) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui logo`,
+      );
+    } finally {
+      updateLogo.reset()
+    }
+  }
+
+  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>, jenisLogo: string) => {
+    try {
+      const file = e.target.files?.[0];
+
+      if (!file) return;
+      // await validateImageDimension(file);
+      await processImage(file, jenisLogo);
+
+    } catch (e: any) {
+      setLogoBase64('')
+      setLogoExpandBase64('')
+      setPreviewLogoBaru('')
+
+      if (e === 'err-img-2001') {
+        await showAlert(
+          "warning",
+          "Gagal",
+          "Gagal memproses Logo. Silahkan ulangi kembali"
+        );
+      }
+      if (e === 'err-img-2002') {
+        await showAlert(
+          "warning",
+          "Gagal",
+          "Dimensi gambar harus 1024 x 1024"
+        );
+      }
+    }
+  };
+  const processImage = async (file: File, jenisLogo: string) => {
+    try {
+      const base64 = await fileToBase64(file);
+      const dataUrl = `data:${file.type};base64,${base64}`;
+
+      if (jenisLogo === 'logo') {
+        setLogoBase64(base64);
+      } else if (jenisLogo === 'logo_expand') {
+        setLogoExpandBase64(base64);
+      }
+      
+      setPreviewLogoBaru(dataUrl);
+    } catch(e) {
+      throw 'err-img-2001'
+    }
+  };
 
   const historyData = [
     {
@@ -511,7 +583,8 @@ export default function PengaturanSitus() {
             </div>
 
             <div className="relative">
-              <button 
+              <button
+                onClick={handleOpenModaEditlLogoExpand}
                 type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
                 <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
               </button>
@@ -522,7 +595,7 @@ export default function PengaturanSitus() {
                     unoptimized
                     width={250}
                     height={250}
-                    src={data?.settings?.logo_panjang}
+                    src={`${logoExpandIni}?v=${imageVersion}`}
                     alt="Logo"
                     className="opacity-100"
                   />
@@ -531,6 +604,7 @@ export default function PengaturanSitus() {
                     width={250}
                     height={250}
                     src="/images/error/image-add.svg"
+                    priority
                     alt="Logo"
                     className="opacity-100"
                   />
@@ -564,6 +638,7 @@ export default function PengaturanSitus() {
                     width={250}
                     height={250}
                     src="/images/error/image-add.svg"
+                    priority
                     alt="Logo"
                     className="opacity-100"
                   />
@@ -788,6 +863,142 @@ export default function PengaturanSitus() {
         </div>
       )}
 
+      {openModalEditLogoExpand && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+              <div className="border-b border-slate-200 px-8 py-6">
+                <h2 className="text-2xl font-bold text-slate-800">
+                  Ubah Logo Expand
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Logo yang bisa diterima adalah png dan svg
+                </p>
+              </div>
+
+              <div className="p-6">
+                {isEmpty(data?.settings?.logo_panjang) ? (
+                  <div className="flex justify-center">
+                    <div className="w-full max-w-md rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                      <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                        Logo Expand Baru
+                      </p>
+
+                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
+                        {previewLogoBaru ? (
+                          <Image
+                            src={previewLogoBaru}
+                            alt="Logo Baru"
+                            width={120}
+                            height={120}
+                            className="max-h-[120px] w-auto object-contain"
+                          />
+                        ) : (
+                          <div className="text-center text-slate-400">
+                            <i className="ri-image-add-line text-5xl" />
+                            <p className="mt-2 text-sm">
+                              Belum ada logo dipilih
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                        <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                          Logo Saat Ini
+                        </p>
+
+                        <div className="flex h-40 items-center justify-center rounded-xl border border-slate-200 bg-white">
+                          <Image
+                            unoptimized
+                            src={`${logoExpandIni}?v=${imageVersion}`}
+                            alt="Logo Lama"
+                            width={120}
+                            height={120}
+                            className="max-h-[120px] w-auto object-contain"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                          <i className="ri-arrow-right-line text-4xl" />
+                        </div>
+                      </div>
+                      
+                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                        <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                          Logo Expand Baru
+                        </p>
+
+                        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
+                          {previewLogoBaru ? (
+                            <Image
+                              src={previewLogoBaru}
+                              alt="Logo Baru"
+                              width={120}
+                              height={120}
+                              className="max-h-[120px] w-auto object-contain"
+                            />
+                          ) : (
+                            <div className="text-center text-slate-400">
+                              <i className="ri-image-add-line text-5xl" />
+                              <p className="mt-2 text-sm">
+                                Belum ada logo dipilih
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <label className="mt-8 flex h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white transition hover:bg-slate-50">
+                  <i className="ri-upload-2-line text-xl" />
+
+                  <span className="font-medium">
+                    Upload Logo Expand Baru
+                  </span>
+
+                  <input
+                    type="file"
+                    accept=".png,.svg"
+                    hidden
+                    onChange={(e) => handleUploadLogo(e, 'logo_expand')}
+                  />
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-4 border-t border-slate-200 bg-slate-50 px-8 py-5">
+                <button
+                  type="button"
+                  onClick={handleCloseModaEditlLogoExpand}
+                  className="rounded-xl px-5 py-3 font-medium text-slate-500 transition hover:bg-slate-200">
+
+                  Batalkan
+                </button>
+
+                <button 
+                  disabled={!isValidLogoExpandUpdate || updateLogo.isPending}
+                  onClick={handleSavePerubahanLogoExpand}
+                  type="button" 
+                  className={`rounded-xl bg-teal-600 px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-teal-700
+                    ${!isValidLogoExpandUpdate ? 'cursor-not-allowed bg-slate-400 shadow-none' : ''}`}>
+                  
+                  {updateLogo.isPending ? "Menyimpan..." : "Simpan Perubahan"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
       {openModalEditLogo && (
         <>
           <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
@@ -798,7 +1009,7 @@ export default function PengaturanSitus() {
                 </h2>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Logo yang bisa diterima adalah png dan ukuran dimensi 1024 x 1024
+                  Logo yang bisa diterima adalah png dan svg
                 </p>
               </div>
 
@@ -895,7 +1106,7 @@ export default function PengaturanSitus() {
                     type="file"
                     accept=".png,.svg"
                     hidden
-                    onChange={handleUploadLogo}
+                    onChange={(e) => handleUploadLogo(e, 'logo')}
                   />
                 </label>
               </div>
