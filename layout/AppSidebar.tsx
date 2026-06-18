@@ -42,10 +42,39 @@ const AppSidebar: React.FC = () => {
     };
 
     img.onerror = () => {
-      setLogo("/images/logo/empty_logo.svg");
+      setLogo("/images/error/broken-image.svg");
     };
 
     img.src = url;
+  }, []);
+  useEffect(() => {
+    const reloadLogo = () => {
+      const url = `https://s3.nevaobjects.id/bucket-sit/profile-situs/logo?v=${Date.now()}`;
+
+      const img = new window.Image();
+
+      img.onload = () => {
+        setLogo(url);
+      };
+
+      img.onerror = () => {
+        setLogo("/images/error/broken-image.svg");
+      };
+
+      img.src = url;
+    };
+
+    window.addEventListener(
+      "logo-updated",
+      reloadLogo
+    );
+
+    return () => {
+      window.removeEventListener(
+        "logo-updated",
+        reloadLogo
+      );
+    };
   }, []);
 
   const pathname = usePathname();

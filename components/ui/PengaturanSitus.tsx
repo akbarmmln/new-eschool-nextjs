@@ -389,6 +389,9 @@ export default function PengaturanSitus() {
         queryKey: ['informasi-situs'],
       });
       setImageVersion(Date.now());
+      window.dispatchEvent(
+        new CustomEvent("logo-updated")
+      );
     } catch (e) {
       await showAlert(
         "error",
