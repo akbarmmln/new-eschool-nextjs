@@ -14,7 +14,8 @@ import {
   updadateInformasiWalMur,
   requestJurnalSiswaDetails,
   requestInformasiSitus,
-  updateInformasiSitus
+  updateInformasiSitus,
+  updateLogoAndBackground
 } from '@/services/Call'
 
 // PROFILE \\
@@ -272,5 +273,15 @@ export const useUpdateInformasiSitus = () => {
       const results = updateInformasiSitus(payload)
       return results;
     },
+  });
+};
+
+// UPDATE LOGO ATAU BACKGROUND \\
+export const useUpdateLogoAndBackground = () => {
+  return useMutation({
+	mutationFn: async (payload: any) => {
+	  const results = updateLogoAndBackground(payload)
+	  return results;
+	},
   });
 };

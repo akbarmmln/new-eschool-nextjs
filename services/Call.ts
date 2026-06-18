@@ -494,3 +494,12 @@ export async function updateInformasiSitus(body: any) {
     10000
   );
 }
+
+export async function updateLogoAndBackground(body: any) {
+  return await request(
+    "post",
+    `/api/v1/settings/situs-upload/images`,
+    body,
+    10000
+  );
+}

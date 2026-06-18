@@ -157,3 +157,27 @@ export const getInitials = (name: string) => {
     .map((word) => word.charAt(0).toUpperCase())
     .join("");
 };
+
+export const validateImageDimension = (file: File): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+
+    img.onload = () => {
+      const width = img.width;
+      const height = img.height;
+
+      if (width !== 1024 || height !== 1024) {
+        reject('err-img-2002');
+        return;
+      }
+
+      resolve();
+    };
+
+    img.onerror = () => {
+      reject('err-img-2002');
+    };
+
+    img.src = URL.createObjectURL(file);
+  });
+};

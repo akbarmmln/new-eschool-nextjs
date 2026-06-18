@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useAccessContext } from '@/context/AccessContext'
-import { useGetInformasiSitus, useUpdateInformasiSitus } from "@/hooks/query";
+import { useGetInformasiSitus, useUpdateInformasiSitus, useUpdateLogoAndBackground } from "@/hooks/query";
 import isEmpty from "@/utils/isEmpty";
 import { useGetWilayahByKodePos } from "@/hooks/queryAlamat";
 import { showAlert } from "@/utils/swal";
 import { useQueryClient } from '@tanstack/react-query';
 import { runNanoID } from "@/utils/utils";
+import { fileToBase64, validateImageDimension } from "@/utils/utils";
 
 export default function PengaturanSitus() {
   const dataAccess = useAccessContext()
@@ -27,9 +28,16 @@ export default function PengaturanSitus() {
 
   const { data, isLoading, error, isFetching, refetch } = useGetInformasiSitus();
 
+  const [imageVersion, setImageVersion] = useState(Date.now());
+  const [logoIni, setLogoIni] = useState("/images/logo/logo_tp_skeleton.svg");
+
   const [openModalEditIL, setOpenModalEditIL] = useState(false);
   const [openModalAlamat, setOpenModalAlamat] = useState(false);
   const [openModalEditVM, setOpenModalEditVM] = useState(false);
+
+  const [openModalEditLogoExpand, setOpenModalEditLogoExpand] = useState(false);
+  const [previewLogoBaru, setPreviewLogoBaru] = useState<string>("");
+  const [logoBase64, setLogoBase64] = useState("");
 
   const [namaLembaga, setNamaLembaga] = useState('');
   const [alamat, setAlamat] = useState('');
@@ -45,6 +53,8 @@ export default function PengaturanSitus() {
 
   const isKodePosFormValid = !isEmpty(kodePosPencarian);
   const isPilihWilayahFormValid = !isEmpty(wilayah);
+
+  const isValidLogoUpdate = !isEmpty(logoBase64)
 
   useEffect(() => {
     if (openModalEditIL) {
@@ -68,7 +78,27 @@ export default function PengaturanSitus() {
       document.body.style.overflow = "auto";
     };
   }, [openModalEditVM]);
+  useEffect(() => {
+    if (openModalEditLogoExpand) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEditLogoExpand]);
   
+  useEffect(() => {
+    const url = data?.settings?.logo;
+    if (!url) return;
+    const img = new window.Image();
+    img.onload = () => {setLogoIni(url);};
+    img.onerror = () => {setLogoIni("/images/error/broken-image.svg");};
+    img.src = url;
+  }, [data]);
+
   const handleOpenEditIL = () => {
     if (data) {
       const provinsi = data.settings.provinsi || '';
@@ -285,6 +315,89 @@ export default function PengaturanSitus() {
     }
   }
 
+  const updateLogo = useUpdateLogoAndBackground();
+  const handleOpenModaEditlLogoExpand = async () => {
+    setLogoBase64('')
+    setPreviewLogoBaru('')
+    setOpenModalEditLogoExpand(true)
+  }
+  const handleCloseModalEditLogoExpand = async () => {
+    setLogoBase64('')
+    setPreviewLogoBaru('')
+    setOpenModalEditLogoExpand(false)
+  }
+  const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = e.target.files?.[0];
+
+      if (!file) return;
+      // await validateImageDimension(file);
+      await processImage(file);
+
+    } catch (e: any) {
+      setLogoBase64('')
+      setPreviewLogoBaru('')
+
+      if (e === 'err-img-2001') {
+        await showAlert(
+          "warning",
+          "Gagal",
+          "Gagal memproses Logo. Silahkan ulangi kembali"
+        );
+      }
+      if (e === 'err-img-2002') {
+        await showAlert(
+          "warning",
+          "Gagal",
+          "Dimensi gambar harus 1024 x 1024"
+        );
+      }
+    }
+  };
+  const processImage = async (file: File) => {
+    try {
+      const base64 = await fileToBase64(file);
+      const dataUrl = `data:${file.type};base64,${base64}`;
+      setLogoBase64(base64);
+      setPreviewLogoBaru(dataUrl);
+    } catch(e) {
+      throw 'err-img-2001'
+    }
+  };
+  const handleSavePerubahanLogo = async () => {
+    try {
+      const payload = {
+        id: data?.settings?.id,
+        name: 'logo',
+        fileImage: logoBase64
+      }
+
+      const hasil = await updateLogo.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Logo berhasil diperbaharui"
+      );
+
+      handleCloseModalEditLogoExpand()
+
+      await queryClient.invalidateQueries({
+        queryKey: ['informasi-situs'],
+      });
+      setImageVersion(Date.now());
+    } catch (e) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui logo`,
+      );
+    }
+  }
+
   const historyData = [
     {
       year: "1998",
@@ -360,20 +473,33 @@ export default function PengaturanSitus() {
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
             <div className="relative">
+              <button
+                onClick={handleOpenModaEditlLogoExpand}
+                type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
+                <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
+              </button>
+
               <label className="relative flex h-[250px] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-                <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
-                  <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
-                </button>
+                {!isEmpty(data?.settings?.logo) ? (
+                  <Image
+                    unoptimized
+                    width={250}
+                    height={250}
+                    src={`${logoIni}?v=${imageVersion}`}
+                    alt="Logo"
+                    className="opacity-100"
+                  />
+                ) : (
+                  <Image
+                    width={250}
+                    height={250}
+                    src="/images/error/image-add.svg"
+                    alt="Logo"
+                    className="opacity-100"
+                  />
+                )}
 
-                <Image
-                  width={250}
-                  height={250}
-                  src="/images/error/broken-file.svg"
-                  alt="Logo"
-                  className="opacity-100"
-                />
-
-                <div className="absolute bottom-0 left-0 right-0 bg-blue-600/70 px-4 py-3 text-center" >
+                <div className="absolute bottom-0 left-0 right-0 bg-blue-500/70 px-4 py-3 text-center" >
                   <p className="text-sm font-semibold text-white">
                     Logo Singkat
                   </p>
@@ -382,20 +508,31 @@ export default function PengaturanSitus() {
             </div>
 
             <div className="relative">
+              <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
+                <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
+              </button>
+
               <label className="relative flex h-[250px] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-                <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
-                  <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
-                </button>
+                {!isEmpty(data?.settings?.logo_panjang) ? (
+                  <Image
+                    unoptimized
+                    width={250}
+                    height={250}
+                    src={data?.settings?.logo_panjang}
+                    alt="Logo"
+                    className="opacity-100"
+                  />
+                ) : (
+                  <Image
+                    width={250}
+                    height={250}
+                    src="/images/error/image-add.svg"
+                    alt="Logo"
+                    className="opacity-100"
+                  />
+                )}
 
-                <Image
-                  width={250}
-                  height={250}
-                  src="/images/error/broken-file.svg"
-                  alt="Logo"
-                  className="opacity-100"
-                />
-
-                <div className="absolute bottom-0 left-0 right-0 bg-blue-600/70 px-4 py-3 text-center" >
+                <div className="absolute bottom-0 left-0 right-0 bg-blue-500/70 px-4 py-3 text-center" >
                   <p className="text-sm font-semibold text-white">
                     Logo Panjang
                   </p>
@@ -404,20 +541,31 @@ export default function PengaturanSitus() {
             </div>
 
             <div className="relative">
+              <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
+                <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
+              </button>
+
               <label className="relative flex h-[250px] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-                <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
-                  <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
-                </button>
+                {!isEmpty(data?.settings?.background_image) ? (
+                  <Image
+                    unoptimized
+                    width={250}
+                    height={250}
+                    src={data?.settings?.background_image}
+                    alt="Logo"
+                    className="opacity-100"
+                  />
+                ) : (
+                  <Image
+                    width={250}
+                    height={250}
+                    src="/images/error/image-add.svg"
+                    alt="Logo"
+                    className="opacity-100"
+                  />
+                )}
 
-                <Image
-                  width={250}
-                  height={250}
-                  src="/images/error/broken-file.svg"
-                  alt="Logo"
-                  className="opacity-100"
-                />
-
-                <div className="absolute bottom-0 left-0 right-0 bg-blue-600/70 px-4 py-3 text-center" >
+                <div className="absolute bottom-0 left-0 right-0 bg-blue-500/70 px-4 py-3 text-center" >
                   <p className="text-sm font-semibold text-white">
                     Latar Background
                   </p>
@@ -634,6 +782,142 @@ export default function PengaturanSitus() {
             `}
           </style>
         </div>
+      )}
+
+      {openModalEditLogoExpand && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+              <div className="border-b border-slate-200 px-8 py-6">
+                <h2 className="text-2xl font-bold text-slate-800">
+                  Ubah Logo
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Logo yang bisa diterima adalah png dan ukuran dimensi 1024 x 1024
+                </p>
+              </div>
+
+              <div className="p-6">
+                {isEmpty(data?.settings?.logo) ? (
+                  <div className="flex justify-center">
+                    <div className="w-full max-w-md rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                      <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                        Logo Baru
+                      </p>
+
+                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
+                        {previewLogoBaru ? (
+                          <Image
+                            src={previewLogoBaru}
+                            alt="Logo Baru"
+                            width={120}
+                            height={120}
+                            className="max-h-[120px] w-auto object-contain"
+                          />
+                        ) : (
+                          <div className="text-center text-slate-400">
+                            <i className="ri-image-add-line text-5xl" />
+                            <p className="mt-2 text-sm">
+                              Belum ada logo dipilih
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                        <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                          Logo Saat Ini
+                        </p>
+
+                        <div className="flex h-40 items-center justify-center rounded-xl border border-slate-200 bg-white">
+                          <Image
+                            unoptimized
+                            src={`${logoIni}?v=${imageVersion}`}
+                            alt="Logo Lama"
+                            width={120}
+                            height={120}
+                            className="max-h-[120px] w-auto object-contain"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                          <i className="ri-arrow-right-line text-4xl" />
+                        </div>
+                      </div>
+                      
+                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                        <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                          Logo Baru
+                        </p>
+
+                        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
+                          {previewLogoBaru ? (
+                            <Image
+                              src={previewLogoBaru}
+                              alt="Logo Baru"
+                              width={120}
+                              height={120}
+                              className="max-h-[120px] w-auto object-contain"
+                            />
+                          ) : (
+                            <div className="text-center text-slate-400">
+                              <i className="ri-image-add-line text-5xl" />
+                              <p className="mt-2 text-sm">
+                                Belum ada logo dipilih
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <label className="mt-8 flex h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white transition hover:bg-slate-50">
+                  <i className="ri-upload-2-line text-xl" />
+
+                  <span className="font-medium">
+                    Upload Logo Baru
+                  </span>
+
+                  <input
+                    type="file"
+                    accept=".png,.svg"
+                    hidden
+                    onChange={handleUploadLogo}
+                  />
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-4 border-t border-slate-200 bg-slate-50 px-8 py-5">
+                <button
+                  type="button"
+                  onClick={handleCloseModalEditLogoExpand}
+                  className="rounded-xl px-5 py-3 font-medium text-slate-500 transition hover:bg-slate-200">
+
+                  Batalkan
+                </button>
+
+                <button 
+                  disabled={!isValidLogoUpdate || updateLogo.isPending}
+                  onClick={handleSavePerubahanLogo}
+                  type="button" 
+                  className={`rounded-xl bg-teal-600 px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-teal-700
+                    ${!isValidLogoUpdate ? 'cursor-not-allowed bg-slate-400 shadow-none' : ''}`}>
+                  
+                  {updateLogo.isPending ? "Menyimpan..." : "Simpan Perubahan"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {openModalEditIL && (
