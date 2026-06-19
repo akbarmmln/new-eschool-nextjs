@@ -27,10 +27,11 @@ export default function PengaturanSitus() {
   }
 
   const { data, isLoading, error, isFetching, refetch } = useGetInformasiSitus();
-
+  
   const [imageVersion, setImageVersion] = useState(Date.now());
   const [logoIni, setLogoIni] = useState("/images/logo/logo_tp_skeleton.svg");
   const [logoExpandIni, setLogoExpandIni] = useState("/images/logo/logo_tp_expand_skeleton.svg");
+  const [backgroundIni, setBackgroundIni] = useState("/images/logo/logo_tp_expand_skeleton.svg");
 
   const [openModalEditIL, setOpenModalEditIL] = useState(false);
   const [openModalAlamat, setOpenModalAlamat] = useState(false);
@@ -38,10 +39,12 @@ export default function PengaturanSitus() {
 
   const [openModalEditLogo, setOpenModalEditLogo] = useState(false);
   const [openModalEditLogoExpand, setOpenModalEditLogoExpand] = useState(false);
+  const [openModalEditBackground, setOpenModalEditBackground] = useState(false);
 
   const [previewLogoBaru, setPreviewLogoBaru] = useState<string>("");
   const [logoBase64, setLogoBase64] = useState("");
   const [logoExpandBase64, setLogoExpandBase64] = useState("");
+  const [backgroundBase64, setBackgroundBase64] = useState("");
 
   const [namaLembaga, setNamaLembaga] = useState('');
   const [alamat, setAlamat] = useState('');
@@ -60,6 +63,7 @@ export default function PengaturanSitus() {
 
   const isValidLogoUpdate = !isEmpty(logoBase64)
   const isValidLogoExpandUpdate = !isEmpty(logoExpandBase64)
+  const isValidBackgroundUpdate = !isEmpty(backgroundBase64)
   
   useEffect(() => {
     if (openModalEditIL) {
@@ -94,7 +98,29 @@ export default function PengaturanSitus() {
       document.body.style.overflow = "auto";
     };
   }, [openModalEditLogo]);
-  
+  useEffect(() => {
+    if (openModalEditLogoExpand) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEditLogoExpand]);
+  useEffect(() => {
+    if (openModalEditBackground) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [openModalEditBackground]);
+
   useEffect(() => {
     const url = data?.settings?.logo;
     if (!url) return;
@@ -109,6 +135,14 @@ export default function PengaturanSitus() {
     const img = new window.Image();
     img.onload = () => {setLogoExpandIni(url);};
     img.onerror = () => {setLogoExpandIni("/images/error/broken-image.svg");};
+    img.src = url;
+  }, [data]);
+  useEffect(() => {
+    const url = data?.settings?.background_image;
+    if (!url) return;
+    const img = new window.Image();
+    img.onload = () => {setBackgroundIni(url);};
+    img.onerror = () => {setBackgroundIni("/images/error/broken-image.svg");};
     img.src = url;
   }, [data]);
 
@@ -427,6 +461,55 @@ export default function PengaturanSitus() {
     }
   }
 
+  const handleOpenModaEditlBackground = () => {
+    setLogoExpandBase64('')
+    setPreviewLogoBaru('')
+    setOpenModalEditBackground(true)
+  }
+  const handleCloseModaEditlBackground = () => {
+    setLogoExpandBase64('')
+    setPreviewLogoBaru('')
+    setOpenModalEditBackground(false)
+  }
+  const handleSavePerubahanBackground = async () => {
+    try {
+      const payload = {
+        id: data?.settings?.id,
+        name: 'background',
+        fileImage: backgroundBase64
+      }
+
+      const hasil = await updateLogo.mutateAsync(payload);
+      if (!hasil.ok) {
+        throw hasil;
+      }
+
+      await showAlert(
+        "success",
+        "Berhasil",
+        "Background berhasil diperbaharui"
+      );
+
+      handleCloseModaEditlBackground()
+
+      await queryClient.invalidateQueries({
+        queryKey: ['informasi-situs'],
+      });
+      setImageVersion(Date.now());
+      window.dispatchEvent(
+        new CustomEvent("background-updated")
+      );
+    } catch (e) {
+      await showAlert(
+        "error",
+        "Gagal",
+        `Gagal memperbaharui Background`,
+      );
+    } finally {
+      updateLogo.reset()
+    }
+  }
+
   const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>, jenisLogo: string) => {
     try {
       const file = e.target.files?.[0];
@@ -438,6 +521,7 @@ export default function PengaturanSitus() {
     } catch (e: any) {
       setLogoBase64('')
       setLogoExpandBase64('')
+      setBackgroundBase64('')
       setPreviewLogoBaru('')
 
       if (e === 'err-img-2001') {
@@ -465,6 +549,8 @@ export default function PengaturanSitus() {
         setLogoBase64(base64);
       } else if (jenisLogo === 'logo_expand') {
         setLogoExpandBase64(base64);
+      } else if (jenisLogo === 'background') {
+        setBackgroundBase64(base64);
       }
       
       setPreviewLogoBaru(dataUrl);
@@ -619,7 +705,9 @@ export default function PengaturanSitus() {
             </div>
 
             <div className="relative">
-              <button type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
+              <button 
+                onClick={handleOpenModaEditlBackground}
+                type="button" className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600/70 shadow-md transition hover:scale-105">
                 <i className="ri-palette-line text-lg text-slate-200 dark:text-slate-200" />
               </button>
 
@@ -629,7 +717,7 @@ export default function PengaturanSitus() {
                     unoptimized
                     width={250}
                     height={250}
-                    src={data?.settings?.background_image}
+                    src={`${backgroundIni}?v=${imageVersion}`}
                     alt="Logo"
                     className="opacity-100"
                   />
@@ -861,6 +949,142 @@ export default function PengaturanSitus() {
             `}
           </style>
         </div>
+      )}
+
+      {openModalEditBackground && (
+        <>
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+            <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+              <div className="border-b border-slate-200 px-8 py-6">
+                <h2 className="text-2xl font-bold text-slate-800">
+                  Ubah Background Expand
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Gambar yang bisa diterima adalah png
+                </p>
+              </div>
+
+              <div className="p-6">
+                {isEmpty(data?.settings?.background_image) ? (
+                  <div className="flex justify-center">
+                    <div className="w-full max-w-md rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                      <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                        Background Baru
+                      </p>
+
+                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
+                        {previewLogoBaru ? (
+                          <Image
+                            src={previewLogoBaru}
+                            alt="Logo Baru"
+                            width={120}
+                            height={120}
+                            className="max-h-[120px] w-auto object-contain"
+                          />
+                        ) : (
+                          <div className="text-center text-slate-400">
+                            <i className="ri-image-add-line text-5xl" />
+                            <p className="mt-2 text-sm">
+                              Belum ada logo dipilih
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                        <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                          Background Ini
+                        </p>
+
+                        <div className="flex h-40 items-center justify-center rounded-xl border border-slate-200 bg-white">
+                          <Image
+                            unoptimized
+                            src={`${backgroundIni}?v=${imageVersion}`}
+                            alt="Logo Lama"
+                            width={120}
+                            height={120}
+                            className="max-h-[120px] w-auto object-contain"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                          <i className="ri-arrow-right-line text-4xl" />
+                        </div>
+                      </div>
+
+                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                        <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                          Background Baru
+                        </p>
+
+                        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
+                          {previewLogoBaru ? (
+                            <Image
+                              src={previewLogoBaru}
+                              alt="Logo Baru"
+                              width={120}
+                              height={120}
+                              className="max-h-[120px] w-auto object-contain"
+                            />
+                          ) : (
+                            <div className="text-center text-slate-400">
+                              <i className="ri-image-add-line text-5xl" />
+                              <p className="mt-2 text-sm">
+                                Belum ada background dipilih
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <label className="mt-8 flex h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white transition hover:bg-slate-50">
+                  <i className="ri-upload-2-line text-xl" />
+
+                  <span className="font-medium">
+                    Upload Background Baru
+                  </span>
+
+                  <input
+                    type="file"
+                    accept=".png"
+                    hidden
+                    onChange={(e) => handleUploadLogo(e, 'background')}
+                  />
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-4 border-t border-slate-200 bg-slate-50 px-8 py-5">
+                <button
+                  type="button"
+                  onClick={handleCloseModaEditlBackground}
+                  className="rounded-xl px-5 py-3 font-medium text-slate-500 transition hover:bg-slate-200">
+
+                  Batalkan
+                </button>
+
+                <button 
+                  disabled={!isValidBackgroundUpdate || updateLogo.isPending}
+                  onClick={handleSavePerubahanBackground}
+                  type="button" 
+                  className={`rounded-xl bg-teal-600 px-6 py-3 font-semibold text-white shadow-lg transition hover:bg-teal-700
+                    ${!isValidBackgroundUpdate ? 'cursor-not-allowed bg-slate-400 shadow-none' : ''}`}>
+                  
+                  {updateLogo.isPending ? "Menyimpan..." : "Simpan Perubahan"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {openModalEditLogoExpand && (
@@ -1155,19 +1379,6 @@ export default function PengaturanSitus() {
               </div>
 
               <div className="space-y-6 p-6">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-700">
-                    ID
-                  </label>
-
-                  <input
-                    type="text"
-                    value={data?.settings?.id || ""}
-                    disabled
-                    className="h-[48px] w-full rounded-xl border border-slate-200 bg-slate-100 px-4 text-sm text-slate-500"
-                  />
-                </div>
-
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Nama Lembaga/Yayasan
