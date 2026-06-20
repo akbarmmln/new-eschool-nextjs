@@ -9,7 +9,7 @@ import { useGetWilayahByKodePos } from "@/hooks/queryAlamat";
 import { showAlert } from "@/utils/swal";
 import { useQueryClient } from '@tanstack/react-query';
 import { runNanoID } from "@/utils/utils";
-import { fileToBase64, validateImageDimension } from "@/utils/utils";
+import { fileToBase64, compressImage, validateImageDimension } from "@/utils/utils";
 
 export default function PengaturanSitus() {
   const dataAccess = useAccessContext()
@@ -41,6 +41,8 @@ export default function PengaturanSitus() {
   const [openModalEditLogoExpand, setOpenModalEditLogoExpand] = useState(false);
   const [openModalEditBackground, setOpenModalEditBackground] = useState(false);
 
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressProgress, setCompressProgress] = useState(0);
   const [previewLogoBaru, setPreviewLogoBaru] = useState<string>("");
   const [logoBase64, setLogoBase64] = useState("");
   const [logoExpandBase64, setLogoExpandBase64] = useState("");
@@ -542,7 +544,17 @@ export default function PengaturanSitus() {
   };
   const processImage = async (file: File, jenisLogo: string) => {
     try {
-      const base64 = await fileToBase64(file);
+      setIsCompressing(true);
+      setCompressProgress(0);
+
+      const compressedFile = await compressImage(
+        file,
+        (progress) => {
+          setCompressProgress(progress);
+        }
+      );
+
+      const base64 = await fileToBase64(compressedFile);
       const dataUrl = `data:${file.type};base64,${base64}`;
 
       if (jenisLogo === 'logo') {
@@ -556,6 +568,12 @@ export default function PengaturanSitus() {
       setPreviewLogoBaru(dataUrl);
     } catch(e) {
       throw 'err-img-2001'
+    } finally {
+      setCompressProgress(100);
+      setTimeout(() => {
+        setIsCompressing(false);
+        setCompressProgress(0);
+      }, 500);
     }
   };
 
@@ -973,11 +991,32 @@ export default function PengaturanSitus() {
                         Background Baru
                       </p>
 
-                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
-                        {previewLogoBaru ? (
+                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white overflow-hidden">
+                        {isCompressing ? (
+                          <div className="flex h-full w-full flex-col items-center justify-center px-6">
+                            <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
+
+                            <p className="mt-1 text-center text-sm font-medium text-slate-700">
+                              Mengoptimalkan gambar...
+                            </p>
+
+                            <div className="mt-4 w-full max-w-xs rounded-full bg-slate-200">
+                              <div
+                                className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                                style={{
+                                  width: `${compressProgress}%`,
+                                }}
+                              />
+                            </div>
+
+                            <p className="mt-3 text-xs text-slate-500">
+                              {compressProgress}%
+                            </p>
+                          </div>
+                        ) : previewLogoBaru ? (
                           <Image
                             src={previewLogoBaru}
-                            alt="Logo Baru"
+                            alt="Background Baru"
                             width={120}
                             height={120}
                             className="max-h-[120px] w-auto object-contain"
@@ -985,8 +1024,9 @@ export default function PengaturanSitus() {
                         ) : (
                           <div className="text-center text-slate-400">
                             <i className="ri-image-add-line text-5xl" />
+
                             <p className="mt-2 text-sm">
-                              Belum ada logo dipilih
+                              Belum ada background dipilih
                             </p>
                           </div>
                         )}
@@ -994,57 +1034,71 @@ export default function PengaturanSitus() {
                     </div>
                   </div>
                 ) : (
-                  <>
-                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-                        <p className="mb-4 text-center text-sm font-semibold text-slate-500">
-                          Background Ini
-                        </p>
+                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+                      <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                        Background Saat Ini
+                      </p>
 
-                        <div className="flex h-40 items-center justify-center rounded-xl border border-slate-200 bg-white">
+                      <div className="flex h-40 items-center justify-center rounded-xl border border-slate-200 bg-white">
+                        <Image unoptimized src={`${backgroundIni}?v=${imageVersion}`} alt="Logo Lama" width={120} height={120}
+                          className="max-h-[120px] w-auto object-contain" />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                        <i className="ri-arrow-right-line text-4xl" />
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
+                      <p className="mb-4 text-center text-sm font-semibold text-slate-500">
+                        Background Baru
+                      </p>
+
+                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white overflow-hidden">
+                        {isCompressing ? (
+                          <div className="flex h-full w-full flex-col items-center justify-center px-6">
+                            <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
+
+                            <p className="mt-1 text-center text-sm font-medium text-slate-700">
+                              Mengoptimalkan gambar...
+                            </p>
+
+                            <div className="mt-4 w-full max-w-xs rounded-full bg-slate-200">
+                              <div
+                                className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                                style={{
+                                  width: `${compressProgress}%`,
+                                }}
+                              />
+                            </div>
+
+                            <p className="mt-3 text-xs text-slate-500">
+                              {compressProgress}%
+                            </p>
+                          </div>
+                        ) : previewLogoBaru ? (
                           <Image
-                            unoptimized
-                            src={`${backgroundIni}?v=${imageVersion}`}
-                            alt="Logo Lama"
+                            src={previewLogoBaru}
+                            alt="Background Baru"
                             width={120}
                             height={120}
                             className="max-h-[120px] w-auto object-contain"
                           />
-                        </div>
-                      </div>
+                        ) : (
+                          <div className="text-center text-slate-400">
+                            <i className="ri-image-add-line text-5xl" />
 
-                      <div className="flex flex-col items-center justify-center">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                          <i className="ri-arrow-right-line text-4xl" />
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
-                        <p className="mb-4 text-center text-sm font-semibold text-slate-500">
-                          Background Baru
-                        </p>
-
-                        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
-                          {previewLogoBaru ? (
-                            <Image
-                              src={previewLogoBaru}
-                              alt="Logo Baru"
-                              width={120}
-                              height={120}
-                              className="max-h-[120px] w-auto object-contain"
-                            />
-                          ) : (
-                            <div className="text-center text-slate-400">
-                              <i className="ri-image-add-line text-5xl" />
-                              <p className="mt-2 text-sm">
-                                Belum ada background dipilih
-                              </p>
-                            </div>
-                          )}
-                        </div>
+                            <p className="mt-2 text-sm">
+                              Belum ada background dipilih
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </>
+                  </div>
                 )}
 
                 <label className="mt-8 flex h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white transition hover:bg-slate-50">
@@ -1109,8 +1163,29 @@ export default function PengaturanSitus() {
                         Logo Expand Baru
                       </p>
 
-                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
-                        {previewLogoBaru ? (
+                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white overflow-hidden">
+                        {isCompressing ? (
+                          <div className="flex h-full w-full flex-col items-center justify-center px-6">
+                            <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
+
+                            <p className="mt-1 text-center text-sm font-medium text-slate-700">
+                              Mengoptimalkan gambar...
+                            </p>
+
+                            <div className="mt-4 w-full max-w-xs rounded-full bg-slate-200">
+                              <div
+                                className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                                style={{
+                                  width: `${compressProgress}%`,
+                                }}
+                              />
+                            </div>
+
+                            <p className="mt-3 text-xs text-slate-500">
+                              {compressProgress}%
+                            </p>
+                          </div>
+                        ) : previewLogoBaru ? (
                           <Image
                             src={previewLogoBaru}
                             alt="Logo Baru"
@@ -1121,6 +1196,7 @@ export default function PengaturanSitus() {
                         ) : (
                           <div className="text-center text-slate-400">
                             <i className="ri-image-add-line text-5xl" />
+
                             <p className="mt-2 text-sm">
                               Belum ada logo dipilih
                             </p>
@@ -1160,8 +1236,29 @@ export default function PengaturanSitus() {
                           Logo Expand Baru
                         </p>
 
-                        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
-                          {previewLogoBaru ? (
+                        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white overflow-hidden">
+                          {isCompressing ? (
+                            <div className="flex h-full w-full flex-col items-center justify-center px-6">
+                              <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
+
+                              <p className="mt-1 text-center text-sm font-medium text-slate-700">
+                                Mengoptimalkan gambar...
+                              </p>
+
+                              <div className="mt-4 w-full max-w-xs rounded-full bg-slate-200">
+                                <div
+                                  className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                                  style={{
+                                    width: `${compressProgress}%`,
+                                  }}
+                                />
+                              </div>
+
+                              <p className="mt-3 text-xs text-slate-500">
+                                {compressProgress}%
+                              </p>
+                            </div>
+                          ) : previewLogoBaru ? (
                             <Image
                               src={previewLogoBaru}
                               alt="Logo Baru"
@@ -1172,8 +1269,9 @@ export default function PengaturanSitus() {
                           ) : (
                             <div className="text-center text-slate-400">
                               <i className="ri-image-add-line text-5xl" />
+
                               <p className="mt-2 text-sm">
-                                Belum ada logo dipilih
+                                Belum ada background dipilih
                               </p>
                             </div>
                           )}
@@ -1245,8 +1343,29 @@ export default function PengaturanSitus() {
                         Logo Baru
                       </p>
 
-                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
-                        {previewLogoBaru ? (
+                      <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white overflow-hidden">
+                        {isCompressing ? (
+                          <div className="flex h-full w-full flex-col items-center justify-center px-6">
+                            <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
+
+                            <p className="mt-1 text-center text-sm font-medium text-slate-700">
+                              Mengoptimalkan gambar...
+                            </p>
+
+                            <div className="mt-4 w-full max-w-xs rounded-full bg-slate-200">
+                              <div
+                                className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                                style={{
+                                  width: `${compressProgress}%`,
+                                }}
+                              />
+                            </div>
+
+                            <p className="mt-3 text-xs text-slate-500">
+                              {compressProgress}%
+                            </p>
+                          </div>
+                        ) : previewLogoBaru ? (
                           <Image
                             src={previewLogoBaru}
                             alt="Logo Baru"
@@ -1257,8 +1376,9 @@ export default function PengaturanSitus() {
                         ) : (
                           <div className="text-center text-slate-400">
                             <i className="ri-image-add-line text-5xl" />
+
                             <p className="mt-2 text-sm">
-                              Belum ada logo dipilih
+                              Belum ada Logo dipilih
                             </p>
                           </div>
                         )}
@@ -1296,8 +1416,29 @@ export default function PengaturanSitus() {
                           Logo Baru
                         </p>
 
-                        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white">
-                          {previewLogoBaru ? (
+                        <div className="flex h-40 items-center justify-center rounded-xl border border-dashed border-blue-300 bg-white overflow-hidden">
+                          {isCompressing ? (
+                            <div className="flex h-full w-full flex-col items-center justify-center px-6">
+                              <i className="ri-loader-4-line animate-spin text-5xl text-blue-600" />
+
+                              <p className="mt-1 text-center text-sm font-medium text-slate-700">
+                                Mengoptimalkan gambar...
+                              </p>
+
+                              <div className="mt-4 w-full max-w-xs rounded-full bg-slate-200">
+                                <div
+                                  className="h-2 rounded-full bg-blue-600 transition-all duration-300"
+                                  style={{
+                                    width: `${compressProgress}%`,
+                                  }}
+                                />
+                              </div>
+
+                              <p className="mt-3 text-xs text-slate-500">
+                                {compressProgress}%
+                              </p>
+                            </div>
+                          ) : previewLogoBaru ? (
                             <Image
                               src={previewLogoBaru}
                               alt="Logo Baru"
@@ -1308,8 +1449,9 @@ export default function PengaturanSitus() {
                           ) : (
                             <div className="text-center text-slate-400">
                               <i className="ri-image-add-line text-5xl" />
+
                               <p className="mt-2 text-sm">
-                                Belum ada logo dipilih
+                                Belum ada Logo dipilih
                               </p>
                             </div>
                           )}
