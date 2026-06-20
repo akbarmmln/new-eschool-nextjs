@@ -514,6 +514,8 @@ export default function PengaturanSitus() {
 
   const handleUploadLogo = async (e: React.ChangeEvent<HTMLInputElement>, jenisLogo: string) => {
     try {
+      if (isCompressing) return;
+      
       const file = e.target.files?.[0];
 
       if (!file) return;
@@ -540,6 +542,8 @@ export default function PengaturanSitus() {
           "Dimensi gambar harus 1024 x 1024"
         );
       }
+    } finally {
+      e.target.value = '';
     }
   };
   const processImage = async (file: File, jenisLogo: string) => {

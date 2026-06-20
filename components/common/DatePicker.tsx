@@ -12,7 +12,9 @@ type Props = {
     date: Date | null
   ) => void,
   yearLength?: number
-  isDarkModeAllowed?: boolean | false
+  isDarkModeAllowed?: boolean | false,
+  minDate?: Date
+  maxDate?: Date
 }
 
 const CustomInput = React.forwardRef<
@@ -55,19 +57,17 @@ const CustomInput = React.forwardRef<
 
 CustomInput.displayName = 'CustomInput'
 
-export default function CustomDatePicker({ name, value, onChange, yearLength = 10, isDarkModeAllowed = false }: Props) {
+export default function CustomDatePicker({ name, value, onChange, yearLength = 10, isDarkModeAllowed = false, minDate, maxDate }: Props) {
   const currentYear = new Date().getFullYear()
 
   return (
     <>
     <div className="form-group">
       <DatePicker
-          selected={
-            value instanceof Date
-              ? value
-              : null
-          }
+        selected={value instanceof Date ? value : null}
         onChange={onChange}
+        minDate={minDate}
+        maxDate={maxDate}
         locale={id}
         dateFormat="dd MMMM yyyy"
         customInput={<CustomInput name={name} isDarkModeAllowed={isDarkModeAllowed}/>}

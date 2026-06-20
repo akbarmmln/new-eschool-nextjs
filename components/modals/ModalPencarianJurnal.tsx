@@ -45,6 +45,7 @@ export default function ModalTambahJurnal({ onClose }: Props) {
                     value={tanggalDari}
                     onChange={setTanggalDari}
                     yearLength={2}
+                    maxDate={tanggalSampai ?? undefined}
                   />
                   <i className="ri-calendar-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-400" />
                 </div>
@@ -61,6 +62,7 @@ export default function ModalTambahJurnal({ onClose }: Props) {
                     value={tanggalSampai}
                     onChange={setTanggalSampai}
                     yearLength={2}
+                    minDate={tanggalDari ?? undefined}
                   />
                   <i className="ri-calendar-line absolute right-4 top-1/2 -translate-y-1/2 text-xl text-slate-400" />
                 </div>
@@ -72,17 +74,17 @@ export default function ModalTambahJurnal({ onClose }: Props) {
 
       <style jsx>
         {`
-.time-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
+          .time-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
 
-@media (min-width: 768px) {
-  .time-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
+          @media (min-width: 768px) {
+            .time-grid {
+              grid-template-columns: 1fr 1fr;
+            }
+          }
         `}
       </style>
     </>
