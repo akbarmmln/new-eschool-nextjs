@@ -1110,17 +1110,23 @@ export default function PengaturanSitus() {
                   </div>
                 )}
 
-                <label className="mt-8 flex h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white transition hover:bg-slate-50">
-                  <i className="ri-upload-2-line text-xl" />
+                <label
+                  className={`mt-8 flex h-14 items-center justify-center gap-3 rounded-xl border transition
+                    ${
+                      isCompressing ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400' : 'cursor-pointer border-slate-300 bg-white hover:bg-slate-50'
+                    }`} >
+                  
+                  <i className={isCompressing ? 'ri-loader-4-line animate-spin text-xl' : 'ri-upload-2-line text-xl'}/>
 
                   <span className="font-medium">
-                    Upload Background Baru
+                    {isCompressing ? 'Sedang mengoptimalkan gambar...' : 'Upload Background Baru'}
                   </span>
 
                   <input
                     type="file"
                     accept=".png"
                     hidden
+                    disabled={isCompressing}
                     onChange={(e) => handleUploadLogo(e, 'background')}
                   />
                 </label>
@@ -1293,17 +1299,23 @@ export default function PengaturanSitus() {
                   </>
                 )}
 
-                <label className="mt-8 flex h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white transition hover:bg-slate-50">
-                  <i className="ri-upload-2-line text-xl" />
+                <label
+                  className={`mt-8 flex h-14 items-center justify-center gap-3 rounded-xl border transition
+                    ${
+                      isCompressing ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400' : 'cursor-pointer border-slate-300 bg-white hover:bg-slate-50'
+                    }`} >
+                  
+                  <i className={isCompressing ? 'ri-loader-4-line animate-spin text-xl' : 'ri-upload-2-line text-xl'}/>
 
                   <span className="font-medium">
-                    Upload Logo Expand Baru
+                    {isCompressing ? 'Sedang mengoptimalkan gambar...' : 'Upload Logo Expand Baru'}
                   </span>
 
                   <input
                     type="file"
                     accept=".png,.svg"
                     hidden
+                    disabled={isCompressing}
                     onChange={(e) => handleUploadLogo(e, 'logo_expand')}
                   />
                 </label>
@@ -1476,17 +1488,23 @@ export default function PengaturanSitus() {
                   </>
                 )}
 
-                <label className="mt-8 flex h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white transition hover:bg-slate-50">
-                  <i className="ri-upload-2-line text-xl" />
+                <label
+                  className={`mt-8 flex h-14 items-center justify-center gap-3 rounded-xl border transition
+                    ${
+                      isCompressing ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400' : 'cursor-pointer border-slate-300 bg-white hover:bg-slate-50'
+                    }`} >
+                  
+                  <i className={isCompressing ? 'ri-loader-4-line animate-spin text-xl' : 'ri-upload-2-line text-xl'}/>
 
                   <span className="font-medium">
-                    Upload Logo Baru
+                    {isCompressing ? 'Sedang mengoptimalkan gambar...' : 'Upload Logo Baru'}
                   </span>
 
                   <input
                     type="file"
                     accept=".png,.svg"
                     hidden
+                    disabled={isCompressing}
                     onChange={(e) => handleUploadLogo(e, 'logo')}
                   />
                 </label>
