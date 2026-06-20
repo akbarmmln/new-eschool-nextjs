@@ -971,8 +971,8 @@ export default function PengaturanSitus() {
 
       {openModalEditBackground && (
         <>
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+          <div className="fixed inset-0 z-[99999] overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+            <div className="mx-auto my-10 w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">
               <div className="border-b border-slate-200 px-8 py-6">
                 <h2 className="text-2xl font-bold text-slate-800">
                   Ubah Background Expand
@@ -1034,21 +1034,30 @@ export default function PengaturanSitus() {
                     </div>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+                  <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center">
                     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
                       <p className="mb-4 text-center text-sm font-semibold text-slate-500">
                         Background Saat Ini
                       </p>
 
                       <div className="flex h-40 items-center justify-center rounded-xl border border-slate-200 bg-white">
-                        <Image unoptimized src={`${backgroundIni}?v=${imageVersion}`} alt="Logo Lama" width={120} height={120}
-                          className="max-h-[120px] w-auto object-contain" />
+                        <Image
+                          unoptimized
+                          src={`${backgroundIni}?v=${imageVersion}`}
+                          alt="Background Saat Ini"
+                          width={120}
+                          height={120}
+                          className="max-h-[120px] w-auto object-contain"
+                        />
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-center justify-center">
+                    <div className="flex justify-center">
                       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                        <i className="ri-arrow-right-line text-4xl" />
+                        {/* Mobile */}
+                        <i className="ri-arrow-down-line text-4xl md:hidden" />
+                        {/* Desktop */}
+                        <i className="ri-arrow-right-line hidden text-4xl md:block" />
                       </div>
                     </div>
 
@@ -1143,8 +1152,8 @@ export default function PengaturanSitus() {
 
       {openModalEditLogoExpand && (
         <>
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+          <div className="fixed inset-0 z-[99999] overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+            <div className="mx-auto my-10 w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">
               <div className="border-b border-slate-200 px-8 py-6">
                 <h2 className="text-2xl font-bold text-slate-800">
                   Ubah Logo Expand
@@ -1207,7 +1216,7 @@ export default function PengaturanSitus() {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center">
                       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
                         <p className="mb-4 text-center text-sm font-semibold text-slate-500">
                           Logo Saat Ini
@@ -1225,12 +1234,15 @@ export default function PengaturanSitus() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center justify-center">
+                      <div className="flex justify-center">
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                          <i className="ri-arrow-right-line text-4xl" />
+                          {/* Mobile */}
+                          <i className="ri-arrow-down-line text-4xl md:hidden" />
+                          {/* Desktop */}
+                          <i className="ri-arrow-right-line hidden text-4xl md:block" />
                         </div>
                       </div>
-                      
+
                       <div className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
                         <p className="mb-4 text-center text-sm font-semibold text-slate-500">
                           Logo Expand Baru
@@ -1323,8 +1335,8 @@ export default function PengaturanSitus() {
 
       {openModalEditLogo && (
         <>
-          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+          <div className="fixed inset-0 z-[99999] overflow-y-auto bg-black/50 p-4 backdrop-blur-sm">
+            <div className="mx-auto my-10 w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">
               <div className="border-b border-slate-200 px-8 py-6">
                 <h2 className="text-2xl font-bold text-slate-800">
                   Ubah Logo
@@ -1387,7 +1399,7 @@ export default function PengaturanSitus() {
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-6">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr_auto_1fr] md:items-center">
                       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
                         <p className="mb-4 text-center text-sm font-semibold text-slate-500">
                           Logo Saat Ini
@@ -1405,9 +1417,12 @@ export default function PengaturanSitus() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-center justify-center">
+                      <div className="flex justify-center">
                         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-100 text-blue-600">
-                          <i className="ri-arrow-right-line text-4xl" />
+                          {/* Mobile */}
+                          <i className="ri-arrow-down-line text-4xl md:hidden" />
+                          {/* Desktop */}
+                          <i className="ri-arrow-right-line hidden text-4xl md:block" />
                         </div>
                       </div>
                       
