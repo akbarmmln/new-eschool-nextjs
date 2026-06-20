@@ -503,3 +503,12 @@ export async function updateLogoAndBackground(body: any) {
     10000
   );
 }
+
+export async function listKontribusi() {
+  return await request(
+    "get",
+    `/api/v1/jurnal/kontribusi`,
+    {},
+    10000
+  );
+}

@@ -10,7 +10,7 @@ type Props = {
 
 export default function JournalCard({ item } : Props) {
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
-  console.log('asdsadasdd', item)
+  
   const handleDownload = async (id: string) => {
     try {
       setDownloadingId(id);

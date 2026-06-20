@@ -31,7 +31,7 @@ export default function DashboardAdmin() {
     refetch: refetchListAllKelas,
     isLoading: isLoadingListAllKelas,
   } = useDropdownKelas()
-  
+
   return (
     <>
       <div className="greeting-card">

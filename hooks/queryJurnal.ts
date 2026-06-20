@@ -11,7 +11,8 @@ import {
   updateJurnal,
   submitNilai,
   doDownloadSingleNilaiHarian,
-  detailAnakCard
+  detailAnakCard,
+  listKontribusi
 } from '@/services/Call'
 
 // LIST JURNAL \\
@@ -215,4 +216,26 @@ export const useRenderDetailCardAnak = () => {
       return results;
     },
   });
+}
+
+// LIST KONTRIBUSI \\
+type listKontribusiRespinse = any;
+const fetchListKontribusi =
+  async (): Promise<listKontribusiRespinse> => {
+    const hasil: any = await listKontribusi()
+    if (!hasil.ok) {
+      throw hasil
+    }
+    return hasil.data.data
+  }
+export function useListKontribusi() {
+  return useQuery<listKontribusiRespinse>({
+    queryKey: ['list-kontribusi'],
+    queryFn: fetchListKontribusi,
+    staleTime: 0,
+    gcTime: 0,
+    retry: 1,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  })
 }
