@@ -671,7 +671,6 @@ export default function Kelas() {
 
                 {showDropdown && (
                   <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-
                     {isLoadingGuruList || isFetchingGuruList ? (
                       <div className="px-5 py-4 text-slate-500">
                         Mencari data...
@@ -939,6 +938,22 @@ export default function Kelas() {
           </div>
         </>
       )}
+
+      <style jsx global>
+        {`
+          .hide-scrollbar {
+            overflow-y: auto;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+
+          .hide-scrollbar::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+            display: none;
+          }
+      `}
+      </style>
     </>
   );
 }
