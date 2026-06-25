@@ -61,6 +61,15 @@ export async function jurnalList(page: string) {
   );
 }
 
+export async function jurnalListSearch(page: string, dateDari: string, dateSampai: string, keyword: string) {
+  return await request(
+    "get",
+    `/api/v1/jurnal/list-new/${page}/${dateDari}/${dateDari}/${encodeURIComponent(keyword)}`,
+    {},
+    10000
+  );
+}
+
 export async function dropDownKelas() {
   return await request(
     "get",

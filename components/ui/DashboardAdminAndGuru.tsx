@@ -140,6 +140,10 @@ export default function DashboardAdmin() {
             onClose={() =>
               setOpenModalPencarianJurnal(false)
             }
+            onSearch={(filter) => {
+              console.log('sadasdasd', filter)
+              setOpenModalPencarianJurnal(false);
+            }}
           />
         )
       }

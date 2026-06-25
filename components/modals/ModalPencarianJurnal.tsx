@@ -5,10 +5,15 @@ import { useState, useEffect } from 'react'
 import { useDropdownGuru } from "@/hooks/queryGuru";
 
 type Props = {
-  onClose: () => void
+  onClose: () => void;
+  onSearch: (filter: {
+    tanggalDari: Date | null;
+    tanggalSampai: Date | null;
+    guru: any
+  }) => void;
 }
 
-export default function ModalTambahJurnal({ onClose }: Props) {
+export default function ModalTambahJurnal({ onClose, onSearch }: Props) {
   const [tanggalDari, setTanggalDari] = useState<Date | null>(null);
   const [tanggalSampai, setTanggalSampai] = useState<Date | null>(null);
 
@@ -26,6 +31,8 @@ export default function ModalTambahJurnal({ onClose }: Props) {
   } = useDropdownGuru(debouncedKeyword, {
     enabled: debouncedKeyword.trim().length > 0,
   });
+
+  const isSearchFormValid = tanggalDari !== null && tanggalSampai !== null
 
   useEffect(() => {
     const originalOverflow =
@@ -78,11 +85,14 @@ export default function ModalTambahJurnal({ onClose }: Props) {
   };
 
   const handleCariJurnal = async () => {
-    try {
-      
-    } catch (e) {
+    const ids = selectedGuru.map(item => item.id).join(',');
+    onSearch({
+      tanggalDari,
+      tanggalSampai,
+      guru: ids,
+    });
 
-    }
+    onClose();
   }
 
   return (
@@ -268,9 +278,12 @@ export default function ModalTambahJurnal({ onClose }: Props) {
               Batalkan
             </button>
 
-            <button 
+            <button
               onClick={handleCariJurnal}
-              className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition bg-blue-600 shadow-blue-500/20 hover:bg-blue-700`} >
+              disabled={!isSearchFormValid}
+              className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition bg-blue-600 shadow-blue-500/20 hover:bg-blue-700
+                ${!isSearchFormValid ? "cursor-not-allowed bg-slate-400 shadow-none" : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"}
+              `} >
               Cari Jurnal
             </button>
           </div>
