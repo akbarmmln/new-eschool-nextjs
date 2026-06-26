@@ -29,7 +29,8 @@ export default function DashboardAdmin() {
     error: errorJurnal,
     refetch: refetchJurnal,
     isLoading: isLoadingJurnal,
-  } = useJurnal(currentPage.toString())
+    isFetching: isFetchingJurnal
+  } = useJurnal(currentPage.toString(), cariTanggalDari, cariTanggalSampai, cariGuru)
 
   const {
     data: dataListAllKelas,
@@ -150,6 +151,8 @@ export default function DashboardAdmin() {
               const tanggalDari = dayjs(filter.tanggalDari).format('YYYY-MM-DD')
               const tanggalSampai = dayjs(filter.tanggalSampai).format('YYYY-MM-DD')
               const idGuru = filter.guru
+
+              setCurrentPage(1);
               setCariTanggalDari(tanggalDari)
               setCariTanggalSampai(tanggalSampai)
               setCariGuru(idGuru)
@@ -161,7 +164,7 @@ export default function DashboardAdmin() {
       }
 
       {
-        isLoadingJurnal ? (
+        isLoadingJurnal || isFetchingJurnal ? (
           <div className="journal-grid">
             {Array.from({ length: 3 }).map((_, index) => (
               <div

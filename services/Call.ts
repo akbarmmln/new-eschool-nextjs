@@ -64,7 +64,7 @@ export async function jurnalList(page: string) {
 export async function jurnalListSearch(page: string, dateDari: string, dateSampai: string, keyword: string) {
   return await request(
     "get",
-    `/api/v1/jurnal/list-new/${page}/${dateDari}/${dateDari}/${encodeURIComponent(keyword)}`,
+    `/api/v1/jurnal/list-new/${page}/${dateDari}/${dateSampai}?keySearch=${keyword}`,
     {},
     10000
   );

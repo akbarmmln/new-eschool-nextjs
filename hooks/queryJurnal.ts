@@ -1,6 +1,7 @@
 import { useQuery, UseQueryOptions, useMutation } from '@tanstack/react-query'
 import {
   jurnalList,
+  jurnalListSearch,
   detailJurnal,
   updateAbsensi,
   newjurnal,
@@ -14,6 +15,7 @@ import {
   detailAnakCard,
   listKontribusi
 } from '@/services/Call'
+import isEmpty from '@/utils/isEmpty'
 
 // LIST JURNAL \\
 type jurnalListResponse = {
@@ -23,17 +25,23 @@ const fetchListJurnal =
   async ({
     queryKey,
   }: any): Promise<jurnalListResponse> => {
-    const [_, page] = queryKey
+    const [_, page, dateDari, dateSampai, keySearch] = queryKey
 
-    const hasil: any = await jurnalList(page)
+    let hasil: any;
+    if (isEmpty(dateDari) && isEmpty(dateSampai)) {
+      hasil = await jurnalList(page)
+    } else {
+      hasil = await jurnalListSearch(page, dateDari, dateSampai, keySearch)
+    }
+    
     if (!hasil.ok) {
       throw hasil
     }
     return hasil.data.data
   }
-export function useJurnal(page: string) {
+export function useJurnal(page: string, dateDari: string, dateSampai: string, keySearch: string) {
   return useQuery<jurnalListResponse>({
-    queryKey: ['jurnal-list', page],
+    queryKey: ['jurnal-list', page, dateDari, dateSampai, keySearch],
     queryFn: fetchListJurnal,
     staleTime: 1000 * 60 * 1,
     gcTime: 1000 * 60 * 5,
