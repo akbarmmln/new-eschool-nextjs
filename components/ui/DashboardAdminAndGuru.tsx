@@ -8,6 +8,7 @@ import ModalTambahJurnal from '@/components/modals/ModalTambahJurnal'
 import ModalPencarianJurnal from '@/components/modals/ModalPencarianJurnal'
 import JournalList from '@/components/common/JournalList'
 import { useAccessContext } from '@/context/AccessContext'
+import dayjs from 'dayjs';
 
 export default function DashboardAdmin() {
   const dataAccess = useAccessContext()
@@ -16,6 +17,11 @@ export default function DashboardAdmin() {
   const [currentPage, setCurrentPage] = useState(1)
   const [openModalTambahJurnal, setOpenModalTambahJurnal] = useState(false)
   const [openModalPencarianJurnal, setOpenModalPencarianJurnal] = useState(false)
+
+  const [isPencarianState, setIsPencarianState] = useState(false);
+  const [cariTanggalDari, setCariTanggalDari] = useState("");
+  const [cariTanggalSampai, setCariTanggalSampai] = useState("");
+  const [cariGuru, setCariGuru] = useState("");
 
   const { data, isLoading, error } = useProfile();
   const {
@@ -108,7 +114,7 @@ export default function DashboardAdmin() {
               Tambah Jurnal
             </span>
           </button>
-
+          
           <button className="btn-dashboard"
             onClick={() =>
               setOpenModalPencarianJurnal(true)
@@ -141,7 +147,13 @@ export default function DashboardAdmin() {
               setOpenModalPencarianJurnal(false)
             }
             onSearch={(filter) => {
-              console.log('sadasdasd', filter)
+              const tanggalDari = dayjs(filter.tanggalDari).format('YYYY-MM-DD')
+              const tanggalSampai = dayjs(filter.tanggalSampai).format('YYYY-MM-DD')
+              const idGuru = filter.guru
+              setCariTanggalDari(tanggalDari)
+              setCariTanggalSampai(tanggalSampai)
+              setCariGuru(idGuru)
+              setIsPencarianState(true)
               setOpenModalPencarianJurnal(false);
             }}
           />
