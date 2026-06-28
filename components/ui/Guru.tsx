@@ -300,22 +300,18 @@ export default function Kelas() {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            {role == '0' || role == '9' ? (
+            {(role === "0" || role === "9") && (
               isLoading || isFetching ? (
-              <>
-                  <div className="h-[46px] w-[140px] animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
-              </>
+                <div className="h-[46px] w-[140px] animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
               ) : (
-                <>
-                  <button onClick={handleOpenModalAdd}
-                    className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                    <i className="ri-add-circle-fill text-xl text-blue-500" />
-                    Tambah Pengajar
-                  </button>
-                </>
+                <button
+                  onClick={handleOpenModalAdd}
+                  className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                  <i className="ri-add-circle-fill text-xl text-blue-500" />
+                  Tambah Pengajar
+                </button>
               )
-            ) : ''
-            }
+            )}
           </div>
         </div>
 
@@ -467,7 +463,7 @@ export default function Kelas() {
                           {item.email || '-'}
                         </td>
                         <td className="px-8 py-3">
-                          {(role == '0' || role == '9') && item.id != id_account ? (
+                          {(role == '0' || role == '9') && item.id != id_account && (
                             <div className="flex items-center justify-center gap-4">
                               <Tooltip text={`Ubah Data ${item.nama}`}>
                                 <button className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white"
@@ -482,8 +478,7 @@ export default function Kelas() {
                                 </button>
                               </Tooltip>
                             </div>
-                          ) : ""
-                          }
+                          )}
                         </td>
                       </tr>
                     ))}

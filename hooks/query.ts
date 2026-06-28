@@ -94,7 +94,8 @@ type accessResponse = {
 }
 const fetchAccess =
   async (): Promise<accessResponse> => {
-    const token: any = sessionStorage.getItem("access-token");
+    // const token: any = sessionStorage.getItem("access-token");
+    const token: any = localStorage.getItem("access-token");
     const hasil: any = await getAccess(token);
     if (!hasil.ok) {
       throw hasil

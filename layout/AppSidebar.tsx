@@ -493,7 +493,9 @@ const AppSidebar: React.FC = () => {
                   {/* BUTTON */}
                   <button
                     onClick={() => {
-                      sessionStorage.removeItem("access-token");
+                      // sessionStorage.removeItem("access-token");
+                      localStorage.removeItem("access-token");
+                      localStorage.clear()
                       window.location.href = "/akademik/login";
                     }}
                     className=" w-[35px] h-[35px] rounded-2xl flex items-center justify-center transition-all duration-300 bg-red-500 text-white hover:bg-red-600 hover:scale-105 shadow-lg shadow-red-500/20 dark:bg-red-500 dark:hover:bg-red-400 dark:shadow-red-500/30" >

@@ -32,8 +32,8 @@ async function autoLogout() {
   isLoggingOut = true;
 
   // HAPUS TOKEN
-  sessionStorage.removeItem("access-token");
-
+  // sessionStorage.removeItem("access-token");
+  localStorage.removeItem("access-token");
   localStorage.clear();
 
   // MODAL
@@ -60,8 +60,8 @@ export async function request<T>(
 ): Promise<RequestResponse<T>> {
 
   try {
-    const token = sessionStorage.getItem("access-token");
-
+    // const token = sessionStorage.getItem("access-token");
+    const token = localStorage.getItem("access-token");
     const response = await api({
       method,
       url: endpoint,
@@ -77,7 +77,8 @@ export async function request<T>(
     const newToken = response.headers["authorization"];
 
     if (newToken) {
-      sessionStorage.setItem("access-token", newToken);
+      // sessionStorage.setItem("access-token", newToken);
+      localStorage.setItem("access-token", newToken);
     }
 
     return {

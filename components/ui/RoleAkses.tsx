@@ -124,14 +124,14 @@ export default function RoleAkses() {
         queryKey: ['all-role-acl'],
       });
 
-      console.log('asdasdasasd', id_account, selectedAccountId)
       if (id_account === selectedAccountId) {
         await showAlert(
           "warning",
           "Sesi Berakhir",
           "Terlah terjadi perubahan role akses pada data Anda. Demi keamanan, Anda akan ter-logout otomatis. Login kembali untuk melanjutkan."
         );
-        sessionStorage.removeItem("access-token");
+        // sessionStorage.removeItem("access-token");
+        localStorage.removeItem("access-token");
         localStorage.clear();
 
         window.location.replace("/akademik/login");

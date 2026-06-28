@@ -25,10 +25,8 @@ export default function AdminLayout({
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   useEffect(() => {
-    const token =
-      sessionStorage.getItem(
-        "access-token"
-      );
+    // const token = sessionStorage.getItem("access-token");
+    const token = localStorage.getItem("access-token");
 
     if (!token) {
       router.push('/akademik/login')

@@ -12,6 +12,7 @@ import { allowPage, downloadPdfFromBase64, runNanoID } from "@/utils/utils";
 import { useQueryClient } from '@tanstack/react-query'
 import { compressImage, fileToBase64, formatTanggalIndonesia } from "@/utils/utils";
 import { useAccessContext } from '@/context/AccessContext'
+import Tooltip from "@/components/form/Tooltip";
 
 type Student = {
   id: string;
@@ -49,6 +50,7 @@ export default function AktifitasJurnal({ id }: Props) {
   const allow_role = ['0', '1', '9'];
 
   const dataAccess = useAccessContext()
+  const id_account = dataAccess?.access?.id_account || '';
   const tipe_account = dataAccess?.access?.tipe_account || '';
   const role = dataAccess?.access?.role || '';
 
@@ -104,7 +106,7 @@ export default function AktifitasJurnal({ id }: Props) {
   const [downloadingIds, setDownloadingIds] = useState<string[]>([]);
 
   const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
-
+  
   if (error) {
     return (
       <div className="rounded-xl bg-red-100 p-4 text-red-600">
@@ -131,13 +133,11 @@ export default function AktifitasJurnal({ id }: Props) {
     selectedSiswa?.idSiswa || "",
     selectedSiswa?.idDiajar || "",
     {
-      enabled:
-        !!selectedSiswa?.idJurnal &&
-        !!selectedSiswa?.idSiswa &&
-        !!selectedSiswa?.idDiajar,
+      enabled: !!selectedSiswa?.idJurnal && !!selectedSiswa?.idSiswa && !!selectedSiswa?.idDiajar,
     }
   );
 
+  const provideToUpdate = id_account == data?.jurnal.id_guru
   const downloadSingle = useDownloadSingleNilaiHarian()
   const saveAbsensiMutation = useUpdateAbsensi();
   const submitItemPenilaian = useSubmitItemPenilaian();
@@ -736,21 +736,25 @@ export default function AktifitasJurnal({ id }: Props) {
               </>
             ) : (
               <>
-                <button onClick={handleOpenModalEdit}
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
-                  <i className="ti ti-contract text-[18px]"></i>
-                  Ubah Detail
-                </button>
-
-                {data?.jurnal?.initiate_nilai == 1 ? (
+                {provideToUpdate && (
                   <>
-                    <button onClick={handleOpenModalEditItemPenilaian}
-                      className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
-                      <i className="ti ti-list-details text-[18px]"></i>
-                      Ubah Item Nilai
+                    <button
+                      onClick={handleOpenModalEdit}
+                      className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                      <i className="ti ti-contract text-[18px]" />
+                      Ubah Detail
                     </button>
+
+                    {data?.jurnal?.initiate_nilai === 1 && (
+                      <button
+                        onClick={handleOpenModalEditItemPenilaian}
+                        className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
+                        <i className="ti ti-list-details text-[18px]" />
+                        Ubah Item Nilai
+                      </button>
+                    )}
                   </>
-                ) : (<></>)}
+                )}
               </>
             )}
           </div>
@@ -839,260 +843,43 @@ export default function AktifitasJurnal({ id }: Props) {
           )}
         </div>
 
-        {/* TAB */}
-        <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800">
-          <button
-            onClick={() => setActiveTab("absensi")}
-            className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition ${activeTab === "absensi"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-slate-500 hover:text-slate-700"
-              }`} >
-            <ClipboardCheck size={18} />
-            Absensi
-          </button>
-
-          <button
-            onClick={() => setActiveTab("penilaian")}
-            className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition ${activeTab === "penilaian"
-              ? "border-blue-600 text-blue-600"
-              : "border-transparent text-slate-500 hover:text-slate-700"
-              }`}
-          >
-            <FilePenLine size={18} />
-            Penilaian
-          </button>
-        </div>
-
-        {/* ABSENSI */}
-        {activeTab === "absensi" && (
-          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-            <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-              <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-                Daftar Kehadiran
-              </h2>
-            </div>
-
-            {isLoading || isFetching ? (
-              <AbsensiTableSkeleton />
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        No
-                      </th>
-
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Nama
-                      </th>
-
-                      <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {students.map((student, index) => (
-                      <tr key={student.id} className="border-b border-slate-100 dark:border-slate-800">
-                        <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
-                          {index + 1}.
-                        </td>
-
-                        <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {student.name}
-                        </td>
-
-                        <td className="px-6 py-5">
-                          <div className="flex flex-wrap gap-5">
-                            {[
-                              "hadir",
-                              "ijin",
-                              "sakit",
-                              "alpha",
-                            ].map((status) => (
-                              <label
-                                key={status}
-                                className="flex cursor-pointer items-center gap-2" >
-                                <input
-                                  type="radio"
-                                  name={`status-${student.id}`}
-                                  checked={student.status === status}
-                                  onChange={() =>
-                                    handleStatusChange(
-                                      student.id,
-                                      status as Student["status"]
-                                    )
-                                  }
-                                  className="h-4 w-4 accent-blue-600"
-                                />
-
-                                <span className="text-sm capitalize text-slate-700 dark:text-slate-300">
-                                  {status}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            <div className="flex justify-end p-6">
+        {provideToUpdate ? (
+          <>
+            {/* TAB */}
+            <div className="flex items-center gap-6 border-b border-slate-200 dark:border-slate-800">
               <button
-                onClick={handleSaveAbsensi}
-                disabled={
-                  saveAbsensiMutation.isPending ||
-                  isFetching
-                }
-                className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
-                  ${saveAbsensiMutation.isPending || isFetching
-                    ? "cursor-not-allowed bg-slate-400 shadow-none"
-                    : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                onClick={() => setActiveTab("absensi")}
+                className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition ${activeTab === "absensi"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
                   }`} >
+                <ClipboardCheck size={18} />
+                Absensi
+              </button>
 
-                {saveAbsensiMutation.isPending
-                  ? "Menyimpan..."
-                  : isFetching
-                    ? "Memperbarui..."
-                    : "Simpan Absensi"}
+              <button
+                onClick={() => setActiveTab("penilaian")}
+                className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium transition ${activeTab === "penilaian"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+                  }`} >
+                <FilePenLine size={18} />
+                Penilaian
               </button>
             </div>
-          </div>
-        )}
 
-        {/* PENILAIAN */}
-        {activeTab === "penilaian" && (
-          <>
-            {isLoading || isFetching ? (
-              <AbsensiTableSkeleton />
-            ) : data?.jurnal?.initiate_absensi == 0 ? (
+            {/* ABSENSI */}
+            {activeTab === "absensi" && (
               <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
                   <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-                    Penilaian
+                    Daftar Kehadiran
                   </h2>
                 </div>
 
-                <div className="flex items-center justify-center p-16">
-                  <div className="w-full max-w-sm rounded-xl bg-white p-8 text-center shadow-sm dark:bg-slate-900">
-                    <div className="mx-auto flex h-15 w-15 items-center justify-center rounded-full bg-yellow-100 text-yellow-500">
-                      <i
-                        className="ri-error-warning-line"
-                        style={{ fontSize: 30 }}
-                      />
-                    </div>
-
-                    <h3 className="mt-3 text-1xl font-bold text-yellow-500">
-                      PEMBERITAHUAN
-                    </h3>
-
-                    <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
-                      Silahkan lakukan absensi terlebih dahulu
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : data?.jurnal?.initiate_nilai == 0 ? (
-              <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-                  <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-                    Penilaian
-                  </h2>
-                </div>
-
-                <div className="space-y-6 p-6">
-                  {/* GROUP/JUDUL */}
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-                      Grup/Judul Pembelajaran
-                    </label>
-
-                    <input
-                      type="text"
-                      value={judul}
-                      onChange={(e) => setJudul(e.target.value)}
-                      placeholder="Masukkan Grup/Judul pembelajaran"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                      style={{
-                        height: 45
-                      }}
-                    />
-                  </div>
-
-                  {/* ITEM PENILAIAN */}
-                  <div className="space-y-5">
-                    {penilaianItems.map((item, index) => (
-                      <div key={`${item.id}-${index}`} className="border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/30">
-                        <div className="flex items-center gap-4">
-                          <input
-                            type="text"
-                            value={item.value}
-                            onChange={(e) =>
-                              handleChangeItem(index, e.target.value)
-                            }
-                            placeholder="Isi item Penilaian"
-                            className="flex-1 rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                            style={{
-                              height: 45
-                            }}
-                          />
-
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(item.id, index)}
-                            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-white transition hover:bg-red-600 dark:bg-slate-700"
-                            style={{
-                              height: 40,
-                              width: 40
-                            }} >
-                            <i
-                              className="ri-delete-bin-line"
-                              style={{ fontSize: 15 }}
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* ACTION */}
-                  <div className="flex flex-wrap gap-3">
-                    <button type="button" onClick={handleAddItem} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
-                      <i className="ri-add-line" />
-                      Tambah Item
-                    </button>
-
-                    <button
-                      className={`inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700
-                        ${submitItemPenilaian.isPending || isFetching
-                          ? "cursor-not-allowed bg-slate-400 shadow-none"
-                          : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
-                        }`}
-                      onClick={() => handleSavePenilaian(0)} >
-                      <i className="ri-save-line" />
-
-                      {submitItemPenilaian.isPending
-                        ? "Menyimpan..."
-                        : isFetching
-                          ? "Memperbarui..."
-                          : "Simpan Data"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                  <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
-                    <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-                      Penilaian
-                    </h2>
-                  </div>
+                {isLoading || isFetching ? (
+                  <AbsensiTableSkeleton />
+                ) : (
                   <div className="overflow-x-auto">
                     <table className="min-w-full">
                       <thead>
@@ -1105,70 +892,350 @@ export default function AktifitasJurnal({ id }: Props) {
                             Nama
                           </th>
 
-                          <th className="px-6 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                            Aksi
+                          <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            Status
                           </th>
                         </tr>
                       </thead>
 
                       <tbody>
-                        {data?.siswa?.map(
-                          (siswa: any, index: number) => {
-                            const isDownloading = downloadingIds.includes(siswa.id_siswa);
-                            return (
-                              <tr key={siswa.id} className="border-b border-slate-100 dark:border-slate-800">
-                                <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
-                                  {index + 1}.
-                                </td>
+                        {students.map((student, index) => (
+                          <tr key={student.id} className="border-b border-slate-100 dark:border-slate-800">
+                            <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
+                              {index + 1}.
+                            </td>
 
-                                <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                                  {siswa.nama_siswa}
-                                </td>
+                            <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {student.name}
+                            </td>
 
-                                <td className="px-6 py-5">
-                                  <div className="flex justify-center gap-3">
-                                    <button
-                                      disabled={isDownloading}
-                                      onClick={() => handleDownload(id, siswa.id, siswa.id_siswa, siswa.nama_siswa)}
-                                      className={`inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700
-                                      ${isDownloading
-                                          ? "cursor-not-allowed bg-green-500"
-                                          : "bg-green-600 hover:bg-green-700"
-                                        }
-                                    `}>
+                            <td className="px-6 py-5">
+                              <div className="flex flex-wrap gap-5">
+                                {[
+                                  "hadir",
+                                  "ijin",
+                                  "sakit",
+                                  "alpha",
+                                ].map((status) => (
+                                  <label
+                                    key={status}
+                                    className="flex cursor-pointer items-center gap-2" >
+                                    <input
+                                      type="radio"
+                                      name={`status-${student.id}`}
+                                      checked={student.status === status}
+                                      onChange={() =>
+                                        handleStatusChange(
+                                          student.id,
+                                          status as Student["status"]
+                                        )
+                                      }
+                                      className="h-4 w-4 accent-blue-600"
+                                    />
 
-                                      {isDownloading ? (
-                                        <>
-                                          <i className="ri-loader-4-line animate-spin" />
-                                          Sedang Download...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <i className="ri-download-line" />
-                                          Download
-                                        </>
-                                      )}
-                                    </button>
-
-                                    <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-                                      onClick={() =>
-                                        handleOpenInputNilai(id, siswa.id_siswa, siswa.id, siswa.nama_siswa)
-                                      } >
-                                      <i className="ri-edit-line" />
-                                      Input Nilai
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            )
-                          }
-                        )}
+                                    <span className="text-sm capitalize text-slate-700 dark:text-slate-300">
+                                      {status}
+                                    </span>
+                                  </label>
+                                ))}
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
+                )}
+
+                <div className="flex justify-end p-6">
+                  <button
+                    onClick={handleSaveAbsensi}
+                    disabled={
+                      saveAbsensiMutation.isPending ||
+                      isFetching
+                    }
+                    className={`rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg transition
+                    ${saveAbsensiMutation.isPending || isFetching
+                        ? "cursor-not-allowed bg-slate-400 shadow-none"
+                        : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                      }`} >
+
+                    {saveAbsensiMutation.isPending
+                      ? "Menyimpan..."
+                      : isFetching
+                        ? "Memperbarui..."
+                        : "Simpan Absensi"}
+                  </button>
                 </div>
+              </div>
+            )}
+
+            {/* PENILAIAN */}
+            {activeTab === "penilaian" && (
+              <>
+                {isLoading || isFetching ? (
+                  <AbsensiTableSkeleton />
+                ) : data?.jurnal?.initiate_absensi == 0 ? (
+                  <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+                      <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                        Penilaian
+                      </h2>
+                    </div>
+
+                    <div className="flex items-center justify-center p-16">
+                      <div className="w-full max-w-sm rounded-xl bg-white p-8 text-center shadow-sm dark:bg-slate-900">
+                        <div className="mx-auto flex h-15 w-15 items-center justify-center rounded-full bg-yellow-100 text-yellow-500">
+                          <i
+                            className="ri-error-warning-line"
+                            style={{ fontSize: 30 }}
+                          />
+                        </div>
+
+                        <h3 className="mt-3 text-1xl font-bold text-yellow-500">
+                          PEMBERITAHUAN
+                        </h3>
+
+                        <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300">
+                          Silahkan lakukan absensi terlebih dahulu
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : data?.jurnal?.initiate_nilai == 0 ? (
+                  <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+                      <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                        Penilaian
+                      </h2>
+                    </div>
+
+                    <div className="space-y-6 p-6">
+                      {/* GROUP/JUDUL */}
+                      <div>
+                        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          Grup/Judul Pembelajarans
+                        </label>
+
+                        <input
+                          type="text"
+                          value={judul}
+                          onChange={(e) => setJudul(e.target.value)}
+                          placeholder="Masukkan Grup/Judul pembelajaran"
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                          style={{
+                            height: 45
+                          }}
+                        />
+                      </div>
+
+                      {/* ITEM PENILAIAN */}
+                      <div className="space-y-5">
+                        {penilaianItems.map((item, index) => (
+                          <div key={`${item.id}-${index}`} className="border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/30">
+                            <div className="flex items-center gap-4">
+                              <input
+                                type="text"
+                                value={item.value}
+                                onChange={(e) =>
+                                  handleChangeItem(index, e.target.value)
+                                }
+                                placeholder="Isi item Penilaian"
+                                className="flex-1 rounded-xl border border-slate-200 bg-white px-5 py-4 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                style={{
+                                  height: 45
+                                }}
+                              />
+
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveItem(item.id, index)}
+                                className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-900 text-white transition hover:bg-red-600 dark:bg-slate-700"
+                                style={{
+                                  height: 40,
+                                  width: 40
+                                }} >
+                                <i
+                                  className="ri-delete-bin-line"
+                                  style={{ fontSize: 15 }}
+                                />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* ACTION */}
+                      <div className="flex flex-wrap gap-3">
+                        <button type="button" onClick={handleAddItem} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
+                          <i className="ri-add-line" />
+                          Tambah Item
+                        </button>
+
+                        <button
+                          className={`inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700
+                        ${submitItemPenilaian.isPending || isFetching
+                              ? "cursor-not-allowed bg-slate-400 shadow-none"
+                              : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                            }`}
+                          onClick={() => handleSavePenilaian(0)} >
+                          <i className="ri-save-line" />
+
+                          {submitItemPenilaian.isPending
+                            ? "Menyimpan..."
+                            : isFetching
+                              ? "Memperbarui..."
+                              : "Simpan Data"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                      <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-800">
+                        <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                          Penilaian
+                        </h2>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full">
+                          <thead>
+                            <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+                              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                No
+                              </th>
+
+                              <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                Nama
+                              </th>
+
+                              <th className="px-6 py-4 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                Aksi
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {data?.siswa?.map(
+                              (siswa: any, index: number) => {
+                                const isDownloading = downloadingIds.includes(siswa.id_siswa);
+                                return (
+                                  <tr key={siswa.id} className="border-b border-slate-100 dark:border-slate-800">
+                                    <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
+                                      {index + 1}.
+                                    </td>
+
+                                    <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                      {siswa.nama_siswa}
+                                    </td>
+
+                                    <td className="px-6 py-5">
+                                      <div className="flex justify-center gap-3">
+                                        <button
+                                          disabled={isDownloading}
+                                          onClick={() => handleDownload(id, siswa.id, siswa.id_siswa, siswa.nama_siswa)}
+                                          className={`inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700
+                                      ${isDownloading
+                                              ? "cursor-not-allowed bg-green-500"
+                                              : "bg-green-600 hover:bg-green-700"
+                                            }
+                                    `}>
+
+                                          {isDownloading ? (
+                                            <>
+                                              <i className="ri-loader-4-line animate-spin" />
+                                              Sedang Download...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <i className="ri-download-line" />
+                                              Download
+                                            </>
+                                          )}
+                                        </button>
+
+                                        <button className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                                          onClick={() =>
+                                            handleOpenInputNilai(id, siswa.id_siswa, siswa.id, siswa.nama_siswa)
+                                          } >
+                                          <i className="ri-edit-line" />
+                                          Input Nilai
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                )
+                              }
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </>
+                )}
               </>
             )}
+          </>
+        ) : (
+          <>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+              {isLoading || isFetching ? (
+                <AbsensiTableSkeleton />
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-800/50">
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          No
+                        </th>
+
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          Nama
+                        </th>
+
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          Kehadiran
+                        </th>
+
+                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students.map((student, index) => (
+                      <tr key={student.id} className={`${index % 2===1 ? "bg-slate-50 dark:bg-white/[0.03]" : "" } border-b
+                        border-slate-100 dark:border-slate-800`}>
+                        <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
+                          {index + 1}.
+                        </td>
+
+                        <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {student.name}
+                        </td>
+
+                        <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                          {isEmpty(student.status) ? 'BELUM ABSENSI' : student.status?.toUpperCase()}
+                        </td>
+
+                        <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                          <div className="flex items-center">
+                            <Tooltip text={`Lihat Penilaian`}>
+                              <button
+                                className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white">
+                                <i className="ti ti-clipboard-text text-lg"></i>
+                              </button>
+                            </Tooltip>
+                          </div>
+                        </td>
+                      </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>
