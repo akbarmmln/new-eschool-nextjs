@@ -5,7 +5,7 @@ import { ClipboardCheck, PencilLine, FilePenLine } from "lucide-react";
 import JournalEditor from '@/components/common/Editor'
 import { useDetailJurnal, useUpdateAbsensi, useInisiasiPenilaian, 
   useSubmitItemPenilaian, useEditItemPenilaian, useUpdateJurnal, 
-  useGetItemPenilaian, useSubmitNilai, useDownloadSingleNilaiHarian } from "@/hooks/queryJurnal";
+  useGetItemPenilaian, useSubmitNilai, useDownloadSingleNilaiHarian, usePreviewJurnal } from "@/hooks/queryJurnal";
 import { showAlert } from "@/utils/swal";
 import isEmpty from "@/utils/isEmpty";
 import { allowPage, downloadPdfFromBase64, runNanoID } from "@/utils/utils";
@@ -13,6 +13,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { compressImage, fileToBase64, formatTanggalIndonesia } from "@/utils/utils";
 import { useAccessContext } from '@/context/AccessContext'
 import Tooltip from "@/components/form/Tooltip";
+import Link from "next/link"
 
 type Student = {
   id: string;
@@ -104,6 +105,8 @@ export default function AktifitasJurnal({ id }: Props) {
   >([]);
   const [filesDeleted, setFilesDeleted] = useState<string[]>([]);
   const [downloadingIds, setDownloadingIds] = useState<string[]>([]);
+
+  const [previewUrl, setPreviewUrl] = useState<string[]>([]);
 
   const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
   
@@ -710,6 +713,49 @@ export default function AktifitasJurnal({ id }: Props) {
       );
     }
   };
+
+  const { mutateAsync: previewJurnal, isPending: pendingPreviewJurnal } = usePreviewJurnal();
+
+  const handlePreview = async (idDiajar: string) => {
+    try {
+      setPreviewUrl(prev => [...prev, idDiajar]);
+      const channelId = crypto.randomUUID();
+
+      const previewData = await previewJurnal(idDiajar);
+      if (!previewData.ok) {
+        throw previewData;
+      }
+      console.log('asdasdsadasd', previewData)
+      // const channel = new BroadcastChannel(`preview-${channelId}`);
+      // window.open(`/akademik/preview-jurnal?channel=${channelId}`, "_blank");
+
+      // const listener = (event: MessageEvent) => {
+      //   if (event.data === "READY") {
+      //     channel.postMessage(previewData);
+      //     channel.removeEventListener("message", listener);
+      //     channel.close();
+      //   }
+      // };
+      // channel.addEventListener("message", listener);
+    } catch (e: any) {
+      const statusCode = e.status_code
+      const errCode = e.err_code
+      let message = `Gagal mendapatkan data: ${e.err_msg}. Silahkan coba ulang beberapa saat lagi.`
+
+      if (errCode == '70025') {
+        message = 'Proses tidak bisa dilakukan. Guru belum melakukan abensi atau input nilai'
+      }
+      await showAlert(
+        "error",
+        "Gagal",
+        message
+      );
+    } finally {
+      setPreviewUrl(prev =>
+        prev.filter(id => id !== idDiajar)
+      );
+    }
+  }
   
   return (
     <>
@@ -1074,9 +1120,8 @@ export default function AktifitasJurnal({ id }: Props) {
 
                         <button
                           className={`inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700
-                        ${submitItemPenilaian.isPending || isFetching
-                              ? "cursor-not-allowed bg-slate-400 shadow-none"
-                              : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
+                            ${submitItemPenilaian.isPending || isFetching ? 
+                              "cursor-not-allowed bg-slate-400 shadow-none" : "bg-blue-600 shadow-blue-500/20 hover:bg-blue-700"
                             }`}
                           onClick={() => handleSavePenilaian(0)} >
                           <i className="ri-save-line" />
@@ -1136,11 +1181,8 @@ export default function AktifitasJurnal({ id }: Props) {
                                           disabled={isDownloading}
                                           onClick={() => handleDownload(id, siswa.id, siswa.id_siswa, siswa.nama_siswa)}
                                           className={`inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700
-                                      ${isDownloading
-                                              ? "cursor-not-allowed bg-green-500"
-                                              : "bg-green-600 hover:bg-green-700"
-                                            }
-                                    `}>
+                                            ${isDownloading ? "cursor-not-allowed bg-green-500" : "bg-green-600 hover:bg-green-700"}
+                                          `}>
 
                                           {isDownloading ? (
                                             <>
@@ -1204,33 +1246,50 @@ export default function AktifitasJurnal({ id }: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {students.map((student, index) => (
-                      <tr key={student.id} className={`${index % 2===1 ? "bg-slate-50 dark:bg-white/[0.03]" : "" } border-b
-                        border-slate-100 dark:border-slate-800`}>
-                        <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
-                          {index + 1}.
-                        </td>
+                      {students.map((student: any, index: number) => {
+                        const isPreviewUrl = previewUrl.includes(student.id);
+                        return (
+                          <tr key={student.id} className={`${index % 2===1 ? "bg-slate-50 dark:bg-white/[0.03]" : "" } border-b border-slate-100 dark:border-slate-800`}>
+                            <td className="px-6 py-5 text-sm text-slate-700 dark:text-slate-300">
+                              {index + 1}.
+                            </td>
 
-                        <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {student.name}
-                        </td>
+                            <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {student.name}
+                            </td>
 
-                        <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                          {isEmpty(student.status) ? 'BELUM ABSENSI' : student.status?.toUpperCase()}
-                        </td>
+                            <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {isEmpty(student.status) ? 'BELUM ABSENSI' : student.status?.toUpperCase()}
+                            </td>
 
-                        <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
-                          <div className="flex items-center">
-                            <Tooltip text={`Lihat Penilaian`}>
-                              <button
-                                className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white">
-                                <i className="ti ti-clipboard-text text-lg"></i>
-                              </button>
-                            </Tooltip>
-                          </div>
-                        </td>
-                      </tr>
-                      ))}
+                            <td className="px-6 py-5 text-sm font-medium text-slate-700 dark:text-slate-300">
+                              <div className="flex items-center gap-1">
+                                <Tooltip text={`Lihat Penilaian`}>
+                                  <button
+                                    disabled={isPreviewUrl}
+                                    onClick={()=> handlePreview(student.id)}
+                                    className={`flex h-11 w-11 items-center justify-center rounded-full text-blue-600 transition hover:text-white
+                                      ${isPreviewUrl ? "cursor-not-allowed bg-blue-100" : "bg-blue-100 hover:bg-blue-600"}`}>
+                                    
+                                    {isPreviewUrl ? (
+                                      <i className="ri-loader-4-line animate-spin" />
+                                    ) : (
+                                      <i className="ti ti-clipboard-text text-lg"></i>
+                                    )}
+                                  </button>
+                                </Tooltip>
+
+                                {/* <Tooltip text={`Lihat Penilaian`}>
+                                  <Link href={`/akademik/preview-jurnal`} target="_blank" rel="noopener noreferrer"
+                                    className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white">
+                                  <i className="ri-edit-line" />
+                                  </Link>
+                                </Tooltip> */}
+                              </div>
+                            </td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>

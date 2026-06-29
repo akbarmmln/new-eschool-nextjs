@@ -521,3 +521,13 @@ export async function listKontribusi() {
     10000
   );
 }
+
+export async function getPreviewJurnal(idDiajar: string) {
+  const url = `/api/v1/jurnal/preview/${idDiajar}`;
+  return await request(
+    "get",
+    url,
+    {},
+    10000
+  );
+}

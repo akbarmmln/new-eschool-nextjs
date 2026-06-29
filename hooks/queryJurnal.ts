@@ -13,7 +13,8 @@ import {
   submitNilai,
   doDownloadSingleNilaiHarian,
   detailAnakCard,
-  listKontribusi
+  listKontribusi,
+  getPreviewJurnal
 } from '@/services/Call'
 import isEmpty from '@/utils/isEmpty'
 
@@ -246,4 +247,14 @@ export function useListKontribusi() {
     refetchOnWindowFocus: false,
     refetchOnMount: false,
   })
+}
+
+// PREVIEW JURNAL \\
+export const usePreviewJurnal = () => {
+  return useMutation({
+    mutationFn: async (idDiajar: string) => {
+      const results = getPreviewJurnal(idDiajar)
+      return results;
+    },
+  });
 }

@@ -1,6 +1,5 @@
 import { format } from 'date-fns'
 import Link from "next/link"
-import {id} from 'date-fns/locale'
 import { useState } from "react";
 import { formatTanggalIndonesia, getAvatarColor, getInitials } from "@/utils/utils";
 
