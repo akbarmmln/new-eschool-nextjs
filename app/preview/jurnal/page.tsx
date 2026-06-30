@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import PreviewJurnal from '@/components/ui/PreviewJurnal'
 
@@ -9,5 +10,9 @@ export const metadata: Metadata = {
 };
 
 export default function PreviewJurnalPage() {
-  return <PreviewJurnal/>
+  return (
+    <Suspense fallback={<div>Memuat Preview...</div>}>
+      <PreviewJurnal />
+    </Suspense>
+  );
 }
