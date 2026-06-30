@@ -22,6 +22,8 @@ COPY . .
 
 ENV NODE_ENV=production
 
+RUN echo "API URL: $NEXT_PUBLIC_BASE_URL_API"
+
 RUN npm run build
 
 
