@@ -13,7 +13,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { compressImage, fileToBase64, formatTanggalIndonesia } from "@/utils/utils";
 import { useAccessContext } from '@/context/AccessContext'
 import Tooltip from "@/components/form/Tooltip";
-import Link from "next/link"
 
 type Student = {
   id: string;
@@ -109,7 +108,8 @@ export default function AktifitasJurnal({ id }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string[]>([]);
 
   const { data, isLoading, error, isFetching, refetch } = useDetailJurnal(id);
-  
+  const { mutateAsync: previewJurnal } = usePreviewJurnal();
+
   if (error) {
     return (
       <div className="rounded-xl bg-red-100 p-4 text-red-600">
@@ -714,29 +714,34 @@ export default function AktifitasJurnal({ id }: Props) {
     }
   };
 
-  const { mutateAsync: previewJurnal, isPending: pendingPreviewJurnal } = usePreviewJurnal();
-
   const handlePreview = async (idDiajar: string) => {
     try {
       setPreviewUrl(prev => [...prev, idDiajar]);
-      const channelId = crypto.randomUUID();
 
-      const previewData = await previewJurnal(idDiajar);
+      const previewData: any = await previewJurnal(idDiajar);
       if (!previewData.ok) {
         throw previewData;
       }
-      console.log('asdasdsadasd', previewData)
-      // const channel = new BroadcastChannel(`preview-${channelId}`);
-      // window.open(`/akademik/preview-jurnal?channel=${channelId}`, "_blank");
 
-      // const listener = (event: MessageEvent) => {
-      //   if (event.data === "READY") {
-      //     channel.postMessage(previewData);
-      //     channel.removeEventListener("message", listener);
-      //     channel.close();
-      //   }
-      // };
-      // channel.addEventListener("message", listener);
+      const channelId = crypto.randomUUID();
+      const channel = new BroadcastChannel(`preview-${channelId}`);
+
+      const listener = (event: MessageEvent) => {
+        switch (event.data?.type) {
+          case "READY":
+            channel.postMessage({ type: "DATA", payload: previewData.data });
+            break;
+
+          case "RECEIVED":
+            channel.removeEventListener("message", listener);
+            channel.close();
+            break;
+        }
+      };
+
+      channel.addEventListener("message", listener);
+
+      window.open(`/preview/jurnal?channel=${channelId}`, "_blank");
     } catch (e: any) {
       const statusCode = e.status_code
       const errCode = e.err_code
@@ -755,8 +760,8 @@ export default function AktifitasJurnal({ id }: Props) {
         prev.filter(id => id !== idDiajar)
       );
     }
-  }
-  
+  };
+
   return (
     <>
       <div className="space-y-6">
@@ -1272,19 +1277,12 @@ export default function AktifitasJurnal({ id }: Props) {
                                       ${isPreviewUrl ? "cursor-not-allowed bg-blue-100" : "bg-blue-100 hover:bg-blue-600"}`}>
                                     
                                     {isPreviewUrl ? (
-                                      <i className="ri-loader-4-line animate-spin" />
+                                      <i className="ri-loader-4-line animate-spin text-xl" />
                                     ) : (
                                       <i className="ti ti-clipboard-text text-lg"></i>
                                     )}
                                   </button>
                                 </Tooltip>
-
-                                {/* <Tooltip text={`Lihat Penilaian`}>
-                                  <Link href={`/akademik/preview-jurnal`} target="_blank" rel="noopener noreferrer"
-                                    className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition hover:bg-blue-600 hover:text-white">
-                                  <i className="ri-edit-line" />
-                                  </Link>
-                                </Tooltip> */}
                               </div>
                             </td>
                           </tr>

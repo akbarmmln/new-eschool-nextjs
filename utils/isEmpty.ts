@@ -1,8 +1,5 @@
 const isEmpty = (data: any): boolean => {
-  if (
-    data === null ||
-    data === undefined
-  ) {
+  if (data === null || data === undefined) {
     return true;
   }
 
