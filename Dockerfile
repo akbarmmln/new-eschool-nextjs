@@ -1,8 +1,6 @@
-FROM node:18-bullseye
+FROM node:22-alpine
 
-RUN apk add --no-cache tzdata  \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache tzdata
 
 WORKDIR /app
 
