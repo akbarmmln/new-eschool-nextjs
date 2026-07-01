@@ -7,8 +7,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 's3.nevaobjects.id',
-        pathname: '/bucket-sit/**',
+        hostname: "**",
       },
     ],
   },
