@@ -796,7 +796,7 @@ export default function AktifitasJurnal({ id }: Props) {
                       Ubah Detail
                     </button>
 
-                    {data?.jurnal?.initiate_nilai === 1 && (
+                    {data?.jurnal?.initiate_nilai == 1 && (
                       <button
                         onClick={handleOpenModalEditItemPenilaian}
                         className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700">
